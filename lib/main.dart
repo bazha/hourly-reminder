@@ -1,13 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'services/notification_service.dart';
 import 'services/storage_service.dart';
 import 'screens/home_screen.dart';
+import 'features/movement/data/datasources/movement_local_datasource.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await NotificationService.initialize();
   await StorageService.initialize();
+
+  // Initialize sedentary start time on first launch.
+  final prefs = await SharedPreferences.getInstance();
+  final datasource = MovementLocalDatasource(prefs);
+  if (datasource.getSedentaryStartTime() == null) {
+    await datasource.setSedentaryStartTime(DateTime.now());
+  }
 
   runApp(const HourlyReminderApp());
 }

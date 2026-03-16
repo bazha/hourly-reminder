@@ -40,6 +40,27 @@ object NotificationHelper {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
+        val alreadyMovedIntent = Intent(context, AlreadyMovedReceiver::class.java).apply {
+            action = AlreadyMovedReceiver.ACTION_ALREADY_MOVED
+        }
+        val alreadyMovedPendingIntent = PendingIntent.getBroadcast(
+            context,
+            1,
+            alreadyMovedIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        // Record notification sent time for reaction time calculation
+        val prefs = context.getSharedPreferences(
+            "FlutterSharedPreferences", Context.MODE_PRIVATE
+        )
+        prefs.edit()
+            .putLong(
+                "flutter.movement_last_notification_sent_millis",
+                System.currentTimeMillis()
+            )
+            .apply()
+
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.mipmap.ic_launcher)
             .setContentTitle("Время встать! \u23F0")
@@ -49,6 +70,7 @@ object NotificationHelper {
             .setColor(0xFF607D8B.toInt())
             .setVibrate(longArrayOf(0, 250, 250, 250))
             .addAction(0, "Через 10 минут", snoozePendingIntent)
+            .addAction(0, "Я уже двигался", alreadyMovedPendingIntent)
             .build()
 
         val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
