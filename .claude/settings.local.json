@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx:*)",
+      "Bash(/usr/local/bin/npx --version)",
+      "Bash(/opt/homebrew/bin/npx --version)",
+      "Bash(source ~/.zshrc)",
+      "Bash(npm search:*)",
+      "WebSearch",
+      "Bash(nslookup:*)",
+      "Bash(perl -i -pe:*)"
+    ]
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "github"
+  ]
+}
