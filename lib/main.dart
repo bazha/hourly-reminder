@@ -1,18 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
-import 'dart:io' show Platform;
 import 'services/notification_service.dart';
 import 'services/storage_service.dart';
-import 'services/alarm_service.dart';
 import 'screens/home_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  // Initialize services
-  if (Platform.isAndroid) {
-    await AndroidAlarmManager.initialize();
-  }
 
   await NotificationService.initialize();
   await StorageService.initialize();

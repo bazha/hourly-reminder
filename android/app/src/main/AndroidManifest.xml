@@ -34,19 +34,26 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <!-- AlarmManager: service that runs the Dart callback in a background isolate -->
-        <service
-            android:name="dev.fluttercommunity.plus.androidalarmmanager.AlarmService"
-            android:exported="false"
-            android:permission="android.permission.BIND_JOB_SERVICE" />
-        <!-- AlarmManager: receiver woken by AlarmManager; hands off to AlarmService -->
+        <!-- Native hourly reminder alarm receiver -->
         <receiver
-            android:name="dev.fluttercommunity.plus.androidalarmmanager.AlarmBroadcastReceiver"
-            android:exported="false" />
-        <!-- AlarmManager: re-schedules alarms after device reboot (enabled on demand by plugin) -->
+            android:name=".ReminderReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.bazhanau.hourly_reminder.ACTION_HOURLY_REMINDER" />
+            </intent-filter>
+        </receiver>
+        <!-- Native snooze handler: dismisses notification + schedules 10-min alarm -->
         <receiver
-            android:name="dev.fluttercommunity.plus.androidalarmmanager.RebootBroadcastReceiver"
-            android:enabled="false"
+            android:name=".SnoozeReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.bazhanau.hourly_reminder.ACTION_SNOOZE" />
+                <action android:name="com.bazhanau.hourly_reminder.ACTION_SHOW_SNOOZED" />
+            </intent-filter>
+        </receiver>
+        <!-- Re-schedules hourly alarm after device reboot -->
+        <receiver
+            android:name=".BootReceiver"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />

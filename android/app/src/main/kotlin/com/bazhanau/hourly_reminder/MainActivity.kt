@@ -12,6 +12,8 @@ import io.flutter.plugin.common.MethodChannel
 
 class MainActivity : FlutterActivity() {
     private val batteryChannel = "com.bazhanau.hourly_reminder/battery"
+    private val alarmChannel = "com.bazhanau.hourly_reminder/alarm"
+    private val notificationChannel = "com.bazhanau.hourly_reminder/notification"
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -24,6 +26,32 @@ class MainActivity : FlutterActivity() {
                     }
                     "requestIgnoreBatteryOptimizations" -> {
                         requestIgnoreBatteryOptimizations()
+                        result.success(true)
+                    }
+                    else -> result.notImplemented()
+                }
+            }
+
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, alarmChannel)
+            .setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "scheduleHourlyAlarm" -> {
+                        ReminderScheduler.scheduleNextHourlyAlarm(applicationContext)
+                        result.success(true)
+                    }
+                    "cancelAlarm" -> {
+                        ReminderScheduler.cancel(applicationContext)
+                        result.success(true)
+                    }
+                    else -> result.notImplemented()
+                }
+            }
+
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, notificationChannel)
+            .setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "showReminder" -> {
+                        NotificationHelper.showReminder(applicationContext)
                         result.success(true)
                     }
                     else -> result.notImplemented()

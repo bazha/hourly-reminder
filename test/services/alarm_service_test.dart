@@ -250,12 +250,7 @@ void main() {
     });
   });
 
-  group('alarm identifier', () {
-    test('alarmId is a non-negative int', () {
-      expect(AlarmService.alarmId, isA<int>());
-      expect(AlarmService.alarmId, greaterThanOrEqualTo(0));
-    });
-  });
+  // alarm identifier test removed — alarm scheduling is now handled natively
 
   // ─── nextNotificationTime ─────────────────────────────────────────────────
 

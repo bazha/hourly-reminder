@@ -1,50 +1,17 @@
-import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
-import 'package:flutter/widgets.dart';
-import 'notification_service.dart';
-import 'storage_service.dart';
+import 'package:flutter/services.dart';
 import 'dart:io' show Platform;
 
 class AlarmService {
-  static const int alarmId = 0;
+  static const _channel = MethodChannel('com.bazhanau.hourly_reminder/alarm');
 
-  // Callback for the alarm — MUST be a top-level or static function.
-  @pragma('vm:entry-point')
-  static Future<void> alarmCallback() async {
+  static Future<void> scheduleHourlyAlarm() async {
     if (!Platform.isAndroid) return;
+    await _channel.invokeMethod('scheduleHourlyAlarm');
+  }
 
-    // When the alarm fires in a background isolate (app not running), Flutter
-    // bindings and services need to be initialised here before use.
-    WidgetsFlutterBinding.ensureInitialized();
-    if (!StorageService.isInitialized) {
-      await StorageService.initialize();
-    }
-
-    final now = DateTime.now();
-
-    if (!shouldSendReminder(
-      now:             now,
-      isEnabled:       StorageService.isEnabled,
-      startHour:       StorageService.startHour,
-      startMinute:     StorageService.startMinute,
-      endHour:         StorageService.endHour,
-      endMinute:       StorageService.endMinute,
-      workOnSaturday:  StorageService.workOnSaturday,
-      workOnSunday:    StorageService.workOnSunday,
-    )) return;
-
-    // Deduplication: Android may batch stale alarms after the device wakes
-    // from Doze/lock, firing several callbacks in rapid succession.  Only
-    // send one notification per calendar hour.
-    final lastNotified = StorageService.lastNotifiedAt;
-    if (lastNotified != null &&
-        lastNotified.year  == now.year  &&
-        lastNotified.month == now.month &&
-        lastNotified.day   == now.day   &&
-        lastNotified.hour  == now.hour) return;
-
-    await StorageService.recordNotificationSent(now);
-    await NotificationService.initialize();
-    await NotificationService.showHourlyNotification();
+  static Future<void> cancelAlarm() async {
+    if (!Platform.isAndroid) return;
+    await _channel.invokeMethod('cancelAlarm');
   }
 
   /// Pure function: given a moment in time and user settings, returns true if
@@ -122,39 +89,5 @@ class AlarmService {
       }
       candidate = candidate.add(const Duration(days: 1));
     }
-  }
-
-  static Future<void> scheduleHourlyAlarm() async {
-    if (!Platform.isAndroid) {
-      print('AlarmManager is Android-only');
-      return;
-    }
-
-    await AndroidAlarmManager.cancel(alarmId);
-
-    final success = await AndroidAlarmManager.periodic(
-      const Duration(hours: 1),
-      alarmId,
-      alarmCallback,
-      startAt: _getNextHourStart(),
-      exact: true,
-      wakeup: true,
-      rescheduleOnReboot: true,
-    );
-
-    print(success ? '✓ Alarm scheduled' : '✗ Alarm scheduling failed');
-  }
-
-  static Future<void> cancelAlarm() async {
-    if (!Platform.isAndroid) return;
-    await AndroidAlarmManager.cancel(alarmId);
-    print('Alarm cancelled');
-  }
-
-  static DateTime _getNextHourStart() {
-    final now = DateTime.now();
-    // Use Duration arithmetic to avoid a RangeError at 23:xx (hour+1 == 24).
-    return DateTime(now.year, now.month, now.day, now.hour, 0, 0)
-        .add(const Duration(hours: 1));
   }
 }
