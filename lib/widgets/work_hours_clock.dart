@@ -334,8 +334,8 @@ class _ClockPainter extends CustomPainter {
     final tp = TextPainter(
       text: TextSpan(
         text: TimeUtils.formatTime(time),
-        style: const TextStyle(
-          color: Colors.white,
+        style: TextStyle(
+          color: colors.buttonTextColor,
           fontSize: 9.5,
           fontWeight: FontWeight.w700,
           letterSpacing: 0.3,
