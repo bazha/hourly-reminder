@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:hourly_reminder/core/theme/app_colors.dart';
 import 'package:hourly_reminder/widgets/work_hours_clock.dart';
 
 void main() {
@@ -12,7 +13,10 @@ void main() {
     ValueChanged<double>? onEndTimeChanged,
   }) {
     return MaterialApp(
-      theme: ThemeData(brightness: Brightness.dark),
+      theme: ThemeData(
+        brightness: Brightness.dark,
+        extensions: const [AppColors.dark],
+      ),
       home: Scaffold(
         body: Center(
           child: WorkHoursClock(
@@ -57,7 +61,10 @@ void main() {
 
     testWidgets('renders in light theme', (tester) async {
       await tester.pumpWidget(MaterialApp(
-        theme: ThemeData(brightness: Brightness.light),
+        theme: ThemeData(
+          brightness: Brightness.light,
+          extensions: const [AppColors.light],
+        ),
         home: const Scaffold(
           body: Center(
             child: WorkHoursClock(

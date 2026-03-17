@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../core/theme/app_colors.dart';
 import '../services/alarm_service.dart';
 import '../services/storage_service.dart';
 import '../services/notification_service.dart';
@@ -103,15 +104,17 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
 
+    final colors = AppColors.of(context);
+
     return Scaffold(
-      backgroundColor: const Color(0xFFFAFAFA), // Очень светло-серый фон
+      backgroundColor: colors.bg,
       appBar: AppBar(
         title: const Text(
           'Напоминалка',
           style: TextStyle(fontWeight: FontWeight.w500),
         ),
-        backgroundColor: const Color(0xFF90A4AE), // Мягкий серо-синий
-        foregroundColor: Colors.white,
+        backgroundColor: colors.appBarBg,
+        foregroundColor: colors.appBarFg,
         elevation: 0,
       ),
       body: SingleChildScrollView(
@@ -124,7 +127,7 @@ class _HomeScreenState extends State<HomeScreen> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(24),
               ),
-              color: Colors.white,
+              color: colors.cardBg,
               child: Padding(
                 padding: const EdgeInsets.all(24),
                 child: Column(
@@ -134,7 +137,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w500,
-                        color: Colors.grey[800],
+                        color: colors.textPrimary,
                         letterSpacing: 0.5,
                       ),
                     ),
@@ -158,7 +161,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           width: 16,
                           height: 16,
                           decoration: const BoxDecoration(
-                            color: Color(0xFF66BB6A),
+                            color: AppColors.startColor,
                             shape: BoxShape.circle,
                           ),
                         ),
@@ -166,7 +169,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         Text(
                           'Начало: ${TimeUtils.formatHourMinute(_prefs.startHour, _prefs.startMinute)}',
                           style: const TextStyle(
-                            color: Color(0xFF66BB6A),
+                            color: AppColors.startColor,
                             fontWeight: FontWeight.w500,
                             fontSize: 14,
                           ),
@@ -176,7 +179,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           width: 16,
                           height: 16,
                           decoration: const BoxDecoration(
-                            color: Color(0xFFEF5350),
+                            color: AppColors.endColor,
                             shape: BoxShape.circle,
                           ),
                         ),
@@ -184,7 +187,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         Text(
                           'Конец: ${TimeUtils.formatHourMinute(_prefs.endHour, _prefs.endMinute)}',
                           style: const TextStyle(
-                            color: Color(0xFFEF5350),
+                            color: AppColors.endColor,
                             fontWeight: FontWeight.w500,
                             fontSize: 14,
                           ),
@@ -205,7 +208,7 @@ class _HomeScreenState extends State<HomeScreen> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(24),
               ),
-              color: Colors.white,
+              color: colors.cardBg,
               child: Padding(
                 padding: const EdgeInsets.all(20),
                 child: Column(
@@ -223,14 +226,14 @@ class _HomeScreenState extends State<HomeScreen> {
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w500,
-                                color: Colors.grey[800],
+                                color: colors.textPrimary,
                               ),
                             ),
                             Text(
                               _prefs.isEnabled ? 'Включены' : 'Выключены',
                               style: TextStyle(
                                 fontSize: 13,
-                                color: Colors.grey[600],
+                                color: colors.textSecondary,
                               ),
                             ),
                           ],
@@ -238,7 +241,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         Switch(
                           value: _prefs.isEnabled,
                           onChanged: _toggleReminders,
-                          activeColor: const Color(0xFF66BB6A),
+                          activeColor: AppColors.startColor,
                         ),
                       ],
                     ),
@@ -251,7 +254,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w500,
-                        color: Colors.grey[700],
+                        color: colors.textSecondary,
                       ),
                     ),
                     const SizedBox(height: 10),
@@ -265,8 +268,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             divisions: 47, // 24 часа * 2 - 1
                             label: TimeUtils.formatHourMinute(_prefs.startHour, _prefs.startMinute),
                             onChanged: (value) => _updateStartTime(value),
-                            activeColor: const Color(0xFF66BB6A),
-                            inactiveColor: const Color(0xFFE8F5E9),
+                            activeColor: AppColors.startColor,
+                            inactiveColor: colors.startSliderInactive,
                           ),
                         ),
                         SizedBox(
@@ -291,7 +294,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w500,
-                        color: Colors.grey[700],
+                        color: colors.textSecondary,
                       ),
                     ),
                     const SizedBox(height: 10),
@@ -305,8 +308,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             divisions: 47,
                             label: TimeUtils.formatHourMinute(_prefs.endHour, _prefs.endMinute),
                             onChanged: (value) => _updateEndTime(value),
-                            activeColor: const Color(0xFFEF5350),
-                            inactiveColor: const Color(0xFFFFEBEE),
+                            activeColor: AppColors.endColor,
+                            inactiveColor: colors.endSliderInactive,
                           ),
                         ),
                         SizedBox(
@@ -334,13 +337,13 @@ class _HomeScreenState extends State<HomeScreen> {
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w500,
-                            color: Colors.grey[700],
+                            color: colors.textSecondary,
                           ),
                         ),
                         Switch(
                           value: _prefs.workOnSaturday,
                           onChanged: _toggleSaturday,
-                          activeColor: const Color(0xFF90A4AE),
+                          activeColor: colors.weekendSwitchActive,
                         ),
                       ],
                     ),
@@ -356,13 +359,13 @@ class _HomeScreenState extends State<HomeScreen> {
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w500,
-                            color: Colors.grey[700],
+                            color: colors.textSecondary,
                           ),
                         ),
                         Switch(
                           value: _prefs.workOnSunday,
                           onChanged: _toggleSunday,
-                          activeColor: const Color(0xFF90A4AE),
+                          activeColor: colors.weekendSwitchActive,
                         ),
                       ],
                     ),
@@ -382,7 +385,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     const SnackBar(
                       content: Text('Тестовое уведомление отправлено'),
                       duration: Duration(seconds: 2),
-                      backgroundColor: Color(0xFF66BB6A),
+                      backgroundColor: AppColors.startColor,
                     ),
                   );
                 }
@@ -390,8 +393,8 @@ class _HomeScreenState extends State<HomeScreen> {
               icon: const Icon(Icons.notifications_outlined, size: 20),
               label: const Text('Тест уведомления'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF90A4AE),
-                foregroundColor: Colors.white,
+                backgroundColor: colors.appBarBg,
+                foregroundColor: colors.appBarFg,
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
