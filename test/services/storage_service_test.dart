@@ -94,6 +94,51 @@ void main() {
       });
     });
 
+    group('notificationGender persistence', () {
+      setUp(() async {
+        SharedPreferences.setMockInitialValues({});
+        await StorageService.initialize();
+      });
+
+      test('defaults to neutral when not set', () async {
+        final loaded = await StorageService.loadPreferences();
+        expect(loaded.notificationGender, equals(NotificationGender.neutral));
+      });
+
+      test('persists male gender', () async {
+        await StorageService.savePreferences(
+          UserPreferences(notificationGender: NotificationGender.male),
+        );
+        final loaded = await StorageService.loadPreferences();
+        expect(loaded.notificationGender, equals(NotificationGender.male));
+      });
+
+      test('persists female gender', () async {
+        await StorageService.savePreferences(
+          UserPreferences(notificationGender: NotificationGender.female),
+        );
+        final loaded = await StorageService.loadPreferences();
+        expect(loaded.notificationGender, equals(NotificationGender.female));
+      });
+
+      test('persists neutral gender', () async {
+        await StorageService.savePreferences(
+          UserPreferences(notificationGender: NotificationGender.neutral),
+        );
+        final loaded = await StorageService.loadPreferences();
+        expect(loaded.notificationGender, equals(NotificationGender.neutral));
+      });
+
+      test('unknown string value falls back to neutral', () async {
+        SharedPreferences.setMockInitialValues({
+          'notification_gender': 'unknown_value',
+        });
+        await StorageService.initialize();
+        final loaded = await StorageService.loadPreferences();
+        expect(loaded.notificationGender, equals(NotificationGender.neutral));
+      });
+    });
+
     group('savePreferences', () {
       setUp(() async {
         SharedPreferences.setMockInitialValues({});

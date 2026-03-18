@@ -96,6 +96,13 @@ class _HomeScreenState extends State<HomeScreen> {
     await StorageService.savePreferences(_prefs);
   }
 
+  Future<void> _updateGender(NotificationGender gender) async {
+    setState(() {
+      _prefs = _prefs.copyWith(notificationGender: gender);
+    });
+    await StorageService.savePreferences(_prefs);
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -369,6 +376,41 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ],
                     ),
+
+                    const Divider(height: 30),
+
+                    Text(
+                      'Обращение в уведомлениях',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                        color: colors.textSecondary,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+
+                    ...NotificationGender.values.map((gender) {
+                      final label = switch (gender) {
+                        NotificationGender.neutral => 'Нейтральное  -  Без движения X мин.',
+                        NotificationGender.male    => 'Мужской род  -  Ты не двигался X мин.',
+                        NotificationGender.female  => 'Женский род  -  Ты не двигалась X мин.',
+                      };
+                      return RadioListTile<NotificationGender>(
+                        value: gender,
+                        groupValue: _prefs.notificationGender,
+                        onChanged: (value) => _updateGender(value!),
+                        title: Text(
+                          label,
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: colors.textSecondary,
+                          ),
+                        ),
+                        activeColor: AppColors.primary,
+                        contentPadding: EdgeInsets.zero,
+                        dense: true,
+                      );
+                    }),
                   ],
                 ),
               ),
