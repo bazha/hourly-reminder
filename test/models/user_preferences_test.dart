@@ -189,6 +189,38 @@ void main() {
       });
     });
 
+    group('notificationGender', () {
+      test('defaults to neutral', () {
+        final prefs = UserPreferences();
+        expect(prefs.notificationGender, equals(NotificationGender.neutral));
+      });
+
+      test('copyWith overrides notificationGender', () {
+        final prefs = UserPreferences();
+        final copy = prefs.copyWith(notificationGender: NotificationGender.male);
+        expect(copy.notificationGender, equals(NotificationGender.male));
+        expect(copy.isEnabled, isFalse);
+      });
+
+      test('different notificationGender are not equal', () {
+        final a = UserPreferences(notificationGender: NotificationGender.male);
+        final b = UserPreferences(notificationGender: NotificationGender.female);
+        expect(a, isNot(equals(b)));
+      });
+
+      test('same notificationGender are equal', () {
+        final a = UserPreferences(notificationGender: NotificationGender.female);
+        final b = UserPreferences(notificationGender: NotificationGender.female);
+        expect(a, equals(b));
+      });
+
+      test('hashCode includes notificationGender', () {
+        final a = UserPreferences(notificationGender: NotificationGender.male);
+        final b = UserPreferences(notificationGender: NotificationGender.male);
+        expect(a.hashCode, equals(b.hashCode));
+      });
+    });
+
     group('minute fields', () {
       test('defaults to zero minutes', () {
         final prefs = UserPreferences();

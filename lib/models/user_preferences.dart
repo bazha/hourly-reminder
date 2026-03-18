@@ -1,3 +1,5 @@
+enum NotificationGender { neutral, male, female }
+
 class UserPreferences {
   final bool isEnabled;
   final int startHour;
@@ -6,6 +8,7 @@ class UserPreferences {
   final int endMinute;
   final bool workOnSaturday;
   final bool workOnSunday;
+  final NotificationGender notificationGender;
 
   UserPreferences({
     this.isEnabled = false,
@@ -15,6 +18,7 @@ class UserPreferences {
     this.endMinute = 0,
     this.workOnSaturday = false,
     this.workOnSunday = false,
+    this.notificationGender = NotificationGender.neutral,
   });
 
   UserPreferences copyWith({
@@ -25,15 +29,17 @@ class UserPreferences {
     int? endMinute,
     bool? workOnSaturday,
     bool? workOnSunday,
+    NotificationGender? notificationGender,
   }) {
     return UserPreferences(
-      isEnabled:       isEnabled       ?? this.isEnabled,
-      startHour:       startHour       ?? this.startHour,
-      startMinute:     startMinute     ?? this.startMinute,
-      endHour:         endHour         ?? this.endHour,
-      endMinute:       endMinute       ?? this.endMinute,
-      workOnSaturday:  workOnSaturday  ?? this.workOnSaturday,
-      workOnSunday:    workOnSunday    ?? this.workOnSunday,
+      isEnabled:          isEnabled          ?? this.isEnabled,
+      startHour:          startHour          ?? this.startHour,
+      startMinute:        startMinute        ?? this.startMinute,
+      endHour:            endHour            ?? this.endHour,
+      endMinute:          endMinute          ?? this.endMinute,
+      workOnSaturday:     workOnSaturday     ?? this.workOnSaturday,
+      workOnSunday:       workOnSunday       ?? this.workOnSunday,
+      notificationGender: notificationGender ?? this.notificationGender,
     );
   }
 
@@ -53,16 +59,17 @@ class UserPreferences {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is UserPreferences &&
-          isEnabled       == other.isEnabled &&
-          startHour       == other.startHour &&
-          startMinute     == other.startMinute &&
-          endHour         == other.endHour &&
-          endMinute       == other.endMinute &&
-          workOnSaturday  == other.workOnSaturday &&
-          workOnSunday    == other.workOnSunday;
+          isEnabled          == other.isEnabled &&
+          startHour          == other.startHour &&
+          startMinute        == other.startMinute &&
+          endHour            == other.endHour &&
+          endMinute          == other.endMinute &&
+          workOnSaturday     == other.workOnSaturday &&
+          workOnSunday       == other.workOnSunday &&
+          notificationGender == other.notificationGender;
 
   @override
   int get hashCode => Object.hash(
       isEnabled, startHour, startMinute, endHour, endMinute,
-      workOnSaturday, workOnSunday);
+      workOnSaturday, workOnSunday, notificationGender);
 }

@@ -30,30 +30,70 @@ object NotificationHelper {
     fun showReminder(context: Context) {
         ensureChannel(context)
 
-        val snoozeIntent = Intent(context, SnoozeReceiver::class.java).apply {
-            action = SnoozeReceiver.ACTION_SNOOZE
-        }
-        val snoozePendingIntent = PendingIntent.getBroadcast(
-            context,
-            0,
-            snoozeIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-
-        val alreadyMovedIntent = Intent(context, AlreadyMovedReceiver::class.java).apply {
-            action = AlreadyMovedReceiver.ACTION_ALREADY_MOVED
-        }
-        val alreadyMovedPendingIntent = PendingIntent.getBroadcast(
-            context,
-            1,
-            alreadyMovedIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-
-        // Record notification sent time for reaction time calculation
         val prefs = context.getSharedPreferences(
             "FlutterSharedPreferences", Context.MODE_PRIVATE
         )
+
+        val isFirst = ExerciseRepository.isFirstNotificationToday(prefs)
+
+        // On first notification of the day, reset sedentary start to now.
+        // This prevents stale overnight duration from showing.
+        if (isFirst) {
+            prefs.edit()
+                .putLong("flutter.movement_sedentary_start_millis", System.currentTimeMillis())
+                .apply()
+        }
+
+        val startMillis = prefs.getLong("flutter.movement_sedentary_start_millis", 0L)
+        val minutes = if (startMillis > 0L) {
+            (System.currentTimeMillis() - startMillis) / 60_000L
+        } else 0L
+
+        val contentTitle = ExerciseRepository.buildTitle(prefs, minutes)
+
+        val snoozePendingIntent = PendingIntent.getBroadcast(
+            context, 0,
+            Intent(context, SnoozeReceiver::class.java).apply {
+                action = SnoozeReceiver.ACTION_SNOOZE
+            },
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val alreadyMovedPendingIntent = PendingIntent.getBroadcast(
+            context, 1,
+            Intent(context, AlreadyMovedReceiver::class.java).apply {
+                action = AlreadyMovedReceiver.ACTION_ALREADY_MOVED
+            },
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val builder = NotificationCompat.Builder(context, CHANNEL_ID)
+            .setSmallIcon(R.mipmap.ic_launcher)
+            .setContentTitle(contentTitle)
+            .setContentText(
+                if (isFirst) "Время сделать перерыв \uD83D\uDEB6"
+                else "Время упражнения! \uD83D\uDCAA"
+            )
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setAutoCancel(true)
+            .setColor(0xFF607D8B.toInt())
+            .setVibrate(longArrayOf(0, 250, 250, 250))
+            .addAction(0, "Через 10 минут", snoozePendingIntent)
+            .addAction(0, "Я уже двигался", alreadyMovedPendingIntent)
+
+        if (!isFirst) {
+            val exercise = ExerciseRepository.getNextExercise(prefs)
+            builder.setStyle(
+                NotificationCompat.BigTextStyle()
+                    .bigText(
+                        "${exercise.name}\n" +
+                        "${exercise.description}\n" +
+                        "\u23F1 ${exercise.durationSeconds} секунд"
+                    )
+            )
+        }
+
+        // Record sent time for reaction time calculation
         prefs.edit()
             .putLong(
                 "flutter.movement_last_notification_sent_millis",
@@ -61,20 +101,11 @@ object NotificationHelper {
             )
             .apply()
 
-        val notification = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.mipmap.ic_launcher)
-            .setContentTitle("Время встать! \u23F0")
-            .setContentText("Пора размяться и походить \uD83D\uDEB6")
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setAutoCancel(true)
-            .setColor(0xFF607D8B.toInt())
-            .setVibrate(longArrayOf(0, 250, 250, 250))
-            .addAction(0, "Через 10 минут", snoozePendingIntent)
-            .addAction(0, "Я уже двигался", alreadyMovedPendingIntent)
-            .build()
+        // Record notification shown AFTER checking isFirst
+        ExerciseRepository.recordNotificationShown(prefs)
 
         val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        nm.notify(NOTIFICATION_ID, notification)
+        nm.notify(NOTIFICATION_ID, builder.build())
     }
 
     fun cancel(context: Context) {
