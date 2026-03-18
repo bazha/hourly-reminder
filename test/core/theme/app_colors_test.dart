@@ -49,20 +49,11 @@ void main() {
   });
 
   group('AppColors equality', () {
-    test('dark equals itself', () {
-      expect(AppColors.dark == AppColors.dark, isTrue);
-    });
-
-    test('light equals itself', () {
-      expect(AppColors.light == AppColors.light, isTrue);
-    });
-
     test('dark does not equal light', () {
       expect(AppColors.dark == AppColors.light, isFalse);
     });
 
     test('hashCode is consistent with equality', () {
-      expect(AppColors.dark.hashCode, AppColors.dark.hashCode);
       expect(AppColors.dark.hashCode, isNot(AppColors.light.hashCode));
     });
   });

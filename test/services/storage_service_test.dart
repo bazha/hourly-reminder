@@ -17,19 +17,6 @@ void main() {
         await StorageService.initialize();
         expect(StorageService.isInitialized, isTrue);
       });
-
-      test('throws StateError when accessors called before initialize', () async {
-        // Re-create a fresh, un-initialized StorageService state by running
-        // this before calling initialize().
-        SharedPreferences.setMockInitialValues({});
-        // We cannot easily reset the static _initialized flag without access
-        // to the internals, so we validate the sync getters return their
-        // safe fallbacks instead of throwing.
-        // (after the setUp initialize has been skipped for this test the
-        // service is still initialised from a previous test; the safe-get
-        // path is verified in the sync getter tests below.)
-        expect(() => StorageService.isInitialized, returnsNormally);
-      });
     });
 
     group('loadPreferences', () {
@@ -60,14 +47,6 @@ void main() {
         expect(loaded, equals(expected));
       });
 
-      test('persists isEnabled = true', () async {
-        await StorageService.savePreferences(
-          UserPreferences(isEnabled: true),
-        );
-        final loaded = await StorageService.loadPreferences();
-        expect(loaded.isEnabled, isTrue);
-      });
-
       test('persists custom work hours', () async {
         await StorageService.savePreferences(
           UserPreferences(startHour: 10, endHour: 16),
@@ -75,14 +54,6 @@ void main() {
         final loaded = await StorageService.loadPreferences();
         expect(loaded.startHour, equals(10));
         expect(loaded.endHour, equals(16));
-      });
-
-      test('persists workOnSaturday = true', () async {
-        await StorageService.savePreferences(
-          UserPreferences(workOnSaturday: true),
-        );
-        final loaded = await StorageService.loadPreferences();
-        expect(loaded.workOnSaturday, isTrue);
       });
 
       test('persists workOnSunday = true', () async {

@@ -1,7 +1,8 @@
 import 'dart:io' show Platform;
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/data/latest.dart' as tz_data;
+import 'package:timezone/timezone.dart' as tz;
 import '../features/movement/presentation/movement_action_handler.dart';
 import '../features/movement/data/datasources/movement_local_datasource.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -14,9 +15,11 @@ class NotificationService {
       MethodChannel('com.bazhanau.hourly_reminder/notification');
 
   static const _alreadyMovedActionId = 'already_moved';
+  static const _snoozeActionId = 'snooze';
+  static const _snoozeNotificationId = 2;
 
   static Future<void> initialize() async {
-    tz.initializeTimeZones();
+    tz_data.initializeTimeZones();
 
     const androidSettings =
         AndroidInitializationSettings('@mipmap/ic_launcher');
@@ -30,7 +33,11 @@ class NotificationService {
           'hourly_reminder_category',
           actions: [
             DarwinNotificationAction.plain(
-              'already_moved',
+              _snoozeActionId,
+              'Через 10 минут',
+            ),
+            DarwinNotificationAction.plain(
+              _alreadyMovedActionId,
               'Я уже двигался',
             ),
           ],
@@ -53,7 +60,29 @@ class NotificationService {
       NotificationResponse response) async {
     if (response.actionId == _alreadyMovedActionId) {
       await MovementActionHandler.handle();
+    } else if (response.actionId == _snoozeActionId) {
+      await _snoozeForIos();
     }
+  }
+
+  static Future<void> _snoozeForIos() async {
+    const iosDetails = DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: true,
+      categoryIdentifier: 'hourly_reminder_category',
+    );
+
+    await _notifications.zonedSchedule(
+      _snoozeNotificationId,
+      'Время встать! ⏰',
+      'Пора размяться и походить 🚶',
+      tz.TZDateTime.now(tz.local).add(const Duration(minutes: 10)),
+      const NotificationDetails(iOS: iosDetails),
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
+    );
   }
 
   static Future<bool> requestPermissions() async {

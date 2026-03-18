@@ -33,6 +33,7 @@ class MovementEventModel {
       reactionTime: Duration(milliseconds: reactionTimeMillis),
       source: MovementSource.values.firstWhere(
         (s) => s.name == source,
+        orElse: () => MovementSource.manual,
       ),
     );
   }
