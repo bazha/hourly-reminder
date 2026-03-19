@@ -9,7 +9,14 @@ import 'widgets/settings_card.dart';
 import 'widgets/test_notification_button.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final StorageService storageService;
+  final AlarmService alarmService;
+
+  const HomeScreen({
+    super.key,
+    required this.storageService,
+    required this.alarmService,
+  });
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -26,7 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _loadPreferences() async {
-    final prefs = await StorageService.loadPreferences();
+    final prefs = await widget.storageService.loadPreferences();
     setState(() {
       _prefs = prefs;
       _isLoading = false;
@@ -44,15 +51,15 @@ class _HomeScreenState extends State<HomeScreen> {
         }
         return;
       }
-      await AlarmService.scheduleHourlyAlarm();
+      await widget.alarmService.scheduleHourlyAlarm();
     } else {
-      await AlarmService.cancelAlarm();
+      await widget.alarmService.cancelAlarm();
     }
 
     setState(() {
       _prefs = _prefs.copyWith(isEnabled: value);
     });
-    await StorageService.savePreferences(_prefs);
+    await widget.storageService.savePreferences(_prefs);
   }
 
   // Обновить время начала (в формате double: 9.5 = 9:30)
@@ -63,9 +70,9 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       _prefs = _prefs.copyWith(startHour: hour, startMinute: minute);
     });
-    await StorageService.savePreferences(_prefs);
+    await widget.storageService.savePreferences(_prefs);
     if (_prefs.isEnabled) {
-      await AlarmService.scheduleHourlyAlarm();
+      await widget.alarmService.scheduleHourlyAlarm();
     }
   }
 
@@ -77,9 +84,9 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       _prefs = _prefs.copyWith(endHour: hour, endMinute: minute);
     });
-    await StorageService.savePreferences(_prefs);
+    await widget.storageService.savePreferences(_prefs);
     if (_prefs.isEnabled) {
-      await AlarmService.scheduleHourlyAlarm();
+      await widget.alarmService.scheduleHourlyAlarm();
     }
   }
 
@@ -87,21 +94,21 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       _prefs = _prefs.copyWith(workOnSaturday: value);
     });
-    await StorageService.savePreferences(_prefs);
+    await widget.storageService.savePreferences(_prefs);
   }
 
   Future<void> _toggleSunday(bool value) async {
     setState(() {
       _prefs = _prefs.copyWith(workOnSunday: value);
     });
-    await StorageService.savePreferences(_prefs);
+    await widget.storageService.savePreferences(_prefs);
   }
 
   Future<void> _updateGender(NotificationGender gender) async {
     setState(() {
       _prefs = _prefs.copyWith(notificationGender: gender);
     });
-    await StorageService.savePreferences(_prefs);
+    await widget.storageService.savePreferences(_prefs);
   }
 
   @override

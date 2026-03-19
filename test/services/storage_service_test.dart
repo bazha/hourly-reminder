@@ -6,27 +6,18 @@ import 'package:hourly_reminder/models/user_preferences.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  setUp(() {
-    // Reset StorageService state between tests via reinitialisation.
+  late StorageService service;
+
+  setUp(() async {
     SharedPreferences.setMockInitialValues({});
+    final prefs = await SharedPreferences.getInstance();
+    service = StorageService(prefs);
   });
 
   group('StorageService', () {
-    group('initialize', () {
-      test('initializes successfully', () async {
-        await StorageService.initialize();
-        expect(StorageService.isInitialized, isTrue);
-      });
-    });
-
     group('loadPreferences', () {
-      setUp(() async {
-        SharedPreferences.setMockInitialValues({});
-        await StorageService.initialize();
-      });
-
       test('returns defaults when storage is empty', () async {
-        final prefs = await StorageService.loadPreferences();
+        final prefs = await service.loadPreferences();
         expect(prefs.isEnabled, isFalse);
         expect(prefs.startHour, equals(9));
         expect(prefs.endHour, equals(18));
@@ -42,61 +33,56 @@ void main() {
           workOnSaturday: true,
           workOnSunday: false,
         );
-        await StorageService.savePreferences(expected);
-        final loaded = await StorageService.loadPreferences();
+        await service.savePreferences(expected);
+        final loaded = await service.loadPreferences();
         expect(loaded, equals(expected));
       });
 
       test('persists custom work hours', () async {
-        await StorageService.savePreferences(
+        await service.savePreferences(
           UserPreferences(startHour: 10, endHour: 16),
         );
-        final loaded = await StorageService.loadPreferences();
+        final loaded = await service.loadPreferences();
         expect(loaded.startHour, equals(10));
         expect(loaded.endHour, equals(16));
       });
 
       test('persists workOnSunday = true', () async {
-        await StorageService.savePreferences(
+        await service.savePreferences(
           UserPreferences(workOnSunday: true),
         );
-        final loaded = await StorageService.loadPreferences();
+        final loaded = await service.loadPreferences();
         expect(loaded.workOnSunday, isTrue);
       });
     });
 
     group('notificationGender persistence', () {
-      setUp(() async {
-        SharedPreferences.setMockInitialValues({});
-        await StorageService.initialize();
-      });
-
       test('defaults to neutral when not set', () async {
-        final loaded = await StorageService.loadPreferences();
+        final loaded = await service.loadPreferences();
         expect(loaded.notificationGender, equals(NotificationGender.neutral));
       });
 
       test('persists male gender', () async {
-        await StorageService.savePreferences(
+        await service.savePreferences(
           UserPreferences(notificationGender: NotificationGender.male),
         );
-        final loaded = await StorageService.loadPreferences();
+        final loaded = await service.loadPreferences();
         expect(loaded.notificationGender, equals(NotificationGender.male));
       });
 
       test('persists female gender', () async {
-        await StorageService.savePreferences(
+        await service.savePreferences(
           UserPreferences(notificationGender: NotificationGender.female),
         );
-        final loaded = await StorageService.loadPreferences();
+        final loaded = await service.loadPreferences();
         expect(loaded.notificationGender, equals(NotificationGender.female));
       });
 
       test('persists neutral gender', () async {
-        await StorageService.savePreferences(
+        await service.savePreferences(
           UserPreferences(notificationGender: NotificationGender.neutral),
         );
-        final loaded = await StorageService.loadPreferences();
+        final loaded = await service.loadPreferences();
         expect(loaded.notificationGender, equals(NotificationGender.neutral));
       });
 
@@ -104,59 +90,50 @@ void main() {
         SharedPreferences.setMockInitialValues({
           'notification_gender': 'unknown_value',
         });
-        await StorageService.initialize();
-        final loaded = await StorageService.loadPreferences();
+        final prefs = await SharedPreferences.getInstance();
+        final freshService = StorageService(prefs);
+        final loaded = await freshService.loadPreferences();
         expect(loaded.notificationGender, equals(NotificationGender.neutral));
       });
     });
 
     group('savePreferences', () {
-      setUp(() async {
-        SharedPreferences.setMockInitialValues({});
-        await StorageService.initialize();
-      });
-
       test('overwrites previously saved preferences', () async {
-        await StorageService.savePreferences(
+        await service.savePreferences(
           UserPreferences(isEnabled: true, startHour: 8),
         );
-        await StorageService.savePreferences(
+        await service.savePreferences(
           UserPreferences(isEnabled: false, startHour: 10),
         );
-        final loaded = await StorageService.loadPreferences();
+        final loaded = await service.loadPreferences();
         expect(loaded.isEnabled, isFalse);
         expect(loaded.startHour, equals(10));
       });
     });
 
     group('synchronous getters (alarm isolate)', () {
-      setUp(() async {
-        SharedPreferences.setMockInitialValues({});
-        await StorageService.initialize();
-      });
-
       test('isEnabled returns false by default', () {
-        expect(StorageService.isEnabled, isFalse);
+        expect(service.isEnabled, isFalse);
       });
 
       test('startHour returns 9 by default', () {
-        expect(StorageService.startHour, equals(9));
+        expect(service.startHour, equals(9));
       });
 
       test('endHour returns 18 by default', () {
-        expect(StorageService.endHour, equals(18));
+        expect(service.endHour, equals(18));
       });
 
       test('workOnSaturday returns false by default', () {
-        expect(StorageService.workOnSaturday, isFalse);
+        expect(service.workOnSaturday, isFalse);
       });
 
       test('workOnSunday returns false by default', () {
-        expect(StorageService.workOnSunday, isFalse);
+        expect(service.workOnSunday, isFalse);
       });
 
       test('sync getters reflect saved preferences', () async {
-        await StorageService.savePreferences(
+        await service.savePreferences(
           UserPreferences(
             isEnabled: true,
             startHour: 7,
@@ -165,11 +142,11 @@ void main() {
             workOnSunday: false,
           ),
         );
-        expect(StorageService.isEnabled, isTrue);
-        expect(StorageService.startHour, equals(7));
-        expect(StorageService.endHour, equals(15));
-        expect(StorageService.workOnSaturday, isTrue);
-        expect(StorageService.workOnSunday, isFalse);
+        expect(service.isEnabled, isTrue);
+        expect(service.startHour, equals(7));
+        expect(service.endHour, equals(15));
+        expect(service.workOnSaturday, isTrue);
+        expect(service.workOnSunday, isFalse);
       });
     });
   });

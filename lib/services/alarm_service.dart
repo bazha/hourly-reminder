@@ -4,12 +4,12 @@ import 'dart:io' show Platform;
 class AlarmService {
   static const _channel = MethodChannel('com.bazhanau.hourly_reminder/alarm');
 
-  static Future<void> scheduleHourlyAlarm() async {
+  Future<void> scheduleHourlyAlarm() async {
     if (!Platform.isAndroid) return;
     await _channel.invokeMethod('scheduleHourlyAlarm');
   }
 
-  static Future<void> cancelAlarm() async {
+  Future<void> cancelAlarm() async {
     if (!Platform.isAndroid) return;
     await _channel.invokeMethod('cancelAlarm');
   }
