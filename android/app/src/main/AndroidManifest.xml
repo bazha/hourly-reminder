@@ -59,6 +59,14 @@
                 <action android:name="com.bazhanau.hourly_reminder.ACTION_ALREADY_MOVED" />
             </intent-filter>
         </receiver>
+        <!-- Handles notification swipe-dismiss: resets sedentary timer -->
+        <receiver
+            android:name=".NotificationDismissReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.bazhanau.hourly_reminder.ACTION_NOTIFICATION_DISMISSED" />
+            </intent-filter>
+        </receiver>
         <!-- Re-schedules hourly alarm after device reboot -->
         <receiver
             android:name=".BootReceiver"
