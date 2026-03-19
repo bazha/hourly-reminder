@@ -4,12 +4,12 @@ import 'package:flutter/material.dart';
 ///
 /// Usage: `final c = AppColors.of(context);`
 class AppColors extends ThemeExtension<AppColors> {
-  // ─── Background ──────────────────────────────────────────────────────────
+  // --- Background ---
   final Color bg;
   final Color bgGradientStart;
   final Color bgGradientEnd;
 
-  // ─── Blobs (decorative background circles) ───────────────────────────────
+  // --- Blobs (legacy, opacities zeroed) ---
   final Color blobPurple;
   final double blobPurpleOpacity;
   final Color blobBlue;
@@ -17,17 +17,17 @@ class AppColors extends ThemeExtension<AppColors> {
   final Color blobAccent;
   final double blobAccentOpacity;
 
-  // ─── Cards (glassmorphism) ───────────────────────────────────────────────
+  // --- Cards ---
   final Color cardBg;
   final Color cardBorder;
   final Color cardShadow;
 
-  // ─── Text ────────────────────────────────────────────────────────────────
+  // --- Text ---
   final Color textPrimary;
   final Color textSecondary;
   final Color textMuted;
 
-  // ─── Controls ────────────────────────────────────────────────────────────
+  // --- Controls ---
   final Color switchInactiveTrack;
   final Color switchInactiveThumb;
   final Color sliderInactiveTrack;
@@ -36,7 +36,7 @@ class AppColors extends ThemeExtension<AppColors> {
   final Color clockPillBg;
   final Color clockPillBorder;
 
-  // ─── Clock face ──────────────────────────────────────────────────────────
+  // --- Clock face ---
   final Color clockFaceInner;
   final Color clockFaceOuter;
   final Color clockRing;
@@ -49,24 +49,35 @@ class AppColors extends ThemeExtension<AppColors> {
   final Color clockCenterGlow;
   final Color clockHandleRing;
 
-  // ─── Time picker dialog ──────────────────────────────────────────────────
+  // --- Time picker dialog ---
   final Color pickerBg;
   final Color pickerInputBg;
   final Color pickerText;
 
-  // ─── Gradient button ─────────────────────────────────────────────────────
+  // --- Button ---
   final Color buttonTextColor;
 
-  // ─── AppBar ──────────────────────────────────────────────────────────────
+  // --- AppBar (legacy, used as fallback) ---
   final Color appBarBg;
   final Color appBarFg;
 
-  // ─── Slider inactive tints ───────────────────────────────────────────────
+  // --- Slider inactive tints ---
   final Color startSliderInactive;
   final Color endSliderInactive;
 
-  // ─── Weekend switch ──────────────────────────────────────────────────────
+  // --- Weekend switch ---
   final Color weekendSwitchActive;
+
+  // --- Navigation bar ---
+  final Color navBarBg;
+  final Color navBarSelected;
+  final Color navBarUnselected;
+
+  // --- Surfaces ---
+  final Color surface;
+  final Color onSurface;
+  final Color primaryContainer;
+  final Color accent;
 
   const AppColors._({
     required this.bg,
@@ -111,98 +122,119 @@ class AppColors extends ThemeExtension<AppColors> {
     required this.startSliderInactive,
     required this.endSliderInactive,
     required this.weekendSwitchActive,
+    required this.navBarBg,
+    required this.navBarSelected,
+    required this.navBarUnselected,
+    required this.surface,
+    required this.onSurface,
+    required this.primaryContainer,
+    required this.accent,
   });
 
-  /// Dark glassmorphism theme (current design).
+  /// Dark theme - charcoal background, elevated dark cards.
   static const dark = AppColors._(
-    bg:              Color(0xFF060B18),
-    bgGradientStart: Color(0xFF060812),
-    bgGradientEnd:   Color(0xFF0E0B24),
+    bg:              Color(0xFF15181E),
+    bgGradientStart: Color(0xFF15181E),
+    bgGradientEnd:   Color(0xFF15181E),
     blobPurple:       Color(0xFF6D28D9),
-    blobPurpleOpacity: 0.28,
+    blobPurpleOpacity: 0.0,
     blobBlue:         Color(0xFF1D4ED8),
-    blobBlueOpacity:   0.22,
+    blobBlueOpacity:   0.0,
     blobAccent:       Color(0xFF7C3AED),
-    blobAccentOpacity: 0.14,
-    cardBg:          Color(0x0DFFFFFF),  // 5% white
-    cardBorder:      Color(0x1AFFFFFF),  // 10% white
-    cardShadow:      Colors.black,
-    textPrimary:     Colors.white,
-    textSecondary:   Color(0x99FFFFFF),  // 60% white
-    textMuted:       Color(0x4DFFFFFF),  // 30% white
-    switchInactiveTrack: Color(0xFF94A3B8),
-    switchInactiveThumb: Color(0xDEFFFFFF), // 87% white
-    sliderInactiveTrack: Color(0x14FFFFFF), // 8% white
-    sliderThumb:     Colors.white,
-    divider:         Color(0x14FFFFFF),  // 8% white
-    clockPillBg:     Color(0x12FFFFFF),  // 7% white
-    clockPillBorder: Color(0x1AFFFFFF),  // 10% white
-    clockFaceInner:  Color(0xFF152040),
-    clockFaceOuter:  Color(0xFF080D1A),
-    clockRing:       Color(0x0FFFFFFF),  // 6% white
-    clockBorder:     Color(0x14FFFFFF),  // 8% white
-    clockTickKey:    Color(0xA6FFFFFF),  // 65% white
-    clockTickHalf:   Color(0x4DFFFFFF),  // 30% white
-    clockTickMinor:  Color(0x1FFFFFFF),  // 12% white
-    clockLabelColor: Color(0x66FFFFFF),  // 40% white
-    clockCenterDot:  Colors.white,
-    clockCenterGlow: Color(0x33FFFFFF),
-    clockHandleRing: Color(0x2EFFFFFF),  // 18% white
-    pickerBg:        Color(0xFF101828),
-    pickerInputBg:   Color(0x26818CF8),  // 15% primary
-    pickerText:      Colors.white,
+    blobAccentOpacity: 0.0,
+    cardBg:          Color(0xFF1E2128),
+    cardBorder:      Color(0x14FFFFFF),
+    cardShadow:      Color(0x26000000),
+    textPrimary:     Color(0xFFE8E8E8),
+    textSecondary:   Color(0xFF8E95A2),
+    textMuted:       Color(0xFF5A6070),
+    switchInactiveTrack: Color(0xFF3A3F4A),
+    switchInactiveThumb: Color(0xFF8E95A2),
+    sliderInactiveTrack: Color(0xFF2A2F38),
+    sliderThumb:     Color(0xFF5CC4B8),
+    divider:         Color(0xFF2A2F38),
+    clockPillBg:     Color(0xFF252A32),
+    clockPillBorder: Color(0x14FFFFFF),
+    clockFaceInner:  Color(0xFF252A32),
+    clockFaceOuter:  Color(0xFF1A1E24),
+    clockRing:       Color(0x14FFFFFF),
+    clockBorder:     Color(0x14FFFFFF),
+    clockTickKey:    Color(0xA6E8E8E8),
+    clockTickHalf:   Color(0x4DE8E8E8),
+    clockTickMinor:  Color(0x1FE8E8E8),
+    clockLabelColor: Color(0x66E8E8E8),
+    clockCenterDot:  Color(0xFFE8E8E8),
+    clockCenterGlow: Color(0x33E8E8E8),
+    clockHandleRing: Color(0x2EFFFFFF),
+    pickerBg:        Color(0xFF1E2128),
+    pickerInputBg:   Color(0x265CC4B8),
+    pickerText:      Color(0xFFE8E8E8),
     buttonTextColor: Colors.white,
-    appBarBg:        Color(0xFF1A2233),
-    appBarFg:        Colors.white,
-    startSliderInactive: Color(0x2634D399), // 15% emerald
-    endSliderInactive:   Color(0x26FB7185), // 15% rose
-    weekendSwitchActive: Color(0xFF64748B),
+    appBarBg:        Color(0xFF1E2128),
+    appBarFg:        Color(0xFFE8E8E8),
+    startSliderInactive: Color(0x264EAAA0),
+    endSliderInactive:   Color(0x26E57373),
+    weekendSwitchActive: Color(0xFF5CC4B8),
+    navBarBg:        Color(0xFF1E2128),
+    navBarSelected:  Color(0xFF5CC4B8),
+    navBarUnselected: Color(0xFF5A6070),
+    surface:         Color(0xFF1E2128),
+    onSurface:       Color(0xFFE8E8E8),
+    primaryContainer: Color(0xFF1A3A36),
+    accent:          Color(0xFFF5A623),
   );
 
-  /// Light theme — soft white background, subtle blobs, dark text.
+  /// Light theme - warm off-white background, clean white cards.
   static const light = AppColors._(
-    bg:              Color(0xFFF5F6FA),
-    bgGradientStart: Color(0xFFF7F7FC),
-    bgGradientEnd:   Color(0xFFEDE9FE),
+    bg:              Color(0xFFF5F3EE),
+    bgGradientStart: Color(0xFFF5F3EE),
+    bgGradientEnd:   Color(0xFFF5F3EE),
     blobPurple:       Color(0xFFC4B5FD),
-    blobPurpleOpacity: 0.35,
+    blobPurpleOpacity: 0.0,
     blobBlue:         Color(0xFF93C5FD),
-    blobBlueOpacity:   0.25,
+    blobBlueOpacity:   0.0,
     blobAccent:       Color(0xFFA78BFA),
-    blobAccentOpacity: 0.18,
-    cardBg:          Color(0xC0FFFFFF),  // 75% white
-    cardBorder:      Color(0x1A000000),  // 10% black
-    cardShadow:      Color(0x14000000),  // 8% black
-    textPrimary:     Color(0xFF1E1B4B),  // deep indigo
-    textSecondary:   Color(0x993C3560),  // 60% muted
-    textMuted:       Color(0x4D3C3560),  // 30% muted
-    switchInactiveTrack: Color(0xFFCBD5E1),
-    switchInactiveThumb: Color(0xFF64748B),
-    sliderInactiveTrack: Color(0x1A000000), // 10% black
-    sliderThumb:     Color(0xFF1E1B4B),
-    divider:         Color(0x14000000),  // 8% black
-    clockPillBg:     Color(0x0A000000),  // 4% black
-    clockPillBorder: Color(0x14000000),  // 8% black
-    clockFaceInner:  Color(0xFFE8E5F5),
-    clockFaceOuter:  Color(0xFFD6D1EC),
-    clockRing:       Color(0x1A000000),  // 10% black
-    clockBorder:     Color(0x14000000),  // 8% black
-    clockTickKey:    Color(0xA6302050),  // 65% dark
-    clockTickHalf:   Color(0x4D302050),  // 30% dark
-    clockTickMinor:  Color(0x1F302050),  // 12% dark
-    clockLabelColor: Color(0x66302050),  // 40% dark
-    clockCenterDot:  Color(0xFF1E1B4B),
-    clockCenterGlow: Color(0x33302050),
-    clockHandleRing: Color(0x2E000000),  // 18% black
-    pickerBg:        Color(0xFFF5F6FA),
-    pickerInputBg:   Color(0x1A818CF8),  // 10% primary
-    pickerText:      Color(0xFF1E1B4B),
+    blobAccentOpacity: 0.0,
+    cardBg:          Color(0xFFFFFFFF),
+    cardBorder:      Color(0x0D000000),
+    cardShadow:      Color(0x0A000000),
+    textPrimary:     Color(0xFF1A1C1E),
+    textSecondary:   Color(0xFF6B7280),
+    textMuted:       Color(0xFF9CA3AF),
+    switchInactiveTrack: Color(0xFFD1D5DB),
+    switchInactiveThumb: Color(0xFF9CA3AF),
+    sliderInactiveTrack: Color(0xFFE5E7EB),
+    sliderThumb:     Color(0xFF4EAAA0),
+    divider:         Color(0xFFE5E7EB),
+    clockPillBg:     Color(0xFFF0EDE8),
+    clockPillBorder: Color(0x14000000),
+    clockFaceInner:  Color(0xFFF0EDE8),
+    clockFaceOuter:  Color(0xFFE5E1DB),
+    clockRing:       Color(0x1A000000),
+    clockBorder:     Color(0x14000000),
+    clockTickKey:    Color(0xA61A1C1E),
+    clockTickHalf:   Color(0x4D1A1C1E),
+    clockTickMinor:  Color(0x1F1A1C1E),
+    clockLabelColor: Color(0x661A1C1E),
+    clockCenterDot:  Color(0xFF1A1C1E),
+    clockCenterGlow: Color(0x331A1C1E),
+    clockHandleRing: Color(0x2E000000),
+    pickerBg:        Color(0xFFF5F3EE),
+    pickerInputBg:   Color(0x1A4EAAA0),
+    pickerText:      Color(0xFF1A1C1E),
     buttonTextColor: Colors.white,
-    appBarBg:        Color(0xFF90A4AE),
-    appBarFg:        Colors.white,
-    startSliderInactive: Color(0xFFE8F5E9),
-    endSliderInactive:   Color(0xFFFFEBEE),
-    weekendSwitchActive: Color(0xFF90A4AE),
+    appBarBg:        Color(0xFFF5F3EE),
+    appBarFg:        Color(0xFF1A1C1E),
+    startSliderInactive: Color(0x1A4EAAA0),
+    endSliderInactive:   Color(0x1AE57373),
+    weekendSwitchActive: Color(0xFF4EAAA0),
+    navBarBg:        Color(0xFFFFFFFF),
+    navBarSelected:  Color(0xFF4EAAA0),
+    navBarUnselected: Color(0xFF9CA3AF),
+    surface:         Color(0xFFFFFFFF),
+    onSurface:       Color(0xFF1A1C1E),
+    primaryContainer: Color(0xFFE6F5F3),
+    accent:          Color(0xFFF5A623),
   );
 
   /// Resolves the correct palette for the current theme brightness.
@@ -212,13 +244,13 @@ class AppColors extends ThemeExtension<AppColors> {
 
   bool get isDark => bg == dark.bg;
 
-  // ─── Shared accent colours (same in both themes) ──────────────────────────
-  static const startColor = Color(0xFF34D399);   // Emerald
-  static const endColor   = Color(0xFFFB7185);   // Rose
-  static const primary    = Color(0xFF818CF8);   // Indigo
-  static const nowColor   = Color(0xFFFBBF24);   // Amber (clock "now" hand)
+  // --- Shared accent colours (same in both themes) ---
+  static const startColor = Color(0xFF4EAAA0);   // Teal
+  static const endColor   = Color(0xFFE57373);    // Coral
+  static const primary    = Color(0xFF4EAAA0);    // Teal
+  static const nowColor   = Color(0xFFF5A623);    // Amber
 
-  // ─── ThemeExtension overrides ─────────────────────────────────────────────
+  // --- ThemeExtension overrides ---
 
   @override
   AppColors copyWith({
@@ -264,6 +296,13 @@ class AppColors extends ThemeExtension<AppColors> {
     Color? startSliderInactive,
     Color? endSliderInactive,
     Color? weekendSwitchActive,
+    Color? navBarBg,
+    Color? navBarSelected,
+    Color? navBarUnselected,
+    Color? surface,
+    Color? onSurface,
+    Color? primaryContainer,
+    Color? accent,
   }) {
     return AppColors._(
       bg: bg ?? this.bg,
@@ -308,6 +347,13 @@ class AppColors extends ThemeExtension<AppColors> {
       startSliderInactive: startSliderInactive ?? this.startSliderInactive,
       endSliderInactive: endSliderInactive ?? this.endSliderInactive,
       weekendSwitchActive: weekendSwitchActive ?? this.weekendSwitchActive,
+      navBarBg: navBarBg ?? this.navBarBg,
+      navBarSelected: navBarSelected ?? this.navBarSelected,
+      navBarUnselected: navBarUnselected ?? this.navBarUnselected,
+      surface: surface ?? this.surface,
+      onSurface: onSurface ?? this.onSurface,
+      primaryContainer: primaryContainer ?? this.primaryContainer,
+      accent: accent ?? this.accent,
     );
   }
 
@@ -357,6 +403,13 @@ class AppColors extends ThemeExtension<AppColors> {
       startSliderInactive: Color.lerp(startSliderInactive, other.startSliderInactive, t)!,
       endSliderInactive: Color.lerp(endSliderInactive, other.endSliderInactive, t)!,
       weekendSwitchActive: Color.lerp(weekendSwitchActive, other.weekendSwitchActive, t)!,
+      navBarBg: Color.lerp(navBarBg, other.navBarBg, t)!,
+      navBarSelected: Color.lerp(navBarSelected, other.navBarSelected, t)!,
+      navBarUnselected: Color.lerp(navBarUnselected, other.navBarUnselected, t)!,
+      surface: Color.lerp(surface, other.surface, t)!,
+      onSurface: Color.lerp(onSurface, other.onSurface, t)!,
+      primaryContainer: Color.lerp(primaryContainer, other.primaryContainer, t)!,
+      accent: Color.lerp(accent, other.accent, t)!,
     );
   }
 

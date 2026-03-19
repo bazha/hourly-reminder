@@ -5,7 +5,7 @@ import 'dart:math' as math;
 import '../core/theme/app_colors.dart';
 import '../core/utils/time_utils.dart';
 
-// ─── Public widget ────────────────────────────────────────────────────────────
+// --- Public widget ---
 
 class WorkHoursClock extends StatefulWidget {
   final double startTime;
@@ -55,7 +55,7 @@ class _WorkHoursClockState extends State<WorkHoursClock> {
     );
   }
 
-  // ─── Gesture helpers ────────────────────────────────────────────────────────
+  // --- Gesture helpers ---
 
   void _handlePanStart(Offset pos) {
     final c = Offset(widget.size / 2, widget.size / 2);
@@ -109,7 +109,7 @@ class _WorkHoursClockState extends State<WorkHoursClock> {
   }
 }
 
-// ─── Painter ──────────────────────────────────────────────────────────────────
+// --- Painter ---
 
 class _ClockPainter extends CustomPainter {
   final double startTime;
@@ -117,8 +117,6 @@ class _ClockPainter extends CustomPainter {
   final String? draggingHand;
   final DateTime? currentTime;
   final AppColors colors;
-
-  static const _glowFactor = 0.7;
 
   static const _cStart = AppColors.startColor;
   static const _cEnd   = AppColors.endColor;
@@ -147,7 +145,7 @@ class _ClockPainter extends CustomPainter {
     _drawCenter(canvas, c);
   }
 
-  // ─── Face ───────────────────────────────────────────────────────────────────
+  // --- Face ---
 
   void _drawFace(Canvas canvas, Offset c, double r) {
     canvas.drawCircle(c, r + 2,
@@ -168,13 +166,13 @@ class _ClockPainter extends CustomPainter {
           ..strokeWidth = 1);
   }
 
-  // ─── Tick marks ─────────────────────────────────────────────────────────────
+  // --- Tick marks ---
 
   void _drawTicks(Canvas canvas, Offset c, double r) {
     for (int i = 0; i < 24; i++) {
       final angle  = _timeAngle(i.toDouble());
-      final isKey  = i % 6 == 0;   // 0, 6, 12, 18
-      final isHalf = i % 3 == 0;   // 3, 9, 15, 21
+      final isKey  = i % 6 == 0;
+      final isHalf = i % 3 == 0;
       final len    = isKey ? 14.0 : (isHalf ? 9.0 : 5.0);
       final outerR = r - 5;
       canvas.drawLine(
@@ -191,7 +189,7 @@ class _ClockPainter extends CustomPainter {
     }
   }
 
-  // ─── Hour labels ────────────────────────────────────────────────────────────
+  // --- Hour labels ---
 
   void _drawLabels(Canvas canvas, Offset c, double r) {
     const entries = [(0, '00'), (6, '06'), (12, '12'), (18, '18')];
@@ -217,7 +215,7 @@ class _ClockPainter extends CustomPainter {
     }
   }
 
-  // ─── Work arc ───────────────────────────────────────────────────────────────
+  // --- Work arc ---
 
   void _drawWorkArc(Canvas canvas, Offset c, double r) {
     final sa  = _timeAngle(startTime);
@@ -228,40 +226,34 @@ class _ClockPainter extends CustomPainter {
     final arcR = r - 24;
     final rect = Rect.fromCircle(center: c, radius: arcR);
 
-    // Sector fill — very faint
+    // Sector fill - subtle tint
     final sectorPaint = Paint()
       ..shader = SweepGradient(
         startAngle: sa,
         endAngle: sa + sw,
         colors: [
-          _cStart.withValues(alpha: 0.07),
-          _cEnd.withValues(alpha: 0.07),
+          _cStart.withValues(alpha: 0.06),
+          _cEnd.withValues(alpha: 0.06),
         ],
       ).createShader(rect.inflate(arcR));
     canvas.drawArc(rect.inflate(arcR), sa, sw, true, sectorPaint);
 
-    // Glow layers (outer → inner)
-    for (final (width, baseOpacity) in [
-      (30.0, 0.04),
-      (20.0, 0.08),
-      (12.0, 0.18),
-    ]) {
-      canvas.drawArc(
-        rect, sa, sw, false,
-        Paint()
-          ..shader = SweepGradient(
-            startAngle: sa,
-            endAngle: sa + sw,
-            colors: [
-              _cStart.withValues(alpha: baseOpacity + _glowFactor * 0.06),
-              _cEnd.withValues(alpha: baseOpacity + _glowFactor * 0.06),
-            ],
-          ).createShader(rect)
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = width
-          ..strokeCap = StrokeCap.butt,
-      );
-    }
+    // Single subtle glow layer
+    canvas.drawArc(
+      rect, sa, sw, false,
+      Paint()
+        ..shader = SweepGradient(
+          startAngle: sa,
+          endAngle: sa + sw,
+          colors: [
+            _cStart.withValues(alpha: 0.15),
+            _cEnd.withValues(alpha: 0.15),
+          ],
+        ).createShader(rect)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 16
+        ..strokeCap = StrokeCap.butt,
+    );
 
     // Main crisp arc
     canvas.drawArc(
@@ -273,12 +265,12 @@ class _ClockPainter extends CustomPainter {
           colors: const [_cStart, _cEnd],
         ).createShader(rect)
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 7
+        ..strokeWidth = 6
         ..strokeCap = StrokeCap.round,
     );
   }
 
-  // ─── Now indicator ──────────────────────────────────────────────────────────
+  // --- Now indicator ---
 
   void _drawNowIndicator(Canvas canvas, Offset c, double r) {
     final t     = currentTime!.hour + currentTime!.minute / 60.0;
@@ -298,13 +290,13 @@ class _ClockPainter extends CustomPainter {
         ..strokeCap = StrokeCap.round,
     );
     canvas.drawCircle(tip, 4.0, Paint()..color = _cNow);
-    canvas.drawCircle(tip, 4.0,
+    canvas.drawCircle(tip, 6.0,
         Paint()
-          ..color = _cNow.withValues(alpha: 0.35 + _glowFactor * 0.20)
-          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 5));
+          ..color = _cNow.withValues(alpha: 0.25)
+          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4));
   }
 
-  // ─── Handles ────────────────────────────────────────────────────────────────
+  // --- Handles ---
 
   void _drawHandle(
     Canvas canvas, Offset c, double r,
@@ -314,25 +306,23 @@ class _ClockPainter extends CustomPainter {
     final hr    = r - 42;
     final pos   = Offset(c.dx + hr * math.cos(angle),
                          c.dy + hr * math.sin(angle));
-    final sz    = dragging ? 26.0 : 22.0;
+    final sz    = dragging ? 24.0 : 20.0;
 
-    // Outer glow
-    canvas.drawCircle(pos, sz + 8,
-        Paint()..color = col.withValues(alpha: 0.12 + _glowFactor * 0.08));
+    // Subtle outer glow
     canvas.drawCircle(pos, sz + 4,
-        Paint()..color = col.withValues(alpha: 0.22 + _glowFactor * 0.10));
+        Paint()..color = col.withValues(alpha: 0.12));
 
     // Filled circle
     canvas.drawCircle(pos, sz,
         Paint()
           ..shader = RadialGradient(
-            colors: [col, col.withValues(alpha: 0.65)],
+            colors: [col, col.withValues(alpha: 0.75)],
           ).createShader(Rect.fromCircle(center: pos, radius: sz)));
 
     // Ring
     canvas.drawCircle(pos, sz,
         Paint()
-          ..color = colors.clockHandleRing.withValues(alpha: dragging ? 0.35 : 0.18)
+          ..color = colors.clockHandleRing.withValues(alpha: dragging ? 0.30 : 0.15)
           ..style = PaintingStyle.stroke
           ..strokeWidth = 1.5);
 
@@ -353,21 +343,21 @@ class _ClockPainter extends CustomPainter {
         Offset(pos.dx - tp.width / 2, pos.dy - tp.height / 2));
   }
 
-  // ─── Center dot ─────────────────────────────────────────────────────────────
+  // --- Center dot ---
 
   void _drawCenter(Canvas canvas, Offset c) {
-    canvas.drawCircle(c, 6 + _glowFactor * 2,
-        Paint()..color = colors.clockCenterGlow);
     canvas.drawCircle(c, 5,
+        Paint()..color = colors.clockCenterGlow);
+    canvas.drawCircle(c, 4,
         Paint()
           ..shader = RadialGradient(
             colors: [colors.clockCenterDot, colors.clockCenterDot.withValues(alpha: 0.7)],
-          ).createShader(Rect.fromCircle(center: Offset.zero, radius: 5)));
+          ).createShader(Rect.fromCircle(center: Offset.zero, radius: 4)));
   }
 
-  // ─── Helpers ────────────────────────────────────────────────────────────────
+  // --- Helpers ---
 
-  /// Maps a 24 h value to canvas angle: 0 h → top (−π/2), period = 12 h.
+  /// Maps a 24 h value to canvas angle: 0 h -> top (-pi/2), period = 12 h.
   static double _timeAngle(double t) =>
       (t / 12) * 2 * math.pi - math.pi / 2;
 
@@ -379,4 +369,3 @@ class _ClockPainter extends CustomPainter {
       old.currentTime  != currentTime  ||
       old.colors != colors;
 }
-

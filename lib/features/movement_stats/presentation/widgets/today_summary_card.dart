@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/time_utils.dart';
 import '../../domain/entities/movement_stats.dart';
 
@@ -13,8 +14,11 @@ class TodaySummaryCard extends StatelessWidget {
     final colors = AppColors.of(context);
 
     return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+        side: BorderSide(color: colors.cardBorder),
+      ),
       color: colors.cardBg,
       child: Padding(
         padding: const EdgeInsets.all(20),
@@ -23,9 +27,7 @@ class TodaySummaryCard extends StatelessWidget {
           children: [
             Text(
               'Сегодня',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
+              style: AppTypography.cardTitle.copyWith(
                 color: colors.textPrimary,
               ),
             ),
@@ -52,7 +54,7 @@ class TodaySummaryCard extends StatelessWidget {
                   child: _StatTile(
                     label: 'Реакция',
                     value: TimeUtils.formatDuration(today.averageReactionTime),
-                    color: AppColors.primary,
+                    color: colors.accent,
                     colors: colors,
                   ),
                 ),
@@ -63,7 +65,6 @@ class TodaySummaryCard extends StatelessWidget {
       ),
     );
   }
-
 }
 
 class _StatTile extends StatelessWidget {
@@ -85,19 +86,12 @@ class _StatTile extends StatelessWidget {
       children: [
         Text(
           value,
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.w700,
-            color: color,
-          ),
+          style: AppTypography.statNumber.copyWith(color: color),
         ),
         const SizedBox(height: 4),
         Text(
           label,
-          style: TextStyle(
-            fontSize: 12,
-            color: colors.textSecondary,
-          ),
+          style: AppTypography.label.copyWith(color: colors.textSecondary),
         ),
       ],
     );

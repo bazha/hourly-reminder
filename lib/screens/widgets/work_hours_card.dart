@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/app_typography.dart';
 import '../../models/user_preferences.dart';
 import '../../widgets/work_hours_clock.dart';
 import '../../core/utils/time_utils.dart';
@@ -21,8 +22,11 @@ class WorkHoursCard extends StatelessWidget {
     final colors = AppColors.of(context);
 
     return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+        side: BorderSide(color: colors.cardBorder),
+      ),
       color: colors.cardBg,
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -30,11 +34,8 @@ class WorkHoursCard extends StatelessWidget {
           children: [
             Text(
               'Рабочее время',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w500,
+              style: AppTypography.cardTitle.copyWith(
                 color: colors.textPrimary,
-                letterSpacing: 0.5,
               ),
             ),
             const SizedBox(height: 24),
@@ -50,8 +51,8 @@ class WorkHoursCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
-                  width: 16,
-                  height: 16,
+                  width: 12,
+                  height: 12,
                   decoration: const BoxDecoration(
                     color: AppColors.startColor,
                     shape: BoxShape.circle,
@@ -60,16 +61,15 @@ class WorkHoursCard extends StatelessWidget {
                 const SizedBox(width: 8),
                 Text(
                   'Начало: ${TimeUtils.formatHourMinute(prefs.startHour, prefs.startMinute)}',
-                  style: const TextStyle(
+                  style: AppTypography.body.copyWith(
                     color: AppColors.startColor,
                     fontWeight: FontWeight.w500,
-                    fontSize: 14,
                   ),
                 ),
-                const SizedBox(width: 20),
+                const SizedBox(width: 24),
                 Container(
-                  width: 16,
-                  height: 16,
+                  width: 12,
+                  height: 12,
                   decoration: const BoxDecoration(
                     color: AppColors.endColor,
                     shape: BoxShape.circle,
@@ -78,10 +78,9 @@ class WorkHoursCard extends StatelessWidget {
                 const SizedBox(width: 8),
                 Text(
                   'Конец: ${TimeUtils.formatHourMinute(prefs.endHour, prefs.endMinute)}',
-                  style: const TextStyle(
+                  style: AppTypography.body.copyWith(
                     color: AppColors.endColor,
                     fontWeight: FontWeight.w500,
-                    fontSize: 14,
                   ),
                 ),
               ],

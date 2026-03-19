@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../core/theme/app_colors.dart';
+import '../core/theme/app_typography.dart';
 import '../features/movement_stats/domain/repositories/movement_stats_repository.dart';
-import '../features/movement_stats/presentation/stats_screen.dart';
 import '../services/alarm_service.dart';
 import '../services/storage_service.dart';
 import '../services/notification_service.dart';
@@ -66,7 +66,6 @@ class _HomeScreenState extends State<HomeScreen> {
     await widget.storageService.savePreferences(_prefs);
   }
 
-  // Обновить время начала (в формате double: 9.5 = 9:30)
   Future<void> _updateStartTime(double time) async {
     final hour = time.floor();
     final minute = ((time - hour) * 60).round();
@@ -80,7 +79,6 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  // Обновить время окончания
   Future<void> _updateEndTime(double time) async {
     final hour = time.floor();
     final minute = ((time - hour) * 60).round();
@@ -118,63 +116,92 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Center(child: CircularProgressIndicator());
     }
 
     final colors = AppColors.of(context);
 
-    return Scaffold(
-      backgroundColor: colors.bg,
-      appBar: AppBar(
-        title: const Text(
-          'Напоминалка',
-          style: TextStyle(fontWeight: FontWeight.w500),
-        ),
-        backgroundColor: colors.appBarBg,
-        foregroundColor: colors.appBarFg,
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.bar_chart_rounded),
-            tooltip: 'Статистика',
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => StatsScreen(
-                    repository: widget.statsRepository,
-                  ),
-                ),
-              );
-            },
-          ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+    return SafeArea(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(20, 24, 20, 20),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Text(
+              'Напоминалка',
+              style: AppTypography.heading.copyWith(color: colors.textPrimary),
+            ),
+            const SizedBox(height: 6),
+            _StatusPill(isEnabled: _prefs.isEnabled, colors: colors),
+            const SizedBox(height: 24),
             WorkHoursCard(
               prefs: _prefs,
               onStartChanged: _updateStartTime,
               onEndChanged: _updateEndTime,
             ),
-            const SizedBox(height: 20),
-            SettingsCard(
+            const SizedBox(height: 16),
+            ReminderToggleCard(
+              isEnabled: _prefs.isEnabled,
+              onToggle: _toggleReminders,
+            ),
+            const SizedBox(height: 16),
+            ScheduleCard(
               prefs: _prefs,
-              onToggleReminders: _toggleReminders,
               onStartChanged: _updateStartTime,
               onEndChanged: _updateEndTime,
+            ),
+            const SizedBox(height: 16),
+            OptionsCard(
+              prefs: _prefs,
               onToggleSaturday: _toggleSaturday,
               onToggleSunday: _toggleSunday,
               onGenderChanged: _updateGender,
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
             const TestNotificationButton(),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _StatusPill extends StatelessWidget {
+  final bool isEnabled;
+  final AppColors colors;
+
+  const _StatusPill({required this.isEnabled, required this.colors});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: isEnabled
+            ? AppColors.startColor.withValues(alpha: 0.12)
+            : colors.sliderInactiveTrack,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 8,
+            height: 8,
+            decoration: BoxDecoration(
+              color: isEnabled ? AppColors.startColor : colors.textMuted,
+              shape: BoxShape.circle,
+            ),
+          ),
+          const SizedBox(width: 6),
+          Text(
+            isEnabled ? 'Включены' : 'Выключены',
+            style: AppTypography.label.copyWith(
+              color: isEnabled ? AppColors.startColor : colors.textMuted,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
       ),
     );
   }
