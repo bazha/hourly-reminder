@@ -14,9 +14,16 @@ class MainActivity : FlutterActivity() {
     private val batteryChannel = "com.bazhanau.hourly_reminder/battery"
     private val alarmChannel = "com.bazhanau.hourly_reminder/alarm"
     private val notificationChannel = "com.bazhanau.hourly_reminder/notification"
+    private val navigationChannel = "com.bazhanau.hourly_reminder/navigation"
+
+    private var navigationMethodChannel: MethodChannel? = null
+    private var pendingOpenStats = false
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+
+        // Check if launched from notification tap
+        pendingOpenStats = intent?.getBooleanExtra("open_stats", false) == true
 
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, batteryChannel)
             .setMethodCallHandler { call, result ->
@@ -57,6 +64,28 @@ class MainActivity : FlutterActivity() {
                     else -> result.notImplemented()
                 }
             }
+
+        navigationMethodChannel = MethodChannel(
+            flutterEngine.dartExecutor.binaryMessenger, navigationChannel
+        ).also { channel ->
+            channel.setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "getAndClearInitialTab" -> {
+                        val tab = if (pendingOpenStats) 1 else 0
+                        pendingOpenStats = false
+                        result.success(tab)
+                    }
+                    else -> result.notImplemented()
+                }
+            }
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        if (intent.getBooleanExtra("open_stats", false)) {
+            navigationMethodChannel?.invokeMethod("navigateToTab", 1)
+        }
     }
 
     private fun isIgnoringBatteryOptimizations(): Boolean {

@@ -18,6 +18,29 @@ class TimeUtils {
   static String formatHourMinute(int hour, [int minute = 0]) =>
       '$hour:${minute.toString().padLeft(2, '0')}';
 
+  /// Formats the next reminder time as a Russian string relative to [now].
+  ///
+  /// Returns a contextual message:
+  /// - `null` next → 'Напоминания выключены'
+  /// - same day  → 'Следующее в 15:00'
+  /// - tomorrow  → 'Следующее завтра в 9:00'
+  /// - later     → 'Следующее в Пн в 9:00'
+  static String formatNextReminder(DateTime? next, DateTime now) {
+    if (next == null) return 'Напоминания выключены';
+
+    final nowDate = DateTime(now.year, now.month, now.day);
+    final nextDate = DateTime(next.year, next.month, next.day);
+    final dayDiff = nextDate.difference(nowDate).inDays;
+    final time = formatHourMinute(next.hour, next.minute);
+
+    if (dayDiff == 0) return 'Следующее в $time';
+    if (dayDiff == 1) return 'Следующее завтра в $time';
+
+    const days = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+    final dayName = days[next.weekday - 1];
+    return 'Следующее в $dayName в $time';
+  }
+
   /// Formats a [Duration] as a compact Russian string.
   ///
   /// Examples: `Duration(seconds: 30) → '30с'`,

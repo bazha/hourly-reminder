@@ -52,6 +52,7 @@ class MovementStats {
   final int totalMovements;
   final Duration allTimeAverageReaction;
   final Duration allTimeAverageSedentary;
+  final int dailyGoal;
 
   const MovementStats({
     required this.today,
@@ -60,6 +61,7 @@ class MovementStats {
     required this.totalMovements,
     required this.allTimeAverageReaction,
     required this.allTimeAverageSedentary,
+    required this.dailyGoal,
   });
 
 }

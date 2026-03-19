@@ -25,6 +25,7 @@ void main() {
       storageService: storageService,
       alarmService: AlarmService(),
       statsRepository: statsRepo,
+      sharedPreferences: prefs,
     ));
     await tester.pump();
 

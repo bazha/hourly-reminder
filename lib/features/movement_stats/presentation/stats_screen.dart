@@ -99,7 +99,7 @@ class _StatsScreenState extends State<StatsScreen> {
               style: AppTypography.heading.copyWith(color: colors.textPrimary),
             ),
             const SizedBox(height: 24),
-            TodaySummaryCard(today: stats.today),
+            TodaySummaryCard(today: stats.today, dailyGoal: stats.dailyGoal),
             const SizedBox(height: 16),
             WeeklyChart(weeklyStats: stats.weeklyStats),
             const SizedBox(height: 16),

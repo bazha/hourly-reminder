@@ -175,12 +175,14 @@ class OptionsCard extends StatelessWidget {
     required this.onToggleSaturday,
     required this.onToggleSunday,
     required this.onGenderChanged,
+    required this.onGoalChanged,
   });
 
   final UserPreferences prefs;
   final ValueChanged<bool> onToggleSaturday;
   final ValueChanged<bool> onToggleSunday;
   final ValueChanged<NotificationGender> onGenderChanged;
+  final ValueChanged<int> onGoalChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -208,6 +210,33 @@ class OptionsCard extends StatelessWidget {
             _buildWeekendRow('Суббота', prefs.workOnSaturday, onToggleSaturday, colors),
             const SizedBox(height: 4),
             _buildWeekendRow('Воскресенье', prefs.workOnSunday, onToggleSunday, colors),
+            Divider(height: 24, color: colors.divider),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Цель на день',
+                  style: AppTypography.body.copyWith(color: colors.textSecondary),
+                ),
+                Text(
+                  '${prefs.dailyGoal} разминок',
+                  style: AppTypography.bodyMedium.copyWith(
+                    color: colors.textPrimary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+            Slider(
+              value: prefs.dailyGoal.toDouble(),
+              min: 1,
+              max: 15,
+              divisions: 14,
+              label: '${prefs.dailyGoal}',
+              onChanged: (v) => onGoalChanged(v.round()),
+              activeColor: AppColors.primary,
+              inactiveColor: colors.sliderInactiveTrack,
+            ),
             Divider(height: 24, color: colors.divider),
             Text(
               'Обращение в уведомлениях',

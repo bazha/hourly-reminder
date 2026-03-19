@@ -31,6 +31,7 @@ void main() {
         now: now,
         workOnSaturday: false,
         workOnSunday: false,
+        dailyGoal: 8,
       );
 
       expect(result.totalMovements, 0);
@@ -56,6 +57,7 @@ void main() {
         now: now,
         workOnSaturday: false,
         workOnSunday: false,
+        dailyGoal: 8,
       );
 
       expect(result.today.movementCount, 1);
@@ -84,6 +86,7 @@ void main() {
         now: now,
         workOnSaturday: false,
         workOnSunday: false,
+        dailyGoal: 8,
       );
 
       expect(result.today.movementCount, 2);
@@ -101,6 +104,7 @@ void main() {
         now: now,
         workOnSaturday: false,
         workOnSunday: false,
+        dailyGoal: 8,
       );
 
       // 7 work days back from Wed Mar 18:
@@ -118,6 +122,7 @@ void main() {
         now: now,
         workOnSaturday: true,
         workOnSunday: false,
+        dailyGoal: 8,
       );
 
       // Should include Sat Mar 14
@@ -138,6 +143,7 @@ void main() {
         now: now,
         workOnSaturday: false,
         workOnSunday: false,
+        dailyGoal: 8,
       );
 
       final wed18 = result.weeklyStats
@@ -164,6 +170,7 @@ void main() {
         now: now,
         workOnSaturday: false,
         workOnSunday: false,
+        dailyGoal: 8,
       );
 
       expect(result.streak.currentStreak, 3);
@@ -183,6 +190,7 @@ void main() {
         now: now,
         workOnSaturday: false,
         workOnSunday: false,
+        dailyGoal: 8,
       );
 
       expect(result.streak.currentStreak, 1);
@@ -203,6 +211,7 @@ void main() {
         now: now,
         workOnSaturday: false,
         workOnSunday: false,
+        dailyGoal: 8,
       );
 
       expect(result.streak.currentStreak, 3);
@@ -220,6 +229,7 @@ void main() {
         now: now,
         workOnSaturday: false,
         workOnSunday: false,
+        dailyGoal: 8,
       );
 
       expect(result.streak.currentStreak, 2);
@@ -240,6 +250,7 @@ void main() {
         now: now,
         workOnSaturday: false,
         workOnSunday: false,
+        dailyGoal: 8,
       );
 
       expect(result.streak.currentStreak, 2);
@@ -262,6 +273,7 @@ void main() {
         now: now,
         workOnSaturday: false,
         workOnSunday: false,
+        dailyGoal: 8,
       );
 
       expect(result.streak.currentStreak, 1);
@@ -282,6 +294,7 @@ void main() {
         now: now,
         workOnSaturday: true,
         workOnSunday: true,
+        dailyGoal: 8,
       );
 
       expect(result.streak.currentStreak, 4);
@@ -308,6 +321,7 @@ void main() {
         now: DateTime(2026, 3, 19, 14, 0),
         workOnSaturday: false,
         workOnSunday: false,
+        dailyGoal: 8,
       );
 
       expect(result.allTimeAverageReaction, const Duration(minutes: 3));

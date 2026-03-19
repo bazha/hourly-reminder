@@ -35,6 +35,7 @@ void main() async {
     storageService: storageService,
     alarmService: alarmService,
     statsRepository: statsRepository,
+    sharedPreferences: prefs,
   ));
 }
 
@@ -42,12 +43,14 @@ class HourlyReminderApp extends StatelessWidget {
   final StorageService storageService;
   final AlarmService alarmService;
   final MovementStatsRepository statsRepository;
+  final SharedPreferences sharedPreferences;
 
   const HourlyReminderApp({
     super.key,
     required this.storageService,
     required this.alarmService,
     required this.statsRepository,
+    required this.sharedPreferences,
   });
 
   @override
@@ -158,6 +161,7 @@ class HourlyReminderApp extends StatelessWidget {
         storageService: storageService,
         alarmService: alarmService,
         statsRepository: statsRepository,
+        sharedPreferences: sharedPreferences,
       ),
     );
   }

@@ -1,4 +1,5 @@
 import 'dart:io' show Platform;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest.dart' as tz_data;
@@ -17,6 +18,10 @@ class NotificationService {
   static const _alreadyMovedActionId = 'already_moved';
   static const _snoozeActionId = 'snooze';
   static const _snoozeNotificationId = 2;
+
+  /// Notifies listeners when a notification tap requests a specific tab.
+  /// Value is the tab index (1 = stats).
+  static final ValueNotifier<int> tabNotifier = ValueNotifier(0);
 
   static Future<void> initialize() async {
     tz_data.initializeTimeZones();
@@ -62,6 +67,9 @@ class NotificationService {
       await MovementActionHandler.handle();
     } else if (response.actionId == _snoozeActionId) {
       await _snoozeForIos();
+    } else if (response.actionId == null) {
+      // Body tap (not an action button) - open stats screen
+      tabNotifier.value = 1;
     }
   }
 
