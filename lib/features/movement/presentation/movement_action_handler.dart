@@ -24,26 +24,6 @@ class MovementActionHandler {
   }
 
   static Future<void> _scheduleWithWorkHours(Duration nextInterval) async {
-    final now = DateTime.now();
-    final candidate = now.add(nextInterval);
-
-    final isWithinWorkHours = AlarmService.shouldSendReminder(
-      now: candidate,
-      isEnabled: StorageService.isEnabled,
-      startHour: StorageService.startHour,
-      startMinute: StorageService.startMinute,
-      endHour: StorageService.endHour,
-      endMinute: StorageService.endMinute,
-      workOnSaturday: StorageService.workOnSaturday,
-      workOnSunday: StorageService.workOnSunday,
-    );
-
-    if (isWithinWorkHours) {
-      await AlarmService.scheduleHourlyAlarm();
-    } else {
-      // Falls outside work window. The existing alarm scheduler will pick up
-      // at the next work window start on its own cycle.
-      await AlarmService.scheduleHourlyAlarm();
-    }
+    await AlarmService.scheduleHourlyAlarm();
   }
 }

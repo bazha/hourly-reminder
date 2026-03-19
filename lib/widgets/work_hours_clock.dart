@@ -60,9 +60,15 @@ class _WorkHoursClockState extends State<WorkHoursClock> {
   void _handlePanStart(Offset pos) {
     final c = Offset(widget.size / 2, widget.size / 2);
     final t12 = _angleToTime12(_angle(c, pos));
-    final ds = (t12 - widget.startTime % 12).abs();
-    final de = (t12 - widget.endTime % 12).abs();
+    final ds = _circularDist12(t12, widget.startTime % 12);
+    final de = _circularDist12(t12, widget.endTime % 12);
     setState(() => _draggingHand = ds <= de ? 'start' : 'end');
+  }
+
+  /// Circular distance on a 12-hour dial (range [0, 6]).
+  static double _circularDist12(double a, double b) {
+    final d = (a - b).abs() % 12;
+    return d > 6 ? 12 - d : d;
   }
 
   void _handlePanUpdate(Offset pos) {

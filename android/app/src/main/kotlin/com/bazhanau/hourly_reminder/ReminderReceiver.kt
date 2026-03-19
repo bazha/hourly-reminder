@@ -32,10 +32,10 @@ class ReminderReceiver : BroadcastReceiver() {
         if (dayOfWeek == Calendar.SATURDAY && !workOnSaturday) return
         if (dayOfWeek == Calendar.SUNDAY && !workOnSunday) return
 
-        val startHour = prefs.getLong("flutter.start_hour", 9L).toInt()
-        val startMinute = prefs.getLong("flutter.start_minute", 0L).toInt()
-        val endHour = prefs.getLong("flutter.end_hour", 18L).toInt()
-        val endMinute = prefs.getLong("flutter.end_minute", 0L).toInt()
+        val startHour = prefs.getInt("flutter.start_hour", 9)
+        val startMinute = prefs.getInt("flutter.start_minute", 0)
+        val endHour = prefs.getInt("flutter.end_hour", 18)
+        val endMinute = prefs.getInt("flutter.end_minute", 0)
 
         val nowMin = now.get(Calendar.HOUR_OF_DAY) * 60 + now.get(Calendar.MINUTE)
         val startMin = startHour * 60 + startMinute

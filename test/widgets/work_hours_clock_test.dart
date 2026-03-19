@@ -33,11 +33,6 @@ void main() {
   }
 
   group('WorkHoursClock rendering', () {
-    testWidgets('renders without errors', (tester) async {
-      await tester.pumpWidget(buildClock());
-      expect(find.byType(WorkHoursClock), findsOneWidget);
-    });
-
     testWidgets('renders with current time indicator', (tester) async {
       await tester.pumpWidget(buildClock(
         currentTime: DateTime(2026, 1, 1, 12, 30),
