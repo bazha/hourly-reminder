@@ -8,6 +8,10 @@ class FakeMovementRepository implements MovementRepository {
   DateTime? sedentaryStartTime;
   DateTime? lastNotificationSentTime;
   DateTime? updatedSedentaryStartTime;
+  List<MovementEvent> events = [];
+
+  @override
+  Future<List<MovementEvent>> getEvents() async => events;
 
   @override
   Future<void> saveEvent(MovementEvent event) async {

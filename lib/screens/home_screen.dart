@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../core/theme/app_colors.dart';
+import '../features/movement_stats/domain/repositories/movement_stats_repository.dart';
+import '../features/movement_stats/presentation/stats_screen.dart';
 import '../services/alarm_service.dart';
 import '../services/storage_service.dart';
 import '../services/notification_service.dart';
@@ -11,11 +13,13 @@ import 'widgets/test_notification_button.dart';
 class HomeScreen extends StatefulWidget {
   final StorageService storageService;
   final AlarmService alarmService;
+  final MovementStatsRepository statsRepository;
 
   const HomeScreen({
     super.key,
     required this.storageService,
     required this.alarmService,
+    required this.statsRepository,
   });
 
   @override
@@ -131,6 +135,21 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: colors.appBarBg,
         foregroundColor: colors.appBarFg,
         elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.bar_chart_rounded),
+            tooltip: 'Статистика',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => StatsScreen(
+                    repository: widget.statsRepository,
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
