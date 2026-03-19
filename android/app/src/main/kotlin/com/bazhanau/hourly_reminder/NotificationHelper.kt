@@ -67,6 +67,22 @@ object NotificationHelper {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
+        val openAppPendingIntent = PendingIntent.getActivity(
+            context, 2,
+            Intent(context, MainActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            },
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val dismissPendingIntent = PendingIntent.getBroadcast(
+            context, 3,
+            Intent(context, NotificationDismissReceiver::class.java).apply {
+                action = NotificationDismissReceiver.ACTION_DISMISS
+            },
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
         val builder = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.mipmap.ic_launcher)
             .setContentTitle(contentTitle)
@@ -78,6 +94,8 @@ object NotificationHelper {
             .setAutoCancel(true)
             .setColor(0xFF607D8B.toInt())
             .setVibrate(longArrayOf(0, 250, 250, 250))
+            .setContentIntent(openAppPendingIntent)
+            .setDeleteIntent(dismissPendingIntent)
             .addAction(0, "Через 10 минут", snoozePendingIntent)
             .addAction(0, "Я уже двигался", alreadyMovedPendingIntent)
 
@@ -103,6 +121,10 @@ object NotificationHelper {
 
         // Record notification shown AFTER checking isFirst
         ExerciseRepository.recordNotificationShown(prefs)
+
+        // Cancel existing notification so Android treats the new one as fresh
+        // (full sound, vibration, heads-up) instead of silently replacing it.
+        cancel(context)
 
         val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         nm.notify(NOTIFICATION_ID, builder.build())
