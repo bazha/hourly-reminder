@@ -17,4 +17,16 @@ class TimeUtils {
   /// Formats hour and minute as `H:MM`.
   static String formatHourMinute(int hour, [int minute = 0]) =>
       '$hour:${minute.toString().padLeft(2, '0')}';
+
+  /// Formats a [Duration] as a compact Russian string.
+  ///
+  /// Examples: `Duration(seconds: 30) → '30с'`,
+  /// `Duration(minutes: 45) → '45м'`, `Duration(hours: 2, minutes: 15) → '2ч 15м'`
+  static String formatDuration(Duration d) {
+    if (d.inMinutes < 1) return '${d.inSeconds}с';
+    if (d.inHours < 1) return '${d.inMinutes}м';
+    final hours = d.inHours;
+    final minutes = d.inMinutes % 60;
+    return minutes > 0 ? '${hours}ч ${minutes}м' : '${hours}ч';
+  }
 }

@@ -4,12 +4,17 @@ import 'package:integration_test/integration_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:hourly_reminder/main.dart';
+import 'package:hourly_reminder/features/movement/data/datasources/movement_local_datasource.dart';
+import 'package:hourly_reminder/features/movement/data/repositories/movement_repository_impl.dart';
+import 'package:hourly_reminder/features/movement_stats/data/repositories/movement_stats_repository_impl.dart';
+import 'package:hourly_reminder/features/movement_stats/domain/repositories/movement_stats_repository.dart';
 import 'package:hourly_reminder/services/alarm_service.dart';
 import 'package:hourly_reminder/services/notification_service.dart';
 import 'package:hourly_reminder/services/storage_service.dart';
 
 late StorageService _storageService;
 late AlarmService _alarmService;
+late MovementStatsRepository _statsRepository;
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -19,6 +24,12 @@ void main() {
     final prefs = await SharedPreferences.getInstance();
     _storageService = StorageService(prefs);
     _alarmService = AlarmService();
+    final datasource = MovementLocalDatasource(prefs);
+    final movementRepo = MovementRepositoryImpl(datasource);
+    _statsRepository = MovementStatsRepositoryImpl(
+      movementRepository: movementRepo,
+      storageService: _storageService,
+    );
     await NotificationService.initialize();
   });
 
@@ -27,6 +38,7 @@ void main() {
       await tester.pumpWidget(HourlyReminderApp(
         storageService: _storageService,
         alarmService: _alarmService,
+        statsRepository: _statsRepository,
       ));
       await tester.pumpAndSettle();
 
@@ -51,6 +63,7 @@ void main() {
       await tester.pumpWidget(HourlyReminderApp(
         storageService: _storageService,
         alarmService: _alarmService,
+        statsRepository: _statsRepository,
       ));
       await tester.pumpAndSettle();
 
@@ -62,6 +75,7 @@ void main() {
       await tester.pumpWidget(HourlyReminderApp(
         storageService: _storageService,
         alarmService: _alarmService,
+        statsRepository: _statsRepository,
       ));
       await tester.pumpAndSettle();
 
@@ -72,6 +86,7 @@ void main() {
       await tester.pumpWidget(HourlyReminderApp(
         storageService: _storageService,
         alarmService: _alarmService,
+        statsRepository: _statsRepository,
       ));
       await tester.pumpAndSettle();
 
@@ -91,6 +106,7 @@ void main() {
       await tester.pumpWidget(HourlyReminderApp(
         storageService: _storageService,
         alarmService: _alarmService,
+        statsRepository: _statsRepository,
       ));
       await tester.pumpAndSettle();
 
@@ -101,6 +117,7 @@ void main() {
       await tester.pumpWidget(HourlyReminderApp(
         storageService: _storageService,
         alarmService: _alarmService,
+        statsRepository: _statsRepository,
       ));
 
       final app = tester.widget<MaterialApp>(find.byType(MaterialApp));
@@ -111,6 +128,7 @@ void main() {
       await tester.pumpWidget(HourlyReminderApp(
         storageService: _storageService,
         alarmService: _alarmService,
+        statsRepository: _statsRepository,
       ));
       await tester.pumpAndSettle();
 

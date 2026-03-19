@@ -9,6 +9,10 @@ class MovementRepositoryImpl implements MovementRepository {
   MovementRepositoryImpl(this._datasource);
 
   @override
+  Future<List<MovementEvent>> getEvents() async =>
+      _datasource.getEvents().map((m) => m.toEntity()).toList();
+
+  @override
   Future<void> saveEvent(MovementEvent event) =>
       _datasource.saveEvent(MovementEventModel.fromEntity(event));
 

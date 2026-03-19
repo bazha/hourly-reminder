@@ -50,6 +50,26 @@ void main() {
     });
   });
 
+  group('TimeUtils.formatDuration', () {
+    test('formats seconds for sub-minute durations', () {
+      expect(TimeUtils.formatDuration(Duration.zero), '0с');
+      expect(TimeUtils.formatDuration(const Duration(seconds: 30)), '30с');
+      expect(TimeUtils.formatDuration(const Duration(seconds: 59)), '59с');
+    });
+
+    test('formats minutes for sub-hour durations', () {
+      expect(TimeUtils.formatDuration(const Duration(minutes: 1)), '1м');
+      expect(TimeUtils.formatDuration(const Duration(minutes: 45)), '45м');
+      expect(TimeUtils.formatDuration(const Duration(minutes: 59, seconds: 30)), '59м');
+    });
+
+    test('formats hours and minutes for long durations', () {
+      expect(TimeUtils.formatDuration(const Duration(hours: 1)), '1ч');
+      expect(TimeUtils.formatDuration(const Duration(hours: 2, minutes: 15)), '2ч 15м');
+      expect(TimeUtils.formatDuration(const Duration(hours: 5, minutes: 0)), '5ч');
+    });
+  });
+
   group('formatTime delegates to formatHourMinute', () {
     test('produces identical output', () {
       for (int h = 0; h < 24; h++) {
