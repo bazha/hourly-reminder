@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/time_utils.dart';
 import '../../domain/entities/movement_stats.dart';
 
@@ -22,8 +23,11 @@ class StreakCard extends StatelessWidget {
     final colors = AppColors.of(context);
 
     return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+        side: BorderSide(color: colors.cardBorder),
+      ),
       color: colors.cardBg,
       child: Padding(
         padding: const EdgeInsets.all(20),
@@ -32,9 +36,7 @@ class StreakCard extends StatelessWidget {
           children: [
             Text(
               'Общая статистика',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
+              style: AppTypography.cardTitle.copyWith(
                 color: colors.textPrimary,
               ),
             ),
@@ -70,16 +72,14 @@ class StreakCard extends StatelessWidget {
             children: [
               Text(
                 '${streak.currentStreak}',
-                style: const TextStyle(
+                style: AppTypography.statNumber.copyWith(
                   fontSize: 36,
-                  fontWeight: FontWeight.w800,
                   color: AppColors.startColor,
                 ),
               ),
               Text(
                 _streakLabel(streak.currentStreak),
-                style: TextStyle(
-                  fontSize: 12,
+                style: AppTypography.label.copyWith(
                   color: colors.textSecondary,
                 ),
               ),
@@ -91,16 +91,14 @@ class StreakCard extends StatelessWidget {
             children: [
               Text(
                 '${streak.bestStreak}',
-                style: TextStyle(
+                style: AppTypography.statNumber.copyWith(
                   fontSize: 36,
-                  fontWeight: FontWeight.w800,
                   color: colors.textMuted,
                 ),
               ),
               Text(
                 'Лучшая серия',
-                style: TextStyle(
-                  fontSize: 12,
+                style: AppTypography.label.copyWith(
                   color: colors.textSecondary,
                 ),
               ),
@@ -117,14 +115,13 @@ class StreakCard extends StatelessWidget {
       children: [
         Text(
           label,
-          style: TextStyle(fontSize: 14, color: colors.textSecondary),
+          style: AppTypography.body.copyWith(color: colors.textSecondary),
         ),
         Text(
           value,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
+          style: AppTypography.bodyMedium.copyWith(
             color: colors.textPrimary,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ],
@@ -140,5 +137,4 @@ class StreakCard extends StatelessWidget {
     }
     return 'дней подряд';
   }
-
 }

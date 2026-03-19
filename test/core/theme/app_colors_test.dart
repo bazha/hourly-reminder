@@ -11,14 +11,14 @@ Widget _buildApp({
   return MaterialApp(
     theme: ThemeData(
       colorScheme: ColorScheme.fromSeed(
-        seedColor: Colors.blue,
+        seedColor: const Color(0xFF4EAAA0),
         brightness: Brightness.light,
       ),
       extensions: const [AppColors.light],
     ),
     darkTheme: ThemeData(
       colorScheme: ColorScheme.fromSeed(
-        seedColor: Colors.blue,
+        seedColor: const Color(0xFF4EAAA0),
         brightness: Brightness.dark,
       ),
       extensions: const [AppColors.dark],
@@ -42,9 +42,9 @@ void main() {
       expect(AppColors.light.isDark, isFalse);
     });
 
-    test('dark text is white, light text is dark', () {
-      expect(AppColors.dark.textPrimary, Colors.white);
-      expect(AppColors.light.textPrimary, isNot(Colors.white));
+    test('dark text is light, light text is dark', () {
+      expect(AppColors.dark.textPrimary, const Color(0xFFE8E8E8));
+      expect(AppColors.light.textPrimary, const Color(0xFF1A1C1E));
     });
   });
 
@@ -59,20 +59,20 @@ void main() {
   });
 
   group('AppColors shared accent constants', () {
-    test('startColor is emerald', () {
-      expect(AppColors.startColor, const Color(0xFF34D399));
+    test('startColor is teal', () {
+      expect(AppColors.startColor, const Color(0xFF4EAAA0));
     });
 
-    test('endColor is rose', () {
-      expect(AppColors.endColor, const Color(0xFFFB7185));
+    test('endColor is coral', () {
+      expect(AppColors.endColor, const Color(0xFFE57373));
     });
 
-    test('primary is indigo', () {
-      expect(AppColors.primary, const Color(0xFF818CF8));
+    test('primary is teal', () {
+      expect(AppColors.primary, const Color(0xFF4EAAA0));
     });
 
     test('nowColor is amber', () {
-      expect(AppColors.nowColor, const Color(0xFFFBBF24));
+      expect(AppColors.nowColor, const Color(0xFFF5A623));
     });
   });
 
@@ -116,7 +116,7 @@ void main() {
           key: key,
           theme: ThemeData(
             colorScheme: ColorScheme.fromSeed(
-              seedColor: Colors.blue,
+              seedColor: const Color(0xFF4EAAA0),
               brightness: brightness,
             ),
             extensions: [colors],
@@ -158,6 +158,13 @@ void main() {
       expect(c.startSliderInactive, isNotNull);
       expect(c.endSliderInactive, isNotNull);
       expect(c.weekendSwitchActive, isNotNull);
+      expect(c.navBarBg, isNotNull);
+      expect(c.navBarSelected, isNotNull);
+      expect(c.navBarUnselected, isNotNull);
+      expect(c.surface, isNotNull);
+      expect(c.onSurface, isNotNull);
+      expect(c.primaryContainer, isNotNull);
+      expect(c.accent, isNotNull);
     });
 
     test('light palette has non-null essential fields', () {
@@ -175,6 +182,13 @@ void main() {
       expect(c.startSliderInactive, isNotNull);
       expect(c.endSliderInactive, isNotNull);
       expect(c.weekendSwitchActive, isNotNull);
+      expect(c.navBarBg, isNotNull);
+      expect(c.navBarSelected, isNotNull);
+      expect(c.navBarUnselected, isNotNull);
+      expect(c.surface, isNotNull);
+      expect(c.onSurface, isNotNull);
+      expect(c.primaryContainer, isNotNull);
+      expect(c.accent, isNotNull);
     });
   });
 

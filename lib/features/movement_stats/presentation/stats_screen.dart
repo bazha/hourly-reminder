@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_typography.dart';
 import '../domain/entities/movement_stats.dart';
 import '../domain/repositories/movement_stats_repository.dart';
 import 'widgets/today_summary_card.dart';
@@ -50,18 +51,8 @@ class _StatsScreenState extends State<StatsScreen> {
   Widget build(BuildContext context) {
     final colors = AppColors.of(context);
 
-    return Scaffold(
-      backgroundColor: colors.bg,
-      appBar: AppBar(
-        title: const Text(
-          'Статистика',
-          style: TextStyle(fontWeight: FontWeight.w500),
-        ),
-        backgroundColor: colors.appBarBg,
-        foregroundColor: colors.appBarFg,
-        elevation: 0,
-      ),
-      body: _buildBody(colors),
+    return SafeArea(
+      child: _buildBody(colors),
     );
   }
 
@@ -90,23 +81,28 @@ class _StatsScreenState extends State<StatsScreen> {
         ),
       );
     }
-    return _buildContent();
+    return _buildContent(colors);
   }
 
-  Widget _buildContent() {
+  Widget _buildContent(AppColors colors) {
     final stats = _stats!;
     return RefreshIndicator(
       onRefresh: _loadStats,
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.fromLTRB(20, 24, 20, 20),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Text(
+              'Статистика',
+              style: AppTypography.heading.copyWith(color: colors.textPrimary),
+            ),
+            const SizedBox(height: 24),
             TodaySummaryCard(today: stats.today),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
             WeeklyChart(weeklyStats: stats.weeklyStats),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
             StreakCard(
               streak: stats.streak,
               totalMovements: stats.totalMovements,

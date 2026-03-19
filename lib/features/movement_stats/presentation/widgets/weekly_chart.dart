@@ -1,6 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_typography.dart';
 import '../../domain/entities/movement_stats.dart';
 
 class WeeklyChart extends StatelessWidget {
@@ -13,8 +14,11 @@ class WeeklyChart extends StatelessWidget {
     final colors = AppColors.of(context);
 
     return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+        side: BorderSide(color: colors.cardBorder),
+      ),
       color: colors.cardBg,
       child: Padding(
         padding: const EdgeInsets.all(20),
@@ -23,9 +27,7 @@ class WeeklyChart extends StatelessWidget {
           children: [
             Text(
               'За неделю',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
+              style: AppTypography.cardTitle.copyWith(
                 color: colors.textPrimary,
               ),
             ),
@@ -115,9 +117,9 @@ class WeeklyChart extends StatelessWidget {
             barRods: [
               BarChartRodData(
                 toY: count,
-                color: AppColors.primary.withValues(alpha: count > 0 ? 1 : 0.3),
+                color: AppColors.primary.withValues(alpha: count > 0 ? 1 : 0.15),
                 width: 20,
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(6)),
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
               ),
             ],
           );
