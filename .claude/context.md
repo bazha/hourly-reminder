@@ -63,6 +63,6 @@ Completed plans in `docs/01_change_plans/`:
 ## Known Tech Debt
 
 - `lib/screens/home_screen.dart` is large and handles too much. The refactoring change plan exists but hasn't been acted on.
-- Flat services pattern still used for most of the app. Only `movement` feature uses Clean Architecture.
+- `StorageService` and `AlarmService` now use constructor injection. `NotificationService` remains static (platform-bridging glue code). Full Clean Architecture migration was evaluated and deemed not worth it for this app size.
 - No Riverpod/Bloc - StatefulWidget + SharedPreferences for all state. Fine for current app size.
 - iOS support exists but is less tested than Android. Exercise notifications are Android-only.

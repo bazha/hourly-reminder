@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'core/theme/app_colors.dart';
+import 'services/alarm_service.dart';
 import 'services/notification_service.dart';
 import 'services/storage_service.dart';
 import 'screens/home_screen.dart';
@@ -10,20 +11,32 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await NotificationService.initialize();
-  await StorageService.initialize();
+
+  final prefs = await SharedPreferences.getInstance();
+  final storageService = StorageService(prefs);
+  final alarmService = AlarmService();
 
   // Initialize sedentary start time on first launch.
-  final prefs = await SharedPreferences.getInstance();
   final datasource = MovementLocalDatasource(prefs);
   if (datasource.getSedentaryStartTime() == null) {
     await datasource.setSedentaryStartTime(DateTime.now());
   }
 
-  runApp(const HourlyReminderApp());
+  runApp(HourlyReminderApp(
+    storageService: storageService,
+    alarmService: alarmService,
+  ));
 }
 
 class HourlyReminderApp extends StatelessWidget {
-  const HourlyReminderApp({super.key});
+  final StorageService storageService;
+  final AlarmService alarmService;
+
+  const HourlyReminderApp({
+    super.key,
+    required this.storageService,
+    required this.alarmService,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +72,10 @@ class HourlyReminderApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const HomeScreen(),
+      home: HomeScreen(
+        storageService: storageService,
+        alarmService: alarmService,
+      ),
     );
   }
 }
