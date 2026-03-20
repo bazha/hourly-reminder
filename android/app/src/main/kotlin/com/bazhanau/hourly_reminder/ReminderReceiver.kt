@@ -67,15 +67,13 @@ class ReminderReceiver : BroadcastReceiver() {
             }
         }
 
-        // Deduplication: only one notification per calendar hour
+        // Deduplication: suppress if last notification was less than half the interval ago
+        val intervalMinutes = prefs.getInt("flutter.reminder_interval_minutes", 60)
+        val dedupeThresholdMs = intervalMinutes * 60 * 1000L / 2
         val lastNotifiedMillis = prefs.getLong("flutter.last_notified_millis", 0L)
         if (lastNotifiedMillis > 0) {
-            val lastNotified = Calendar.getInstance().apply { timeInMillis = lastNotifiedMillis }
-            if (lastNotified.get(Calendar.YEAR) == now.get(Calendar.YEAR) &&
-                lastNotified.get(Calendar.MONTH) == now.get(Calendar.MONTH) &&
-                lastNotified.get(Calendar.DAY_OF_MONTH) == now.get(Calendar.DAY_OF_MONTH) &&
-                lastNotified.get(Calendar.HOUR_OF_DAY) == now.get(Calendar.HOUR_OF_DAY)
-            ) {
+            val elapsed = now.timeInMillis - lastNotifiedMillis
+            if (elapsed < dedupeThresholdMs) {
                 return
             }
         }

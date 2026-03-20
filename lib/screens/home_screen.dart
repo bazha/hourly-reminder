@@ -129,6 +129,16 @@ class _HomeScreenState extends State<HomeScreen> {
     await widget.storageService.savePreferences(_prefs);
   }
 
+  Future<void> _updateInterval(int minutes) async {
+    setState(() {
+      _prefs = _prefs.copyWith(reminderIntervalMinutes: minutes);
+    });
+    await widget.storageService.savePreferences(_prefs);
+    if (_prefs.isEnabled && mounted) {
+      await widget.alarmService.scheduleHourlyAlarm();
+    }
+  }
+
   Future<void> _recordManualMovement() async {
     final useCase = ConfirmMovementUseCase(
       repository: widget.movementRepository,
@@ -212,6 +222,7 @@ class _HomeScreenState extends State<HomeScreen> {
               onToggleSunday: _toggleSunday,
               onGenderChanged: _updateGender,
               onGoalChanged: _updateGoal,
+              onIntervalChanged: _updateInterval,
             ),
           ],
         ),
@@ -280,6 +291,7 @@ class _NextReminderBanner extends StatelessWidget {
       endMinute: prefs.endMinute,
       workOnSaturday: prefs.workOnSaturday,
       workOnSunday: prefs.workOnSunday,
+      intervalMinutes: prefs.reminderIntervalMinutes,
     );
     final text = TimeUtils.formatNextReminder(next, now);
 

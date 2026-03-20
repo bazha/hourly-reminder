@@ -14,12 +14,16 @@ void main() {
       expect(prefs.workOnSunday, isFalse);
       expect(prefs.notificationGender, NotificationGender.neutral);
       expect(prefs.dailyGoal, 8);
+      expect(prefs.reminderIntervalMinutes, 60);
     });
 
     test('copyWith overrides specified fields and preserves others', () {
       final prefs = UserPreferences(
-        isEnabled: false, startHour: 9, endHour: 18,
-        workOnSaturday: false, workOnSunday: false,
+        isEnabled: false,
+        startHour: 9,
+        endHour: 18,
+        workOnSaturday: false,
+        workOnSunday: false,
       );
 
       // No-arg copy is equal
@@ -52,20 +56,37 @@ void main() {
       // Daily goal
       final goal = prefs.copyWith(dailyGoal: 12);
       expect(goal.dailyGoal, 12);
+
+      // Interval
+      final interval = prefs.copyWith(reminderIntervalMinutes: 30);
+      expect(interval.reminderIntervalMinutes, 30);
+      expect(interval.startHour, 9);
     });
 
     test('equality and hashCode include all fields', () {
       final a = UserPreferences(
-        isEnabled: true, startHour: 9, startMinute: 15,
-        endHour: 18, endMinute: 30,
-        workOnSaturday: true, workOnSunday: false,
-        notificationGender: NotificationGender.female, dailyGoal: 10,
+        isEnabled: true,
+        startHour: 9,
+        startMinute: 15,
+        endHour: 18,
+        endMinute: 30,
+        workOnSaturday: true,
+        workOnSunday: false,
+        notificationGender: NotificationGender.female,
+        dailyGoal: 10,
+        reminderIntervalMinutes: 45,
       );
       final b = UserPreferences(
-        isEnabled: true, startHour: 9, startMinute: 15,
-        endHour: 18, endMinute: 30,
-        workOnSaturday: true, workOnSunday: false,
-        notificationGender: NotificationGender.female, dailyGoal: 10,
+        isEnabled: true,
+        startHour: 9,
+        startMinute: 15,
+        endHour: 18,
+        endMinute: 30,
+        workOnSaturday: true,
+        workOnSunday: false,
+        notificationGender: NotificationGender.female,
+        dailyGoal: 10,
+        reminderIntervalMinutes: 45,
       );
       expect(a, equals(b));
       expect(a.hashCode, equals(b.hashCode));
@@ -76,15 +97,21 @@ void main() {
       expect(a, isNot(equals(a.copyWith(endHour: 17))));
       expect(a, isNot(equals(a.copyWith(workOnSaturday: false))));
       expect(a, isNot(equals(a.copyWith(workOnSunday: true))));
-      expect(a, isNot(equals(a.copyWith(notificationGender: NotificationGender.male))));
+      expect(
+          a,
+          isNot(
+              equals(a.copyWith(notificationGender: NotificationGender.male))));
       expect(a, isNot(equals(a.copyWith(startMinute: 0))));
       expect(a, isNot(equals(a.copyWith(dailyGoal: 5))));
+      expect(a, isNot(equals(a.copyWith(reminderIntervalMinutes: 30))));
     });
 
     test('time getters include minutes as fractions', () {
       final prefs = UserPreferences(
-        startHour: 9, startMinute: 30,
-        endHour: 17, endMinute: 45,
+        startHour: 9,
+        startMinute: 30,
+        endHour: 17,
+        endMinute: 45,
       );
       expect(prefs.startTime, 9.5);
       expect(prefs.endTime, 17.75);
@@ -120,10 +147,24 @@ void main() {
 
       test('minute-based window 9:30-17:30 gives 9', () {
         final prefs = UserPreferences(
-          startHour: 9, startMinute: 30,
-          endHour: 17, endMinute: 30,
+          startHour: 9,
+          startMinute: 30,
+          endHour: 17,
+          endMinute: 30,
         );
         expect(prefs.dailyNotificationCount, 9);
+      });
+
+      test('30 min interval doubles notification count', () {
+        // 9-18 = 540 min, 540/30 + 1 = 19
+        final prefs = UserPreferences(reminderIntervalMinutes: 30);
+        expect(prefs.dailyNotificationCount, 19);
+      });
+
+      test('120 min interval halves notification count', () {
+        // 9-18 = 540 min, 540/120 + 1 = 5
+        final prefs = UserPreferences(reminderIntervalMinutes: 120);
+        expect(prefs.dailyNotificationCount, 5);
       });
     });
   });

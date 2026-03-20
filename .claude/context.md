@@ -60,6 +60,10 @@ Key categories:
 
 `ExerciseRepository.kt` (Android only) tracks exercise index and daily notification count. Both must reset together on new day detection.
 
+### Custom reminder interval
+
+Reminder interval is user-configurable (15-120 min, default 60). Stored in `flutter.reminder_interval_minutes`. Reminders are **not clock-aligned** - they fire at `now + interval`, so they drift over time (e.g. 10:01 -> 11:01 -> 12:01). Adaptive intervals after "I already moved" scale proportionally: fast reaction = base * 0.5, slow = base * 0.75, minimum 10 min.
+
 ### First notification delay
 
 The first notification of the day fires 45 min after work start (not immediately). Implemented in both:

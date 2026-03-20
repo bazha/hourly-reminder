@@ -9,16 +9,20 @@ import java.util.Calendar
 
 object ReminderScheduler {
     private const val HOURLY_REQUEST_CODE = 100
+    private const val DEFAULT_INTERVAL_MINUTES = 60
 
     fun scheduleNextHourlyAlarm(context: Context) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
-        // Next full hour
+        val prefs = context.getSharedPreferences(
+            "FlutterSharedPreferences", Context.MODE_PRIVATE
+        )
+        val intervalMinutes = prefs.getInt("flutter.reminder_interval_minutes", DEFAULT_INTERVAL_MINUTES).toLong()
+
         val next = Calendar.getInstance().apply {
-            set(Calendar.MINUTE, 0)
+            add(Calendar.MINUTE, intervalMinutes.toInt())
             set(Calendar.SECOND, 0)
             set(Calendar.MILLISECOND, 0)
-            add(Calendar.HOUR_OF_DAY, 1)
         }
 
         val pendingIntent = buildHourlyPendingIntent(context)
