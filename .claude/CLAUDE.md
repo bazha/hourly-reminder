@@ -10,7 +10,8 @@ Read these files in `.claude/` before starting work:
 - `.claude/context.md` - Additional project context
 - `.claude/credentials.md` - Additional service credentials info
 - `.claude/rules/*.md` - All the files from the rules folder
-- `.claude/skills/flutter-senior/SKILL.md` - Skills for flutter and dart tasks
+- `.claude/skills/senior-flutter-dev/SKILL.md` - Skills for flutter and dart tasks
+- `.claude/skills/dart-flutter-reviewer/SKILL.md` - Skill for analyze and review the project
 
 ## Key Rules
 

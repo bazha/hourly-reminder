@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../core/theme/app_colors.dart';
 import '../core/theme/app_typography.dart';
 import '../core/utils/time_utils.dart';
-import '../features/movement/data/datasources/movement_local_datasource.dart';
-import '../features/movement/data/repositories/movement_repository_impl.dart';
 import '../features/movement/domain/entities/movement_event.dart';
+import '../features/movement/domain/repositories/movement_repository.dart';
 import '../features/movement/domain/usecases/confirm_movement_use_case.dart';
 import '../features/movement_stats/domain/repositories/movement_stats_repository.dart';
 import '../services/alarm_service.dart';
@@ -20,14 +18,14 @@ class HomeScreen extends StatefulWidget {
   final StorageService storageService;
   final AlarmService alarmService;
   final MovementStatsRepository statsRepository;
-  final SharedPreferences sharedPreferences;
+  final MovementRepository movementRepository;
 
   const HomeScreen({
     super.key,
     required this.storageService,
     required this.alarmService,
     required this.statsRepository,
-    required this.sharedPreferences,
+    required this.movementRepository,
   });
 
   @override
@@ -47,7 +45,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _loadData() async {
     final prefs = await widget.storageService.loadPreferences();
-    final count = _getTodayMovementCount();
+    final count = await _getTodayMovementCount();
+    if (!mounted) return;
     setState(() {
       _prefs = prefs;
       _todayMovementCount = count;
@@ -55,12 +54,11 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  int _getTodayMovementCount() {
-    final datasource = MovementLocalDatasource(widget.sharedPreferences);
-    final events = datasource.getEvents();
+  Future<int> _getTodayMovementCount() async {
+    final events = await widget.movementRepository.getEvents();
     final today = DateTime.now();
     return events.where((e) {
-      final d = e.toEntity().timestamp;
+      final d = e.timestamp;
       return d.year == today.year && d.month == today.month && d.day == today.day;
     }).length;
   }
@@ -87,25 +85,14 @@ class _HomeScreenState extends State<HomeScreen> {
     await widget.storageService.savePreferences(_prefs);
   }
 
-  Future<void> _updateStartTime(double time) async {
+  Future<void> _updateTime(double time, {required bool isStart}) async {
     final hour = time.floor();
     final minute = ((time - hour) * 60).round();
 
     setState(() {
-      _prefs = _prefs.copyWith(startHour: hour, startMinute: minute);
-    });
-    await widget.storageService.savePreferences(_prefs);
-    if (_prefs.isEnabled) {
-      await widget.alarmService.scheduleHourlyAlarm();
-    }
-  }
-
-  Future<void> _updateEndTime(double time) async {
-    final hour = time.floor();
-    final minute = ((time - hour) * 60).round();
-
-    setState(() {
-      _prefs = _prefs.copyWith(endHour: hour, endMinute: minute);
+      _prefs = isStart
+          ? _prefs.copyWith(startHour: hour, startMinute: minute)
+          : _prefs.copyWith(endHour: hour, endMinute: minute);
     });
     await widget.storageService.savePreferences(_prefs);
     if (_prefs.isEnabled) {
@@ -142,18 +129,17 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _recordManualMovement() async {
-    final datasource = MovementLocalDatasource(widget.sharedPreferences);
-    final repository = MovementRepositoryImpl(datasource);
-
     final useCase = ConfirmMovementUseCase(
-      repository: repository,
+      repository: widget.movementRepository,
       scheduleNext: (_) => widget.alarmService.scheduleHourlyAlarm(),
     );
 
     await useCase.execute(source: MovementSource.manual);
 
+    final count = await _getTodayMovementCount();
+    if (!mounted) return;
     setState(() {
-      _todayMovementCount = _getTodayMovementCount();
+      _todayMovementCount = count;
     });
 
     if (mounted) {
@@ -200,8 +186,8 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 20),
             WorkHoursCard(
               prefs: _prefs,
-              onStartChanged: _updateStartTime,
-              onEndChanged: _updateEndTime,
+              onStartChanged: (v) => _updateTime(v, isStart: true),
+              onEndChanged: (v) => _updateTime(v, isStart: false),
             ),
             const SizedBox(height: 16),
             ReminderToggleCard(
@@ -211,8 +197,8 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 16),
             ScheduleCard(
               prefs: _prefs,
-              onStartChanged: _updateStartTime,
-              onEndChanged: _updateEndTime,
+              onStartChanged: (v) => _updateTime(v, isStart: true),
+              onEndChanged: (v) => _updateTime(v, isStart: false),
             ),
             const SizedBox(height: 16),
             OptionsCard(
@@ -317,12 +303,6 @@ class _GoalProgress extends StatelessWidget {
     final isComplete = current >= goal;
 
     return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-        side: BorderSide(color: colors.cardBorder),
-      ),
-      color: colors.cardBg,
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(

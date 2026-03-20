@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../core/theme/app_colors.dart';
+import '../features/movement/domain/repositories/movement_repository.dart';
 import '../features/movement_stats/domain/repositories/movement_stats_repository.dart';
 import '../services/alarm_service.dart';
 import '../services/notification_service.dart';
@@ -13,14 +13,14 @@ class MainShell extends StatefulWidget {
   final StorageService storageService;
   final AlarmService alarmService;
   final MovementStatsRepository statsRepository;
-  final SharedPreferences sharedPreferences;
+  final MovementRepository movementRepository;
 
   const MainShell({
     super.key,
     required this.storageService,
     required this.alarmService,
     required this.statsRepository,
-    required this.sharedPreferences,
+    required this.movementRepository,
   });
 
   @override
@@ -90,9 +90,12 @@ class _MainShellState extends State<MainShell> {
             storageService: widget.storageService,
             alarmService: widget.alarmService,
             statsRepository: widget.statsRepository,
-            sharedPreferences: widget.sharedPreferences,
+            movementRepository: widget.movementRepository,
           ),
-          StatsScreen(repository: widget.statsRepository),
+          StatsScreen(
+            repository: widget.statsRepository,
+            isActive: _currentIndex == 1,
+          ),
         ],
       ),
       bottomNavigationBar: NavigationBar(
