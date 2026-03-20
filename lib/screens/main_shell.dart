@@ -50,7 +50,8 @@ class _MainShellState extends State<MainShell> {
   /// Cold start: check if launched from a notification tap.
   Future<void> _checkInitialTab() async {
     try {
-      final tab = await _navigationChannel.invokeMethod<int>('getAndClearInitialTab');
+      final tab =
+          await _navigationChannel.invokeMethod<int>('getAndClearInitialTab');
       if (tab != null && tab != 0 && mounted) {
         setState(() => _currentIndex = tab);
       }
@@ -98,29 +99,37 @@ class _MainShellState extends State<MainShell> {
           ),
         ],
       ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _currentIndex,
-        onDestinationSelected: (index) {
-          setState(() => _currentIndex = index);
-        },
-        backgroundColor: colors.navBarBg,
-        indicatorColor: colors.primaryContainer,
-        surfaceTintColor: Colors.transparent,
-        elevation: 0,
-        height: 70,
-        labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-        destinations: [
-          NavigationDestination(
-            icon: Icon(Icons.home_outlined, color: colors.navBarUnselected),
-            selectedIcon: Icon(Icons.home_rounded, color: colors.navBarSelected),
-            label: 'Главная',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.bar_chart_outlined, color: colors.navBarUnselected),
-            selectedIcon: Icon(Icons.bar_chart_rounded, color: colors.navBarSelected),
-            label: 'Статистика',
-          ),
-        ],
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          border: Border(top: BorderSide(color: colors.divider)),
+        ),
+        child: NavigationBar(
+          selectedIndex: _currentIndex,
+          onDestinationSelected: (index) {
+            setState(() => _currentIndex = index);
+          },
+          backgroundColor: colors.navBarBg,
+          indicatorColor: Colors.transparent,
+          surfaceTintColor: Colors.transparent,
+          elevation: 0,
+          height: 64,
+          labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+          destinations: [
+            NavigationDestination(
+              icon: Icon(Icons.home_outlined, color: colors.navBarUnselected),
+              selectedIcon:
+                  Icon(Icons.home_rounded, color: colors.navBarSelected),
+              label: 'Главная',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.bar_chart_outlined,
+                  color: colors.navBarUnselected),
+              selectedIcon:
+                  Icon(Icons.bar_chart_rounded, color: colors.navBarSelected),
+              label: 'Статистика',
+            ),
+          ],
+        ),
       ),
     );
   }

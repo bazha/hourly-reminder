@@ -7,8 +7,13 @@ import '../../domain/entities/movement_stats.dart';
 
 class WeeklyChart extends StatelessWidget {
   final List<DailyStats> weeklyStats;
+  final int dailyGoal;
 
-  const WeeklyChart({super.key, required this.weeklyStats});
+  const WeeklyChart({
+    super.key,
+    required this.weeklyStats,
+    required this.dailyGoal,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -20,15 +25,27 @@ class WeeklyChart extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'За неделю',
-              style: AppTypography.cardTitle.copyWith(
-                color: colors.textPrimary,
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'ЭТА НЕДЕЛЯ',
+                  style: AppTypography.sectionLabel.copyWith(
+                    color: colors.textMuted,
+                  ),
+                ),
+                if (weeklyStats.isNotEmpty)
+                  Text(
+                    _dateRange(),
+                    style: AppTypography.label.copyWith(
+                      color: colors.textSecondary,
+                    ),
+                  ),
+              ],
             ),
             const SizedBox(height: 20),
             SizedBox(
-              height: 180,
+              height: 200,
               child: weeklyStats.isEmpty
                   ? Center(
                       child: Text(
@@ -44,16 +61,24 @@ class WeeklyChart extends StatelessWidget {
     );
   }
 
+  String _dateRange() {
+    if (weeklyStats.isEmpty) return '';
+    final first = weeklyStats.first.date;
+    final last = weeklyStats.last.date;
+    return '${first.day}.${first.month.toString().padLeft(2, '0')} - '
+        '${last.day}.${last.month.toString().padLeft(2, '0')}';
+  }
+
   Widget _buildChart(AppColors colors) {
-    final maxY = weeklyStats
+    final maxCount = weeklyStats
         .map((s) => s.movementCount)
-        .fold(0, (a, b) => a > b ? a : b)
-        .toDouble();
+        .fold(0, (a, b) => a > b ? a : b);
+    final maxY = (maxCount > dailyGoal ? maxCount : dailyGoal).toDouble() + 2;
 
     return BarChart(
       BarChartData(
         alignment: BarChartAlignment.spaceAround,
-        maxY: maxY < 1 ? 1 : maxY + 1,
+        maxY: maxY,
         barTouchData: BarTouchData(
           touchTooltipData: BarTouchTooltipData(
             getTooltipColor: (_) => colors.cardBg,
@@ -61,7 +86,8 @@ class WeeklyChart extends StatelessWidget {
               final count = rod.toY.toInt();
               return BarTooltipItem(
                 '$count',
-                TextStyle(color: colors.textPrimary, fontWeight: FontWeight.w600),
+                TextStyle(
+                    color: colors.textPrimary, fontWeight: FontWeight.w600),
               );
             },
           ),
@@ -105,16 +131,39 @@ class WeeklyChart extends StatelessWidget {
         ),
         gridData: const FlGridData(show: false),
         borderData: FlBorderData(show: false),
+        extraLinesData: ExtraLinesData(
+          horizontalLines: [
+            HorizontalLine(
+              y: dailyGoal.toDouble(),
+              color: colors.textMuted.withValues(alpha: 0.4),
+              strokeWidth: 1,
+              dashArray: [4, 4],
+              label: HorizontalLineLabel(
+                show: true,
+                alignment: Alignment.topRight,
+                padding: const EdgeInsets.only(right: 4, bottom: 2),
+                style: TextStyle(
+                  fontSize: 9,
+                  color: colors.textMuted,
+                ),
+                labelResolver: (_) => 'цель',
+              ),
+            ),
+          ],
+        ),
         barGroups: List.generate(weeklyStats.length, (i) {
           final count = weeklyStats[i].movementCount.toDouble();
+          final isEmpty = count == 0;
           return BarChartGroupData(
             x: i,
             barRods: [
               BarChartRodData(
-                toY: count,
-                color: AppColors.primary.withValues(alpha: count > 0 ? 1 : 0.15),
-                width: 20,
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
+                toY: isEmpty ? 0.3 : count,
+                color: isEmpty ? colors.divider : AppColors.primary,
+                width: 24,
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(4),
+                ),
               ),
             ],
           );

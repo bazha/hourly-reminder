@@ -103,7 +103,7 @@ class _StatsScreenState extends State<StatsScreen> {
       onRefresh: _loadStats,
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(20, 24, 20, 20),
+        padding: const EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -113,9 +113,12 @@ class _StatsScreenState extends State<StatsScreen> {
             ),
             const SizedBox(height: 24),
             TodaySummaryCard(today: stats.today, dailyGoal: stats.dailyGoal),
-            const SizedBox(height: 16),
-            WeeklyChart(weeklyStats: stats.weeklyStats),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
+            WeeklyChart(
+              weeklyStats: stats.weeklyStats,
+              dailyGoal: stats.dailyGoal,
+            ),
+            const SizedBox(height: 20),
             StreakCard(
               streak: stats.streak,
               totalMovements: stats.totalMovements,
