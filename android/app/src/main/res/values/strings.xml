@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Hourly Reminder</string>
+
+    <!-- Notification channel -->
+    <string name="channel_name">Hourly Reminders</string>
+    <string name="channel_description">Reminders to stand up and stretch</string>
+
+    <!-- Notification content -->
+    <string name="notif_title_first">Time to stretch</string>
+    <string name="notif_title_neutral">No movement for %d min.</string>
+    <string name="notif_title_male">You haven\'t moved for %d min.</string>
+    <string name="notif_title_female">You haven\'t moved for %d min.</string>
+    <string name="notif_body_first">Time for a break 🚶</string>
+    <string name="notif_body_exercise">Time to exercise! 💪</string>
+    <string name="notif_duration_seconds">%d seconds</string>
+
+    <!-- Notification actions -->
+    <string name="action_snooze">In 10 minutes</string>
+    <string name="action_already_moved">Already moved</string>
+
+    <!-- Exercises -->
+    <string name="exercise_neck">Neck turns</string>
+    <string name="exercise_neck_desc">Slowly turn your head left-right</string>
+    <string name="exercise_shoulder">Shoulder stretch</string>
+    <string name="exercise_shoulder_desc">Pull arm across chest, hold 15 sec</string>
+    <string name="exercise_wrist">Wrist stretch</string>
+    <string name="exercise_wrist_desc">Rotate wrists 10 times each direction</string>
+    <string name="exercise_calf">Calf raises</string>
+    <string name="exercise_calf_desc">Stand up and raise on toes 15 times</string>
+    <string name="exercise_torso">Torso twists</string>
+    <string name="exercise_torso_desc">Seated, twist left-right 10 times</string>
+    <string name="exercise_back">Back stretch</string>
+    <string name="exercise_back_desc">Reach arms up, hold 15 sec</string>
+    <string name="exercise_scapula">Scapula squeeze</string>
+    <string name="exercise_scapula_desc">Squeeze shoulder blades, hold 5 sec, repeat 10 times</string>
+    <string name="exercise_head_tilt">Head tilts</string>
+    <string name="exercise_head_tilt_desc">Tilt head to shoulder, hold 10 sec</string>
+</resources>

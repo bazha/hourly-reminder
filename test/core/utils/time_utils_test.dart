@@ -50,58 +50,27 @@ void main() {
     });
   });
 
-  group('TimeUtils.formatDuration', () {
+  group('TimeUtils.formatDurationRaw', () {
     test('formats seconds for sub-minute durations', () {
-      expect(TimeUtils.formatDuration(Duration.zero), '0с');
-      expect(TimeUtils.formatDuration(const Duration(seconds: 30)), '30с');
-      expect(TimeUtils.formatDuration(const Duration(seconds: 59)), '59с');
+      expect(TimeUtils.formatDurationRaw(Duration.zero), '0с');
+      expect(TimeUtils.formatDurationRaw(const Duration(seconds: 30)), '30с');
+      expect(TimeUtils.formatDurationRaw(const Duration(seconds: 59)), '59с');
     });
 
     test('formats minutes for sub-hour durations', () {
-      expect(TimeUtils.formatDuration(const Duration(minutes: 1)), '1м');
-      expect(TimeUtils.formatDuration(const Duration(minutes: 45)), '45м');
-      expect(TimeUtils.formatDuration(const Duration(minutes: 59, seconds: 30)), '59м');
+      expect(TimeUtils.formatDurationRaw(const Duration(minutes: 1)), '1м');
+      expect(TimeUtils.formatDurationRaw(const Duration(minutes: 45)), '45м');
+      expect(
+          TimeUtils.formatDurationRaw(const Duration(minutes: 59, seconds: 30)),
+          '59м');
     });
 
     test('formats hours and minutes for long durations', () {
-      expect(TimeUtils.formatDuration(const Duration(hours: 1)), '1ч');
-      expect(TimeUtils.formatDuration(const Duration(hours: 2, minutes: 15)), '2ч 15м');
-      expect(TimeUtils.formatDuration(const Duration(hours: 5, minutes: 0)), '5ч');
-    });
-  });
-
-  group('TimeUtils.formatNextReminder', () {
-    test('returns disabled message when next is null', () {
-      final now = DateTime(2026, 3, 19, 14, 30);
-      expect(
-        TimeUtils.formatNextReminder(null, now),
-        'Напоминания выключены',
-      );
-    });
-
-    test('returns same-day format', () {
-      final now = DateTime(2026, 3, 19, 14, 30);
-      final next = DateTime(2026, 3, 19, 15, 0);
-      expect(TimeUtils.formatNextReminder(next, now), 'Следующее в 15:00');
-    });
-
-    test('returns tomorrow format', () {
-      final now = DateTime(2026, 3, 19, 19, 0);
-      final next = DateTime(2026, 3, 20, 9, 0);
-      expect(TimeUtils.formatNextReminder(next, now), 'Следующее завтра в 9:00');
-    });
-
-    test('returns day name for 2+ days ahead', () {
-      // 2026-03-19 is Thursday, 2026-03-23 is Monday
-      final now = DateTime(2026, 3, 19, 19, 0);
-      final next = DateTime(2026, 3, 23, 9, 0);
-      expect(TimeUtils.formatNextReminder(next, now), 'Следующее в Пн в 9:00');
-    });
-
-    test('formats minutes with zero padding', () {
-      final now = DateTime(2026, 3, 19, 8, 0);
-      final next = DateTime(2026, 3, 19, 9, 5);
-      expect(TimeUtils.formatNextReminder(next, now), 'Следующее в 9:05');
+      expect(TimeUtils.formatDurationRaw(const Duration(hours: 1)), '1ч');
+      expect(TimeUtils.formatDurationRaw(const Duration(hours: 2, minutes: 15)),
+          '2ч 15м');
+      expect(TimeUtils.formatDurationRaw(const Duration(hours: 5, minutes: 0)),
+          '5ч');
     });
   });
 }

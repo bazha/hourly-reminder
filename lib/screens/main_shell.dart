@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../core/theme/app_colors.dart';
+import '../l10n/app_localizations.dart';
 import '../features/movement/domain/repositories/movement_repository.dart';
 import '../features/movement_stats/domain/repositories/movement_stats_repository.dart';
 import '../services/alarm_service.dart';
@@ -119,14 +120,14 @@ class _MainShellState extends State<MainShell> {
               icon: Icon(Icons.home_outlined, color: colors.navBarUnselected),
               selectedIcon:
                   Icon(Icons.home_rounded, color: colors.navBarSelected),
-              label: 'Главная',
+              label: AppLocalizations.of(context)!.navHome,
             ),
             NavigationDestination(
               icon: Icon(Icons.bar_chart_outlined,
                   color: colors.navBarUnselected),
               selectedIcon:
                   Icon(Icons.bar_chart_rounded, color: colors.navBarSelected),
-              label: 'Статистика',
+              label: AppLocalizations.of(context)!.navStats,
             ),
           ],
         ),

@@ -4,6 +4,7 @@ import '../../core/theme/app_typography.dart';
 import '../../models/user_preferences.dart';
 import '../../widgets/work_hours_clock.dart';
 import '../../core/utils/time_utils.dart';
+import '../../l10n/app_localizations.dart';
 
 class WorkHoursCard extends StatelessWidget {
   const WorkHoursCard({
@@ -46,6 +47,8 @@ class WorkHoursCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = AppColors.of(context);
 
+    final l10n = AppLocalizations.of(context)!;
+
     return Column(
       children: [
         Padding(
@@ -53,7 +56,7 @@ class WorkHoursCard extends StatelessWidget {
           child: Align(
             alignment: Alignment.centerLeft,
             child: Text(
-              'РАБОЧИЕ ЧАСЫ',
+              l10n.workHoursLabel,
               style: AppTypography.sectionLabel.copyWith(
                 color: colors.textMuted,
               ),
@@ -73,7 +76,7 @@ class WorkHoursCard extends StatelessWidget {
           children: [
             _TimeChip(
               dotColor: AppColors.startColor,
-              label: 'Начало',
+              label: l10n.timeChipStart,
               time: TimeUtils.formatHourMinute(
                   prefs.startHour, prefs.startMinute),
               onTap: () => _pickTime(
@@ -87,7 +90,7 @@ class WorkHoursCard extends StatelessWidget {
             const SizedBox(width: 12),
             _TimeChip(
               dotColor: AppColors.endColor,
-              label: 'Конец',
+              label: l10n.timeChipEnd,
               time: TimeUtils.formatHourMinute(prefs.endHour, prefs.endMinute),
               onTap: () => _pickTime(
                 context,

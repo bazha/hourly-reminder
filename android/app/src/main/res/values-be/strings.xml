@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Нагадвалка</string>
+
+    <!-- Notification channel -->
+    <string name="channel_name">Нагадванні кожную гадзiну</string>
+    <string name="channel_description">Нагадванні ўстаць i размяцца</string>
+
+    <!-- Notification content -->
+    <string name="notif_title_first">Час размяцца</string>
+    <string name="notif_title_neutral">Без руху %d хвiл.</string>
+    <string name="notif_title_male">Ты не рухаўся %d хвiл.</string>
+    <string name="notif_title_female">Ты не рухалася %d хвiл.</string>
+    <string name="notif_body_first">Час зрабiць перапынак 🚶</string>
+    <string name="notif_body_exercise">Час практыкавання! 💪</string>
+    <string name="notif_duration_seconds">%d секунд</string>
+
+    <!-- Notification actions -->
+    <string name="action_snooze">Праз 10 хвiлiн</string>
+    <string name="action_already_moved">Ужо рухаўся</string>
+
+    <!-- Exercises -->
+    <string name="exercise_neck">Павароты шыi</string>
+    <string name="exercise_neck_desc">Павольна паварочвай галаву ўлева-ўправа</string>
+    <string name="exercise_shoulder">Расцяжка плячэй</string>
+    <string name="exercise_shoulder_desc">Пацягнi руку праз грудзi, трымай 15 сек</string>
+    <string name="exercise_wrist">Расцяжка запясцяў</string>
+    <string name="exercise_wrist_desc">Круцi запясцi па 10 разоў у кожны бок</string>
+    <string name="exercise_calf">Падъём на наскi</string>
+    <string name="exercise_calf_desc">Устань i паднiмiся на наскi 15 разоў</string>
+    <string name="exercise_torso">Павароты корпуса</string>
+    <string name="exercise_torso_desc">Седзячы, павярнiся ўлева-ўправа 10 разоў</string>
+    <string name="exercise_back">Расцяжка спiны</string>
+    <string name="exercise_back_desc">Пацягнiся рукамi ўверх, трымай 15 сек</string>
+    <string name="exercise_scapula">Сцiсканне плячэй</string>
+    <string name="exercise_scapula_desc">Звядзi лапаткi разам, трымай 5 сек, паўтары 10 разоў</string>
+    <string name="exercise_head_tilt">Нахiлы галавы</string>
+    <string name="exercise_head_tilt_desc">Нахiлi галаву да пляча, трымай 10 сек</string>
+</resources>

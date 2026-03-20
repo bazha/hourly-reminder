@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/time_utils.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../domain/entities/movement_stats.dart';
 
 class StreakCard extends StatelessWidget {
@@ -21,6 +22,7 @@ class StreakCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = AppColors.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return Card(
       child: Padding(
@@ -28,25 +30,25 @@ class StreakCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildStreakRow(colors),
+            _buildStreakRow(colors, l10n),
             const SizedBox(height: 16),
             Divider(height: 1, color: colors.divider),
             const SizedBox(height: 16),
-            _buildStatRow('Всего разминок', '$totalMovements', colors),
+            _buildStatRow(l10n.totalMovements, '$totalMovements', colors),
             const SizedBox(height: 12),
             Divider(height: 1, color: colors.divider),
             const SizedBox(height: 12),
             _buildStatRow(
-              'Ср. реакция',
-              TimeUtils.formatDuration(allTimeAverageReaction),
+              l10n.avgReaction,
+              TimeUtils.formatDuration(allTimeAverageReaction, l10n),
               colors,
             ),
             const SizedBox(height: 12),
             Divider(height: 1, color: colors.divider),
             const SizedBox(height: 12),
             _buildStatRow(
-              'Ср. время сидя',
-              TimeUtils.formatDuration(allTimeAverageSedentary),
+              l10n.avgSedentary,
+              TimeUtils.formatDuration(allTimeAverageSedentary, l10n),
               colors,
             ),
           ],
@@ -55,7 +57,7 @@ class StreakCard extends StatelessWidget {
     );
   }
 
-  Widget _buildStreakRow(AppColors colors) {
+  Widget _buildStreakRow(AppColors colors, AppLocalizations l10n) {
     return Row(
       children: [
         Expanded(
@@ -70,14 +72,14 @@ class StreakCard extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                _streakLabel(streak.currentStreak),
+                l10n.streakDays(streak.currentStreak),
                 style: AppTypography.label.copyWith(
                   color: colors.textSecondary,
                 ),
               ),
               const SizedBox(height: 2),
               Text(
-                'Текущая серия',
+                l10n.currentStreak,
                 style: AppTypography.sectionLabel.copyWith(
                   color: colors.textMuted,
                   letterSpacing: 0.5,
@@ -103,14 +105,14 @@ class StreakCard extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                _streakLabel(streak.bestStreak),
+                l10n.streakDays(streak.bestStreak),
                 style: AppTypography.label.copyWith(
                   color: colors.textSecondary,
                 ),
               ),
               const SizedBox(height: 2),
               Text(
-                'Лучшая серия',
+                l10n.bestStreak,
                 style: AppTypography.sectionLabel.copyWith(
                   color: colors.textMuted,
                   letterSpacing: 0.5,
@@ -140,15 +142,5 @@ class StreakCard extends StatelessWidget {
         ),
       ],
     );
-  }
-
-  String _streakLabel(int days) {
-    final mod100 = days % 100;
-    final mod10 = days % 10;
-    if (mod10 == 1 && mod100 != 11) return 'день подряд';
-    if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) {
-      return 'дня подряд';
-    }
-    return 'дней подряд';
   }
 }

@@ -6,6 +6,7 @@ import '../features/movement/domain/entities/movement_event.dart';
 import '../features/movement/domain/repositories/movement_repository.dart';
 import '../features/movement/domain/usecases/confirm_movement_use_case.dart';
 import '../features/movement_stats/domain/repositories/movement_stats_repository.dart';
+import '../l10n/app_localizations.dart';
 import '../services/alarm_service.dart';
 import '../services/storage_service.dart';
 import '../services/notification_service.dart';
@@ -69,8 +70,9 @@ class _HomeScreenState extends State<HomeScreen> {
       final hasPermission = await NotificationService.requestPermissions();
       if (!hasPermission) {
         if (mounted) {
+          final l10n = AppLocalizations.of(context)!;
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Разрешите уведомления в настройках')),
+            SnackBar(content: Text(l10n.permissionRequired)),
           );
         }
         return;
@@ -154,10 +156,11 @@ class _HomeScreenState extends State<HomeScreen> {
     });
 
     if (mounted) {
+      final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Записано! Таймер сброшен'),
-          duration: Duration(seconds: 2),
+        SnackBar(
+          content: Text(l10n.movementRecorded),
+          duration: const Duration(seconds: 2),
           backgroundColor: AppColors.startColor,
         ),
       );
@@ -171,6 +174,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     final colors = AppColors.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return SafeArea(
       child: SingleChildScrollView(
@@ -178,12 +182,11 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header with toggle
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Напоминалка',
+                  l10n.appTitle,
                   style: AppTypography.heading.copyWith(
                     color: colors.textPrimary,
                   ),
@@ -195,27 +198,22 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
             const SizedBox(height: 8),
-            // Next reminder
             _NextReminderBanner(prefs: _prefs, colors: colors),
             const SizedBox(height: 24),
-            // Today's progress
             _GoalProgress(
               current: _todayMovementCount,
               goal: _prefs.dailyGoal,
               colors: colors,
             ),
             const SizedBox(height: 12),
-            // Record movement button
             _ManualMoveButton(onPressed: _recordManualMovement),
             const SizedBox(height: 32),
-            // Work hours clock
             WorkHoursCard(
               prefs: _prefs,
               onStartChanged: (v) => _updateTime(v, isStart: true),
               onEndChanged: (v) => _updateTime(v, isStart: false),
             ),
             const SizedBox(height: 32),
-            // Settings list
             SettingsSection(
               prefs: _prefs,
               onToggleSaturday: _toggleSaturday,
@@ -240,9 +238,10 @@ class _EnableToggle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = AppColors.of(context);
+    final l10n = AppLocalizations.of(context)!;
     return Semantics(
       toggled: isEnabled,
-      label: 'Напоминания',
+      label: l10n.toggleSemanticsLabel,
       child: GestureDetector(
         onTap: () => onToggle(!isEnabled),
         child: AnimatedContainer(
@@ -260,7 +259,7 @@ class _EnableToggle extends StatelessWidget {
             ),
           ),
           child: Text(
-            isEnabled ? 'ВКЛ' : 'ВЫКЛ',
+            isEnabled ? l10n.toggleOn : l10n.toggleOff,
             style: AppTypography.label.copyWith(
               color: isEnabled ? AppColors.startColor : colors.textMuted,
               fontWeight: FontWeight.w600,
@@ -281,6 +280,7 @@ class _NextReminderBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final now = DateTime.now();
     final next = AlarmService.nextNotificationTime(
       now: now,
@@ -293,7 +293,7 @@ class _NextReminderBanner extends StatelessWidget {
       workOnSunday: prefs.workOnSunday,
       intervalMinutes: prefs.reminderIntervalMinutes,
     );
-    final text = TimeUtils.formatNextReminder(next, now);
+    final text = TimeUtils.formatNextReminder(next, now, l10n);
 
     return Row(
       children: [
@@ -321,6 +321,7 @@ class _GoalProgress extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final progress = goal > 0 ? (current / goal).clamp(0.0, 1.0) : 0.0;
     final isComplete = current >= goal;
 
@@ -334,7 +335,7 @@ class _GoalProgress extends StatelessWidget {
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  'СЕГОДНЯ',
+                  l10n.todayLabel,
                   style: AppTypography.sectionLabel.copyWith(
                     color: colors.textMuted,
                   ),
@@ -350,7 +351,7 @@ class _GoalProgress extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              'из $goal разминок',
+              l10n.goalProgressText(goal),
               style: AppTypography.body.copyWith(color: colors.textSecondary),
             ),
             const SizedBox(height: 16),
@@ -379,13 +380,14 @@ class _ManualMoveButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return SizedBox(
       width: double.infinity,
       height: 48,
       child: OutlinedButton.icon(
         onPressed: onPressed,
         icon: const Icon(Icons.check, size: 18),
-        label: Text('Записать разминку',
+        label: Text(l10n.recordMovement,
             style: AppTypography.button.copyWith(fontSize: 14)),
         style: OutlinedButton.styleFrom(
           foregroundColor: AppColors.startColor,

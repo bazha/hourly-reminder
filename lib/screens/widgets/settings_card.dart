@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_typography.dart';
 import '../../models/user_preferences.dart';
+import '../../l10n/app_localizations.dart';
+import '../../main.dart';
 import '../../services/notification_service.dart';
 
 class SettingsSection extends StatelessWidget {
@@ -22,24 +24,25 @@ class SettingsSection extends StatelessWidget {
   final ValueChanged<int> onGoalChanged;
   final ValueChanged<int> onIntervalChanged;
 
-  String _workDaysLabel() {
-    if (prefs.workOnSaturday && prefs.workOnSunday) return 'Пн-Вс';
-    if (prefs.workOnSaturday) return 'Пн-Сб';
-    if (prefs.workOnSunday) return 'Пн-Пт, Вс';
-    return 'Пн-Пт';
+  String _workDaysLabel(AppLocalizations l10n) {
+    if (prefs.workOnSaturday && prefs.workOnSunday) return l10n.workDaysMonSun;
+    if (prefs.workOnSaturday) return l10n.workDaysMonSat;
+    if (prefs.workOnSunday) return l10n.workDaysMonFriSun;
+    return l10n.workDaysMonFri;
   }
 
-  String _genderLabel() {
+  String _genderLabel(AppLocalizations l10n) {
     return switch (prefs.notificationGender) {
-      NotificationGender.neutral => 'Нейтральный',
-      NotificationGender.male => 'Мужской',
-      NotificationGender.female => 'Женский',
+      NotificationGender.neutral => l10n.genderNeutralShort,
+      NotificationGender.male => l10n.genderMaleShort,
+      NotificationGender.female => l10n.genderFemaleShort,
     };
   }
 
   @override
   Widget build(BuildContext context) {
     final colors = AppColors.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -47,7 +50,7 @@ class SettingsSection extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.only(left: 4, bottom: 12),
           child: Text(
-            'НАСТРОЙКИ',
+            l10n.settingsLabel,
             style: AppTypography.sectionLabel.copyWith(
               color: colors.textMuted,
             ),
@@ -55,47 +58,55 @@ class SettingsSection extends StatelessWidget {
         ),
         _SettingsRow(
           icon: Icons.calendar_today_outlined,
-          label: 'Рабочие дни',
-          value: _workDaysLabel(),
+          label: l10n.settingWorkDays,
+          value: _workDaysLabel(l10n),
           colors: colors,
           onTap: () => _showWorkDaysSheet(context),
         ),
         Divider(height: 1, color: colors.divider),
         _SettingsRow(
           icon: Icons.flag_outlined,
-          label: 'Дневная цель',
-          value: '${prefs.dailyGoal} разминок',
+          label: l10n.settingDailyGoal,
+          value: l10n.nMovements(prefs.dailyGoal),
           colors: colors,
           onTap: () => _showGoalSheet(context),
         ),
         Divider(height: 1, color: colors.divider),
         _SettingsRow(
           icon: Icons.timer_outlined,
-          label: 'Интервал напоминаний',
-          value: '${prefs.reminderIntervalMinutes} мин',
+          label: l10n.settingInterval,
+          value: l10n.nMinutes(prefs.reminderIntervalMinutes),
           colors: colors,
           onTap: () => _showIntervalSheet(context),
         ),
         Divider(height: 1, color: colors.divider),
         _SettingsRow(
           icon: Icons.notifications_outlined,
-          label: 'Стиль уведомлений',
-          value: _genderLabel(),
+          label: l10n.settingNotificationStyle,
+          value: _genderLabel(l10n),
           colors: colors,
           onTap: () => _showGenderSheet(context),
         ),
         Divider(height: 1, color: colors.divider),
         _SettingsRow(
+          icon: Icons.language_outlined,
+          label: l10n.settingLanguage,
+          value: _currentLanguageLabel(context, l10n),
+          colors: colors,
+          onTap: () => _showLanguageSheet(context),
+        ),
+        Divider(height: 1, color: colors.divider),
+        _SettingsRow(
           icon: Icons.send_outlined,
-          label: 'Тест уведомления',
+          label: l10n.settingTestNotification,
           colors: colors,
           onTap: () async {
             await NotificationService.showHourlyNotification();
             if (context.mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Тестовое уведомление отправлено'),
-                  duration: Duration(seconds: 2),
+                SnackBar(
+                  content: Text(l10n.testNotificationSent),
+                  duration: const Duration(seconds: 2),
                   backgroundColor: AppColors.startColor,
                 ),
               );
@@ -106,8 +117,25 @@ class SettingsSection extends StatelessWidget {
     );
   }
 
-  void _showWorkDaysSheet(BuildContext context) {
+  String _currentLanguageLabel(BuildContext context, AppLocalizations l10n) {
+    final code = Localizations.localeOf(context).languageCode;
+    return switch (code) {
+      'ru' => l10n.languageRu,
+      'en' => l10n.languageEn,
+      'be' => l10n.languageBe,
+      _ => l10n.languageSystem,
+    };
+  }
+
+  void _showLanguageSheet(BuildContext context) {
     final colors = AppColors.of(context);
+    final l10n = AppLocalizations.of(context)!;
+    final options = [
+      (null, l10n.languageSystem),
+      (const Locale('ru'), l10n.languageRu),
+      (const Locale('en'), l10n.languageEn),
+      (const Locale('be'), l10n.languageBe),
+    ];
     showModalBottomSheet(
       context: context,
       backgroundColor: colors.cardBg,
@@ -121,13 +149,55 @@ class SettingsSection extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Рабочие дни',
+              l10n.settingLanguage,
+              style:
+                  AppTypography.cardTitle.copyWith(color: colors.textPrimary),
+            ),
+            const SizedBox(height: 16),
+            ...options.map((option) {
+              final (locale, label) = option;
+              return ListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(
+                  label,
+                  style: AppTypography.bodyMedium
+                      .copyWith(color: colors.textPrimary),
+                ),
+                onTap: () {
+                  HourlyReminderApp.setLocale(context, locale);
+                  Navigator.pop(ctx);
+                },
+              );
+            }),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showWorkDaysSheet(BuildContext context) {
+    final colors = AppColors.of(context);
+    final l10n = AppLocalizations.of(context)!;
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: colors.cardBg,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (ctx) => Padding(
+        padding: const EdgeInsets.fromLTRB(24, 24, 24, 40),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              l10n.settingWorkDays,
               style:
                   AppTypography.cardTitle.copyWith(color: colors.textPrimary),
             ),
             const SizedBox(height: 20),
             _SheetToggleRow(
-              label: 'Суббота',
+              label: l10n.saturday,
               value: prefs.workOnSaturday,
               onChanged: (v) {
                 onToggleSaturday(v);
@@ -137,7 +207,7 @@ class SettingsSection extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             _SheetToggleRow(
-              label: 'Воскресенье',
+              label: l10n.sunday,
               value: prefs.workOnSunday,
               onChanged: (v) {
                 onToggleSunday(v);
@@ -185,6 +255,7 @@ class SettingsSection extends StatelessWidget {
 
   void _showGenderSheet(BuildContext context) {
     final colors = AppColors.of(context);
+    final l10n = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
       backgroundColor: colors.cardBg,
@@ -198,21 +269,21 @@ class SettingsSection extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Стиль уведомлений',
+              l10n.settingNotificationStyle,
               style:
                   AppTypography.cardTitle.copyWith(color: colors.textPrimary),
             ),
             const SizedBox(height: 16),
             ...NotificationGender.values.map((gender) {
               final label = switch (gender) {
-                NotificationGender.neutral => 'Нейтральное',
-                NotificationGender.male => 'Мужской род',
-                NotificationGender.female => 'Женский род',
+                NotificationGender.neutral => l10n.genderNeutralFull,
+                NotificationGender.male => l10n.genderMaleFull,
+                NotificationGender.female => l10n.genderFemaleFull,
               };
               final example = switch (gender) {
-                NotificationGender.neutral => 'Без движения X мин.',
-                NotificationGender.male => 'Ты не двигался X мин.',
-                NotificationGender.female => 'Ты не двигалась X мин.',
+                NotificationGender.neutral => l10n.genderNeutralExample,
+                NotificationGender.male => l10n.genderMaleExample,
+                NotificationGender.female => l10n.genderFemaleExample,
               };
               final isSelected = prefs.notificationGender == gender;
               return ListTile(
@@ -357,14 +428,14 @@ class _GoalPickerState extends State<_GoalPicker> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Дневная цель',
+            AppLocalizations.of(context)!.settingDailyGoal,
             style: AppTypography.cardTitle.copyWith(
               color: widget.colors.textPrimary,
             ),
           ),
           const SizedBox(height: 8),
           Text(
-            '${_value.round()} разминок',
+            AppLocalizations.of(context)!.nMovements(_value.round()),
             style: AppTypography.statMedium.copyWith(
               color: AppColors.primary,
             ),
@@ -400,7 +471,7 @@ class _GoalPickerState extends State<_GoalPicker> {
                 Navigator.pop(context);
               },
               child: Text(
-                'Готово',
+                AppLocalizations.of(context)!.done,
                 style: AppTypography.button.copyWith(
                   color: AppColors.primary,
                 ),
@@ -459,7 +530,7 @@ class _IntervalPickerState extends State<_IntervalPicker> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Интервал напоминаний',
+            AppLocalizations.of(context)!.settingInterval,
             style: AppTypography.cardTitle.copyWith(
               color: widget.colors.textPrimary,
             ),
@@ -485,10 +556,10 @@ class _IntervalPickerState extends State<_IntervalPicker> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('15 мин',
+              Text(AppLocalizations.of(context)!.intervalSliderMin,
                   style: AppTypography.label
                       .copyWith(color: widget.colors.textMuted)),
-              Text('2 ч',
+              Text(AppLocalizations.of(context)!.intervalSliderMax,
                   style: AppTypography.label
                       .copyWith(color: widget.colors.textMuted)),
             ],
@@ -502,7 +573,7 @@ class _IntervalPickerState extends State<_IntervalPicker> {
                 Navigator.pop(context);
               },
               child: Text(
-                'Готово',
+                AppLocalizations.of(context)!.done,
                 style: AppTypography.button.copyWith(
                   color: AppColors.primary,
                 ),
