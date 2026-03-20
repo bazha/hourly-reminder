@@ -152,9 +152,14 @@ class NotificationService {
     await datasource.setLastNotificationSentTime(DateTime.now());
   }
 
-  /// Resolves AppLocalizations without a BuildContext by using the platform locale.
+  /// Resolves AppLocalizations using the app_locale preference.
+  /// Falls back to system locale, then to Russian.
   static Future<AppLocalizations> _resolveLocalizations() async {
-    final locale = ui.PlatformDispatcher.instance.locale;
+    final prefs = await SharedPreferences.getInstance();
+    final appLocale = prefs.getString('app_locale');
+    final locale = appLocale != null
+        ? ui.Locale(appLocale)
+        : ui.PlatformDispatcher.instance.locale;
     final supported = AppLocalizations.supportedLocales;
     final match = supported.firstWhere(
       (l) => l.languageCode == locale.languageCode,
