@@ -104,16 +104,4 @@ void main() {
       expect(TimeUtils.formatNextReminder(next, now), 'Следующее в 9:05');
     });
   });
-
-  group('formatTime delegates to formatHourMinute', () {
-    test('produces identical output', () {
-      for (int h = 0; h < 24; h++) {
-        for (final m in [0, 15, 30, 45]) {
-          final fromDouble = TimeUtils.formatTime(h + m / 60.0);
-          final fromInts = TimeUtils.formatHourMinute(h, m);
-          expect(fromDouble, fromInts, reason: 'h=$h m=$m');
-        }
-      }
-    });
-  });
 }

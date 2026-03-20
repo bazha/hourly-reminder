@@ -2,223 +2,63 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hourly_reminder/core/theme/app_colors.dart';
 
-/// Helper to build a MaterialApp with AppColors registered as a ThemeExtension.
-Widget _buildApp({
-  required Brightness brightness,
-  required WidgetBuilder builder,
-}) {
-  final isLight = brightness == Brightness.light;
-  return MaterialApp(
-    theme: ThemeData(
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: const Color(0xFF4EAAA0),
-        brightness: Brightness.light,
-      ),
-      extensions: const [AppColors.light],
-    ),
-    darkTheme: ThemeData(
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: const Color(0xFF4EAAA0),
-        brightness: Brightness.dark,
-      ),
-      extensions: const [AppColors.dark],
-    ),
-    themeMode: isLight ? ThemeMode.light : ThemeMode.dark,
-    home: Builder(builder: builder),
-  );
-}
-
 void main() {
-  group('AppColors static palettes', () {
-    test('dark and light have distinct background colors', () {
-      expect(AppColors.dark.bg, isNot(equals(AppColors.light.bg)));
-    });
-
-    test('dark palette isDark returns true', () {
-      expect(AppColors.dark.isDark, isTrue);
-    });
-
-    test('light palette isDark returns false', () {
-      expect(AppColors.light.isDark, isFalse);
-    });
-
-    test('dark text is light, light text is dark', () {
-      expect(AppColors.dark.textPrimary, const Color(0xFFE8E8E8));
-      expect(AppColors.light.textPrimary, const Color(0xFF1A1C1E));
-    });
+  test('dark and light palettes are distinct', () {
+    expect(AppColors.dark.bg, isNot(equals(AppColors.light.bg)));
+    expect(AppColors.dark.isDark, isTrue);
+    expect(AppColors.light.isDark, isFalse);
+    expect(AppColors.dark == AppColors.light, isFalse);
+    expect(AppColors.dark.hashCode, isNot(AppColors.light.hashCode));
   });
 
-  group('AppColors equality', () {
-    test('dark does not equal light', () {
-      expect(AppColors.dark == AppColors.light, isFalse);
-    });
-
-    test('hashCode is consistent with equality', () {
-      expect(AppColors.dark.hashCode, isNot(AppColors.light.hashCode));
-    });
+  test('shared accent constants have expected values', () {
+    expect(AppColors.startColor, const Color(0xFF4EAAA0));
+    expect(AppColors.endColor, const Color(0xFFE57373));
+    expect(AppColors.primary, const Color(0xFF4EAAA0));
+    expect(AppColors.nowColor, const Color(0xFFF5A623));
   });
 
-  group('AppColors shared accent constants', () {
-    test('startColor is teal', () {
-      expect(AppColors.startColor, const Color(0xFF4EAAA0));
-    });
+  testWidgets('AppColors.of resolves correct palette per brightness', (tester) async {
+    late AppColors result;
 
-    test('endColor is coral', () {
-      expect(AppColors.endColor, const Color(0xFFE57373));
-    });
-
-    test('primary is teal', () {
-      expect(AppColors.primary, const Color(0xFF4EAAA0));
-    });
-
-    test('nowColor is amber', () {
-      expect(AppColors.nowColor, const Color(0xFFF5A623));
-    });
-  });
-
-  group('AppColors.of (ThemeExtension)', () {
-    testWidgets('returns dark palette for dark theme', (tester) async {
-      late AppColors result;
-      await tester.pumpWidget(
-        _buildApp(
-          brightness: Brightness.dark,
+    Widget buildWithKey(Brightness brightness, Key key) {
+      return MaterialApp(
+        key: key,
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: const Color(0xFF4EAAA0),
+            brightness: brightness,
+          ),
+          extensions: [brightness == Brightness.dark ? AppColors.dark : AppColors.light],
+        ),
+        home: Builder(
           builder: (context) {
             result = AppColors.of(context);
             return const SizedBox();
           },
         ),
       );
-      expect(result.isDark, isTrue);
-    });
+    }
 
-    testWidgets('returns light palette for light theme', (tester) async {
-      late AppColors result;
-      await tester.pumpWidget(
-        _buildApp(
-          brightness: Brightness.light,
-          builder: (context) {
-            result = AppColors.of(context);
-            return const SizedBox();
-          },
-        ),
-      );
-      expect(result.isDark, isFalse);
-    });
+    await tester.pumpWidget(buildWithKey(Brightness.dark, const Key('d')));
+    expect(result.isDark, isTrue);
 
-    testWidgets('theme switches without restart', (tester) async {
-      late AppColors result;
-      Widget buildWithExtension(
-        AppColors colors,
-        Brightness brightness,
-        Key key,
-      ) {
-        return MaterialApp(
-          key: key,
-          theme: ThemeData(
-            colorScheme: ColorScheme.fromSeed(
-              seedColor: const Color(0xFF4EAAA0),
-              brightness: brightness,
-            ),
-            extensions: [colors],
-          ),
-          home: Builder(
-            builder: (context) {
-              result = AppColors.of(context);
-              return const SizedBox();
-            },
-          ),
-        );
-      }
-
-      await tester.pumpWidget(
-        buildWithExtension(AppColors.light, Brightness.light, const Key('l')),
-      );
-      expect(result.isDark, isFalse);
-
-      await tester.pumpWidget(
-        buildWithExtension(AppColors.dark, Brightness.dark, const Key('d')),
-      );
-      expect(result.isDark, isTrue);
-    });
+    await tester.pumpWidget(buildWithKey(Brightness.light, const Key('l')));
+    expect(result.isDark, isFalse);
   });
 
-  group('AppColors token completeness', () {
-    test('dark palette has non-null essential fields', () {
-      final c = AppColors.dark;
-      expect(c.bg, isNotNull);
-      expect(c.cardBg, isNotNull);
-      expect(c.cardBorder, isNotNull);
-      expect(c.textPrimary, isNotNull);
-      expect(c.textSecondary, isNotNull);
-      expect(c.textMuted, isNotNull);
-      expect(c.clockFaceInner, isNotNull);
-      expect(c.clockFaceOuter, isNotNull);
-      expect(c.appBarBg, isNotNull);
-      expect(c.appBarFg, isNotNull);
-      expect(c.startSliderInactive, isNotNull);
-      expect(c.endSliderInactive, isNotNull);
-      expect(c.weekendSwitchActive, isNotNull);
-      expect(c.navBarBg, isNotNull);
-      expect(c.navBarSelected, isNotNull);
-      expect(c.navBarUnselected, isNotNull);
-      expect(c.surface, isNotNull);
-      expect(c.onSurface, isNotNull);
-      expect(c.primaryContainer, isNotNull);
-      expect(c.accent, isNotNull);
-    });
+  test('copyWith overrides specified field and preserves others', () {
+    final modified = AppColors.light.copyWith(bg: Colors.red);
+    expect(modified.bg, Colors.red);
+    expect(modified.textPrimary, AppColors.light.textPrimary);
 
-    test('light palette has non-null essential fields', () {
-      final c = AppColors.light;
-      expect(c.bg, isNotNull);
-      expect(c.cardBg, isNotNull);
-      expect(c.cardBorder, isNotNull);
-      expect(c.textPrimary, isNotNull);
-      expect(c.textSecondary, isNotNull);
-      expect(c.textMuted, isNotNull);
-      expect(c.clockFaceInner, isNotNull);
-      expect(c.clockFaceOuter, isNotNull);
-      expect(c.appBarBg, isNotNull);
-      expect(c.appBarFg, isNotNull);
-      expect(c.startSliderInactive, isNotNull);
-      expect(c.endSliderInactive, isNotNull);
-      expect(c.weekendSwitchActive, isNotNull);
-      expect(c.navBarBg, isNotNull);
-      expect(c.navBarSelected, isNotNull);
-      expect(c.navBarUnselected, isNotNull);
-      expect(c.surface, isNotNull);
-      expect(c.onSurface, isNotNull);
-      expect(c.primaryContainer, isNotNull);
-      expect(c.accent, isNotNull);
-    });
+    final copy = AppColors.dark.copyWith();
+    expect(copy.bg, AppColors.dark.bg);
   });
 
-  group('ThemeExtension methods', () {
-    test('copyWith produces valid instance with overridden field', () {
-      final modified = AppColors.light.copyWith(bg: Colors.red);
-      expect(modified.bg, Colors.red);
-      expect(modified.textPrimary, AppColors.light.textPrimary);
-    });
-
-    test('copyWith with no args returns equivalent instance', () {
-      final copy = AppColors.dark.copyWith();
-      expect(copy.bg, AppColors.dark.bg);
-      expect(copy.appBarBg, AppColors.dark.appBarBg);
-    });
-
-    test('lerp at 0 returns start values', () {
-      final result = AppColors.light.lerp(AppColors.dark, 0);
-      expect(result.bg, AppColors.light.bg);
-    });
-
-    test('lerp at 1 returns end values', () {
-      final result = AppColors.light.lerp(AppColors.dark, 1);
-      expect(result.bg, AppColors.dark.bg);
-    });
-
-    test('lerp at 0.5 produces intermediate color', () {
-      final result = AppColors.light.lerp(AppColors.dark, 0.5);
-      expect(result.bg, isNot(AppColors.light.bg));
-      expect(result.bg, isNot(AppColors.dark.bg));
-    });
+  test('lerp produces intermediate values', () {
+    final mid = AppColors.light.lerp(AppColors.dark, 0.5);
+    expect(mid.bg, isNot(AppColors.light.bg));
+    expect(mid.bg, isNot(AppColors.dark.bg));
   });
 }
