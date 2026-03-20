@@ -2,162 +2,10 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_typography.dart';
 import '../../models/user_preferences.dart';
-import '../../core/utils/time_utils.dart';
+import '../../services/notification_service.dart';
 
-class ReminderToggleCard extends StatelessWidget {
-  const ReminderToggleCard({
-    super.key,
-    required this.isEnabled,
-    required this.onToggle,
-  });
-
-  final bool isEnabled;
-  final ValueChanged<bool> onToggle;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = AppColors.of(context);
-
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Напоминания',
-                  style: AppTypography.bodyMedium.copyWith(
-                    color: colors.textPrimary,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  isEnabled ? 'Включены' : 'Выключены',
-                  style: AppTypography.label.copyWith(
-                    color: colors.textSecondary,
-                  ),
-                ),
-              ],
-            ),
-            Switch(
-              value: isEnabled,
-              onChanged: onToggle,
-              activeTrackColor: AppColors.startColor,
-              activeThumbColor: Colors.white,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class ScheduleCard extends StatelessWidget {
-  const ScheduleCard({
-    super.key,
-    required this.prefs,
-    required this.onStartChanged,
-    required this.onEndChanged,
-  });
-
-  final UserPreferences prefs;
-  final ValueChanged<double> onStartChanged;
-  final ValueChanged<double> onEndChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = AppColors.of(context);
-
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Расписание',
-              style: AppTypography.cardTitle.copyWith(
-                color: colors.textPrimary,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Начало рабочего дня',
-              style: AppTypography.body.copyWith(color: colors.textSecondary),
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Expanded(
-                  child: Slider(
-                    value: prefs.startTime,
-                    min: 0,
-                    max: 23.5,
-                    divisions: 47,
-                    label: TimeUtils.formatHourMinute(prefs.startHour, prefs.startMinute),
-                    onChanged: onStartChanged,
-                    activeColor: AppColors.startColor,
-                    inactiveColor: colors.startSliderInactive,
-                  ),
-                ),
-                SizedBox(
-                  width: 65,
-                  child: Text(
-                    TimeUtils.formatHourMinute(prefs.startHour, prefs.startMinute),
-                    textAlign: TextAlign.center,
-                    style: AppTypography.bodyMedium.copyWith(
-                      color: colors.textPrimary,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Text(
-              'Конец рабочего дня',
-              style: AppTypography.body.copyWith(color: colors.textSecondary),
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Expanded(
-                  child: Slider(
-                    value: prefs.endTime,
-                    min: 0,
-                    max: 23.5,
-                    divisions: 47,
-                    label: TimeUtils.formatHourMinute(prefs.endHour, prefs.endMinute),
-                    onChanged: onEndChanged,
-                    activeColor: AppColors.endColor,
-                    inactiveColor: colors.endSliderInactive,
-                  ),
-                ),
-                SizedBox(
-                  width: 65,
-                  child: Text(
-                    TimeUtils.formatHourMinute(prefs.endHour, prefs.endMinute),
-                    textAlign: TextAlign.center,
-                    style: AppTypography.bodyMedium.copyWith(
-                      color: colors.textPrimary,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class OptionsCard extends StatelessWidget {
-  const OptionsCard({
+class SettingsSection extends StatelessWidget {
+  const SettingsSection({
     super.key,
     required this.prefs,
     required this.onToggleSaturday,
@@ -172,84 +20,120 @@ class OptionsCard extends StatelessWidget {
   final ValueChanged<NotificationGender> onGenderChanged;
   final ValueChanged<int> onGoalChanged;
 
+  String _workDaysLabel() {
+    if (prefs.workOnSaturday && prefs.workOnSunday) return 'Пн-Вс';
+    if (prefs.workOnSaturday) return 'Пн-Сб';
+    if (prefs.workOnSunday) return 'Пн-Пт, Вс';
+    return 'Пн-Пт';
+  }
+
+  String _genderLabel() {
+    return switch (prefs.notificationGender) {
+      NotificationGender.neutral => 'Нейтральный',
+      NotificationGender.male => 'Мужской',
+      NotificationGender.female => 'Женский',
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = AppColors.of(context);
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(20),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 12),
+          child: Text(
+            'НАСТРОЙКИ',
+            style: AppTypography.sectionLabel.copyWith(
+              color: colors.textMuted,
+            ),
+          ),
+        ),
+        _SettingsRow(
+          icon: Icons.calendar_today_outlined,
+          label: 'Рабочие дни',
+          value: _workDaysLabel(),
+          colors: colors,
+          onTap: () => _showWorkDaysSheet(context),
+        ),
+        Divider(height: 1, color: colors.divider),
+        _SettingsRow(
+          icon: Icons.flag_outlined,
+          label: 'Дневная цель',
+          value: '${prefs.dailyGoal} разминок',
+          colors: colors,
+          onTap: () => _showGoalSheet(context),
+        ),
+        Divider(height: 1, color: colors.divider),
+        _SettingsRow(
+          icon: Icons.notifications_outlined,
+          label: 'Стиль уведомлений',
+          value: _genderLabel(),
+          colors: colors,
+          onTap: () => _showGenderSheet(context),
+        ),
+        Divider(height: 1, color: colors.divider),
+        _SettingsRow(
+          icon: Icons.send_outlined,
+          label: 'Тест уведомления',
+          colors: colors,
+          onTap: () async {
+            await NotificationService.showHourlyNotification();
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Тестовое уведомление отправлено'),
+                  duration: Duration(seconds: 2),
+                  backgroundColor: AppColors.startColor,
+                ),
+              );
+            }
+          },
+        ),
+      ],
+    );
+  }
+
+  void _showWorkDaysSheet(BuildContext context) {
+    final colors = AppColors.of(context);
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: colors.cardBg,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (ctx) => Padding(
+        padding: const EdgeInsets.fromLTRB(24, 24, 24, 40),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Настройки',
-              style: AppTypography.cardTitle.copyWith(
-                color: colors.textPrimary,
-              ),
+              'Рабочие дни',
+              style:
+                  AppTypography.cardTitle.copyWith(color: colors.textPrimary),
+            ),
+            const SizedBox(height: 20),
+            _SheetToggleRow(
+              label: 'Суббота',
+              value: prefs.workOnSaturday,
+              onChanged: (v) {
+                onToggleSaturday(v);
+                Navigator.pop(ctx);
+              },
+              colors: colors,
             ),
             const SizedBox(height: 12),
-            _buildWeekendRow('Суббота', prefs.workOnSaturday, onToggleSaturday, colors),
-            const SizedBox(height: 4),
-            _buildWeekendRow('Воскресенье', prefs.workOnSunday, onToggleSunday, colors),
-            Divider(height: 24, color: colors.divider),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Цель на день',
-                  style: AppTypography.body.copyWith(color: colors.textSecondary),
-                ),
-                Text(
-                  '${prefs.dailyGoal} разминок',
-                  style: AppTypography.bodyMedium.copyWith(
-                    color: colors.textPrimary,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-            Slider(
-              value: prefs.dailyGoal.toDouble(),
-              min: 1,
-              max: 15,
-              divisions: 14,
-              label: '${prefs.dailyGoal}',
-              onChanged: (v) => onGoalChanged(v.round()),
-              activeColor: AppColors.primary,
-              inactiveColor: colors.sliderInactiveTrack,
-            ),
-            Divider(height: 24, color: colors.divider),
-            Text(
-              'Обращение в уведомлениях',
-              style: AppTypography.body.copyWith(color: colors.textSecondary),
-            ),
-            const SizedBox(height: 4),
-            RadioGroup<NotificationGender>(
-              groupValue: prefs.notificationGender,
-              onChanged: (value) { if (value != null) onGenderChanged(value); },
-              child: Column(
-                children: NotificationGender.values.map((gender) {
-                  final label = switch (gender) {
-                    NotificationGender.neutral => 'Нейтральное  -  Без движения X мин.',
-                    NotificationGender.male    => 'Мужской род  -  Ты не двигался X мин.',
-                    NotificationGender.female  => 'Женский род  -  Ты не двигалась X мин.',
-                  };
-                  return RadioListTile<NotificationGender>(
-                    value: gender,
-                    toggleable: false,
-                    title: Text(
-                      label,
-                      style: AppTypography.label.copyWith(
-                        color: colors.textSecondary,
-                      ),
-                    ),
-                    activeColor: AppColors.primary,
-                    contentPadding: EdgeInsets.zero,
-                    dense: true,
-                  );
-                }).toList(),
-              ),
+            _SheetToggleRow(
+              label: 'Воскресенье',
+              value: prefs.workOnSunday,
+              onChanged: (v) {
+                onToggleSunday(v);
+                Navigator.pop(ctx);
+              },
+              colors: colors,
             ),
           ],
         ),
@@ -257,26 +141,248 @@ class OptionsCard extends StatelessWidget {
     );
   }
 
-  Widget _buildWeekendRow(
-    String label,
-    bool value,
-    ValueChanged<bool> onChanged,
-    AppColors colors,
-  ) {
+  void _showGoalSheet(BuildContext context) {
+    final colors = AppColors.of(context);
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: colors.cardBg,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (ctx) => _GoalPicker(
+        currentGoal: prefs.dailyGoal,
+        onChanged: onGoalChanged,
+        colors: colors,
+      ),
+    );
+  }
+
+  void _showGenderSheet(BuildContext context) {
+    final colors = AppColors.of(context);
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: colors.cardBg,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (ctx) => Padding(
+        padding: const EdgeInsets.fromLTRB(24, 24, 24, 40),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Стиль уведомлений',
+              style:
+                  AppTypography.cardTitle.copyWith(color: colors.textPrimary),
+            ),
+            const SizedBox(height: 16),
+            ...NotificationGender.values.map((gender) {
+              final label = switch (gender) {
+                NotificationGender.neutral => 'Нейтральное',
+                NotificationGender.male => 'Мужской род',
+                NotificationGender.female => 'Женский род',
+              };
+              final example = switch (gender) {
+                NotificationGender.neutral => 'Без движения X мин.',
+                NotificationGender.male => 'Ты не двигался X мин.',
+                NotificationGender.female => 'Ты не двигалась X мин.',
+              };
+              final isSelected = prefs.notificationGender == gender;
+              return ListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(
+                  label,
+                  style: AppTypography.bodyMedium.copyWith(
+                    color: isSelected ? AppColors.primary : colors.textPrimary,
+                  ),
+                ),
+                subtitle: Text(
+                  example,
+                  style:
+                      AppTypography.label.copyWith(color: colors.textSecondary),
+                ),
+                trailing: isSelected
+                    ? const Icon(Icons.check,
+                        color: AppColors.primary, size: 20)
+                    : null,
+                onTap: () {
+                  onGenderChanged(gender);
+                  Navigator.pop(ctx);
+                },
+              );
+            }),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SettingsRow extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String? value;
+  final AppColors colors;
+  final VoidCallback onTap;
+
+  const _SettingsRow({
+    required this.icon,
+    required this.label,
+    this.value,
+    required this.colors,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      child: SizedBox(
+        height: 56,
+        child: Row(
+          children: [
+            Icon(icon, size: 20, color: colors.textMuted),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(
+                label,
+                style: AppTypography.body.copyWith(color: colors.textPrimary),
+              ),
+            ),
+            if (value != null)
+              Text(
+                value!,
+                style:
+                    AppTypography.label.copyWith(color: colors.textSecondary),
+              ),
+            const SizedBox(width: 8),
+            Icon(Icons.chevron_right, size: 20, color: colors.textMuted),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SheetToggleRow extends StatelessWidget {
+  final String label;
+  final bool value;
+  final ValueChanged<bool> onChanged;
+  final AppColors colors;
+
+  const _SheetToggleRow({
+    required this.label,
+    required this.value,
+    required this.onChanged,
+    required this.colors,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
           label,
-          style: AppTypography.body.copyWith(color: colors.textSecondary),
+          style: AppTypography.body.copyWith(color: colors.textPrimary),
         ),
         Switch(
           value: value,
           onChanged: onChanged,
-          activeTrackColor: colors.weekendSwitchActive,
+          activeTrackColor: AppColors.startColor,
           activeThumbColor: Colors.white,
         ),
       ],
+    );
+  }
+}
+
+class _GoalPicker extends StatefulWidget {
+  final int currentGoal;
+  final ValueChanged<int> onChanged;
+  final AppColors colors;
+
+  const _GoalPicker({
+    required this.currentGoal,
+    required this.onChanged,
+    required this.colors,
+  });
+
+  @override
+  State<_GoalPicker> createState() => _GoalPickerState();
+}
+
+class _GoalPickerState extends State<_GoalPicker> {
+  late double _value;
+
+  @override
+  void initState() {
+    super.initState();
+    _value = widget.currentGoal.toDouble();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 24, 24, 40),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Дневная цель',
+            style: AppTypography.cardTitle.copyWith(
+              color: widget.colors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '${_value.round()} разминок',
+            style: AppTypography.statMedium.copyWith(
+              color: AppColors.primary,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Slider(
+            value: _value,
+            min: 1,
+            max: 15,
+            divisions: 14,
+            label: '${_value.round()}',
+            onChanged: (v) => setState(() => _value = v),
+            activeColor: AppColors.primary,
+            inactiveColor: widget.colors.sliderInactiveTrack,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('1',
+                  style: AppTypography.label
+                      .copyWith(color: widget.colors.textMuted)),
+              Text('15',
+                  style: AppTypography.label
+                      .copyWith(color: widget.colors.textMuted)),
+            ],
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            child: TextButton(
+              onPressed: () {
+                widget.onChanged(_value.round());
+                Navigator.pop(context);
+              },
+              child: Text(
+                'Готово',
+                style: AppTypography.button.copyWith(
+                  color: AppColors.primary,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

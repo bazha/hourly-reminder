@@ -17,84 +17,109 @@ class TodaySummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = AppColors.of(context);
+    final goalMet = today.movementCount >= dailyGoal;
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Сегодня',
-              style: AppTypography.cardTitle.copyWith(
-                color: colors.textPrimary,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: _StatTile(
-                    label: 'Разминок',
-                    value: '${today.movementCount}/$dailyGoal',
-                    color: today.movementCount >= dailyGoal
-                        ? AppColors.startColor
-                        : colors.accent,
-                    colors: colors,
-                  ),
-                ),
-                Expanded(
-                  child: _StatTile(
-                    label: 'Сидел',
-                    value: TimeUtils.formatDuration(today.totalSedentaryTime),
-                    color: AppColors.endColor,
-                    colors: colors,
-                  ),
-                ),
-                Expanded(
-                  child: _StatTile(
-                    label: 'Реакция',
-                    value: TimeUtils.formatDuration(today.averageReactionTime),
-                    color: colors.accent,
-                    colors: colors,
-                  ),
-                ),
-              ],
-            ),
-          ],
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: _MetricCard(
+            icon: Icons.fitness_center,
+            label: 'Разминок',
+            value: '${today.movementCount}/$dailyGoal',
+            accentColor: goalMet ? AppColors.startColor : colors.accent,
+            colors: colors,
+          ),
         ),
-      ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: _MetricCard(
+            icon: Icons.event_seat_outlined,
+            label: 'Время сидя',
+            value: TimeUtils.formatDuration(today.totalSedentaryTime),
+            accentColor: AppColors.endColor,
+            colors: colors,
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: _MetricCard(
+            icon: Icons.bolt_outlined,
+            label: 'Реакция',
+            value: TimeUtils.formatDuration(today.averageReactionTime),
+            accentColor: colors.accent,
+            colors: colors,
+          ),
+        ),
+      ],
     );
   }
 }
 
-class _StatTile extends StatelessWidget {
+class _MetricCard extends StatelessWidget {
+  final IconData icon;
   final String label;
   final String value;
-  final Color color;
+  final Color accentColor;
   final AppColors colors;
 
-  const _StatTile({
+  const _MetricCard({
+    required this.icon,
     required this.label,
     required this.value,
-    required this.color,
+    required this.accentColor,
     required this.colors,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Text(
-          value,
-          style: AppTypography.statNumber.copyWith(color: color),
+    return Semantics(
+      label: '$label $value',
+      child: Container(
+        clipBehavior: Clip.antiAlias,
+        decoration: BoxDecoration(
+          color: colors.cardBg,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: colors.cardBorder),
         ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: AppTypography.label.copyWith(color: colors.textSecondary),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 12, 12, 10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(icon, size: 16, color: accentColor),
+                  const SizedBox(height: 8),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      value,
+                      style:
+                          AppTypography.statMedium.copyWith(color: accentColor),
+                      maxLines: 1,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    label,
+                    style: AppTypography.sectionLabel.copyWith(
+                      color: colors.textMuted,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              height: 2,
+              color: accentColor,
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }

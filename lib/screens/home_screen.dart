@@ -12,7 +12,6 @@ import '../services/notification_service.dart';
 import '../models/user_preferences.dart';
 import 'widgets/work_hours_card.dart';
 import 'widgets/settings_card.dart';
-import 'widgets/test_notification_button.dart';
 
 class HomeScreen extends StatefulWidget {
   final StorageService storageService;
@@ -59,7 +58,9 @@ class _HomeScreenState extends State<HomeScreen> {
     final today = DateTime.now();
     return events.where((e) {
       final d = e.timestamp;
-      return d.year == today.year && d.month == today.month && d.day == today.day;
+      return d.year == today.year &&
+          d.month == today.month &&
+          d.day == today.day;
     }).length;
   }
 
@@ -163,53 +164,55 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return SafeArea(
       child: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(20, 24, 20, 20),
+        padding: const EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Напоминалка',
-              style: AppTypography.heading.copyWith(color: colors.textPrimary),
+            // Header with toggle
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Напоминалка',
+                  style: AppTypography.heading.copyWith(
+                    color: colors.textPrimary,
+                  ),
+                ),
+                _EnableToggle(
+                  isEnabled: _prefs.isEnabled,
+                  onToggle: _toggleReminders,
+                ),
+              ],
             ),
-            const SizedBox(height: 6),
-            _StatusPill(isEnabled: _prefs.isEnabled, colors: colors),
-            const SizedBox(height: 4),
-            _NextReminderText(prefs: _prefs, colors: colors),
-            const SizedBox(height: 20),
+            const SizedBox(height: 8),
+            // Next reminder
+            _NextReminderBanner(prefs: _prefs, colors: colors),
+            const SizedBox(height: 24),
+            // Today's progress
             _GoalProgress(
               current: _todayMovementCount,
               goal: _prefs.dailyGoal,
               colors: colors,
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 12),
+            // Record movement button
             _ManualMoveButton(onPressed: _recordManualMovement),
-            const SizedBox(height: 20),
+            const SizedBox(height: 32),
+            // Work hours clock
             WorkHoursCard(
               prefs: _prefs,
               onStartChanged: (v) => _updateTime(v, isStart: true),
               onEndChanged: (v) => _updateTime(v, isStart: false),
             ),
-            const SizedBox(height: 16),
-            ReminderToggleCard(
-              isEnabled: _prefs.isEnabled,
-              onToggle: _toggleReminders,
-            ),
-            const SizedBox(height: 16),
-            ScheduleCard(
-              prefs: _prefs,
-              onStartChanged: (v) => _updateTime(v, isStart: true),
-              onEndChanged: (v) => _updateTime(v, isStart: false),
-            ),
-            const SizedBox(height: 16),
-            OptionsCard(
+            const SizedBox(height: 32),
+            // Settings list
+            SettingsSection(
               prefs: _prefs,
               onToggleSaturday: _toggleSaturday,
               onToggleSunday: _toggleSunday,
               onGenderChanged: _updateGender,
               onGoalChanged: _updateGoal,
             ),
-            const SizedBox(height: 16),
-            const TestNotificationButton(),
           ],
         ),
       ),
@@ -217,52 +220,53 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-class _StatusPill extends StatelessWidget {
+class _EnableToggle extends StatelessWidget {
   final bool isEnabled;
-  final AppColors colors;
+  final ValueChanged<bool> onToggle;
 
-  const _StatusPill({required this.isEnabled, required this.colors});
+  const _EnableToggle({required this.isEnabled, required this.onToggle});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: isEnabled
-            ? AppColors.startColor.withValues(alpha: 0.12)
-            : colors.sliderInactiveTrack,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 8,
-            height: 8,
-            decoration: BoxDecoration(
-              color: isEnabled ? AppColors.startColor : colors.textMuted,
-              shape: BoxShape.circle,
+    final colors = AppColors.of(context);
+    return Semantics(
+      toggled: isEnabled,
+      label: 'Напоминания',
+      child: GestureDetector(
+        onTap: () => onToggle(!isEnabled),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            color: isEnabled
+                ? AppColors.startColor.withValues(alpha: 0.15)
+                : colors.sliderInactiveTrack,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: isEnabled
+                  ? AppColors.startColor.withValues(alpha: 0.3)
+                  : colors.divider,
             ),
           ),
-          const SizedBox(width: 6),
-          Text(
-            isEnabled ? 'Включены' : 'Выключены',
+          child: Text(
+            isEnabled ? 'ВКЛ' : 'ВЫКЛ',
             style: AppTypography.label.copyWith(
               color: isEnabled ? AppColors.startColor : colors.textMuted,
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.5,
             ),
           ),
-        ],
+        ),
       ),
     );
   }
 }
 
-class _NextReminderText extends StatelessWidget {
+class _NextReminderBanner extends StatelessWidget {
   final UserPreferences prefs;
   final AppColors colors;
 
-  const _NextReminderText({required this.prefs, required this.colors});
+  const _NextReminderBanner({required this.prefs, required this.colors});
 
   @override
   Widget build(BuildContext context) {
@@ -279,9 +283,15 @@ class _NextReminderText extends StatelessWidget {
     );
     final text = TimeUtils.formatNextReminder(next, now);
 
-    return Text(
-      text,
-      style: AppTypography.label.copyWith(color: colors.textMuted),
+    return Row(
+      children: [
+        Icon(Icons.schedule, size: 16, color: colors.textMuted),
+        const SizedBox(width: 8),
+        Text(
+          text,
+          style: AppTypography.label.copyWith(color: colors.textSecondary),
+        ),
+      ],
     );
   }
 }
@@ -306,42 +316,41 @@ class _GoalProgress extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Сегодня',
-                  style: AppTypography.cardTitle.copyWith(
-                    color: colors.textPrimary,
+            Padding(
+              padding: const EdgeInsets.only(bottom: 4),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'СЕГОДНЯ',
+                  style: AppTypography.sectionLabel.copyWith(
+                    color: colors.textMuted,
                   ),
-                ),
-                Text(
-                  '$current/$goal',
-                  style: AppTypography.statNumber.copyWith(
-                    color: isComplete ? AppColors.startColor : colors.accent,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(6),
-              child: LinearProgressIndicator(
-                value: progress,
-                minHeight: 8,
-                backgroundColor: colors.sliderInactiveTrack,
-                valueColor: AlwaysStoppedAnimation(
-                  isComplete ? AppColors.startColor : colors.accent,
                 ),
               ),
             ),
             const SizedBox(height: 8),
             Text(
-              isComplete ? 'Цель выполнена!' : 'разминок из $goal',
-              style: AppTypography.label.copyWith(
-                color: isComplete ? AppColors.startColor : colors.textMuted,
+              '$current',
+              style: AppTypography.statLarge.copyWith(
+                color: isComplete ? AppColors.startColor : AppColors.primary,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'из $goal разминок',
+              style: AppTypography.body.copyWith(color: colors.textSecondary),
+            ),
+            const SizedBox(height: 16),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(2),
+              child: LinearProgressIndicator(
+                value: progress,
+                minHeight: 4,
+                backgroundColor: colors.sliderInactiveTrack,
+                valueColor: AlwaysStoppedAnimation(
+                  isComplete ? AppColors.startColor : AppColors.primary,
+                ),
               ),
             ),
           ],
@@ -360,16 +369,17 @@ class _ManualMoveButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
+      height: 48,
       child: OutlinedButton.icon(
         onPressed: onPressed,
-        icon: const Icon(Icons.check_circle_outline, size: 20),
-        label: Text('Я подвигался!', style: AppTypography.button),
+        icon: const Icon(Icons.check, size: 18),
+        label: Text('Записать разминку',
+            style: AppTypography.button.copyWith(fontSize: 14)),
         style: OutlinedButton.styleFrom(
           foregroundColor: AppColors.startColor,
-          side: const BorderSide(color: AppColors.startColor, width: 1.5),
-          padding: const EdgeInsets.symmetric(vertical: 14),
+          side: const BorderSide(color: AppColors.startColor),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(10),
           ),
         ),
       ),

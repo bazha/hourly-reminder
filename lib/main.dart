@@ -67,7 +67,7 @@ class HourlyReminderApp extends StatelessWidget {
       cardTheme: CardThemeData(
         elevation: 0,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(12),
           side: BorderSide(color: colors.cardBorder),
         ),
         color: colors.cardBg,
@@ -78,7 +78,9 @@ class HourlyReminderApp extends StatelessWidget {
           return colors.switchInactiveThumb;
         }),
         trackColor: WidgetStateProperty.resolveWith((states) {
-          if (states.contains(WidgetState.selected)) return AppColors.startColor;
+          if (states.contains(WidgetState.selected)) {
+            return AppColors.startColor;
+          }
           return colors.switchInactiveTrack;
         }),
       ),
