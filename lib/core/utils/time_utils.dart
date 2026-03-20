@@ -5,6 +5,8 @@
 class TimeUtils {
   TimeUtils._();
 
+  static const russianDayNames = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+
   /// Formats a double time value as `H:MM`.
   ///
   /// Examples: `9.0 → '9:00'`, `9.5 → '9:30'`, `18.75 → '18:45'`
@@ -36,8 +38,7 @@ class TimeUtils {
     if (dayDiff == 0) return 'Следующее в $time';
     if (dayDiff == 1) return 'Следующее завтра в $time';
 
-    const days = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
-    final dayName = days[next.weekday - 1];
+    final dayName = russianDayNames[next.weekday - 1];
     return 'Следующее в $dayName в $time';
   }
 
@@ -50,6 +51,6 @@ class TimeUtils {
     if (d.inHours < 1) return '${d.inMinutes}м';
     final hours = d.inHours;
     final minutes = d.inMinutes % 60;
-    return minutes > 0 ? '${hours}ч ${minutes}м' : '${hours}ч';
+    return minutes > 0 ? '$hoursч $minutesм' : '$hoursч';
   }
 }

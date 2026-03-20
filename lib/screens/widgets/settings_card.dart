@@ -19,12 +19,6 @@ class ReminderToggleCard extends StatelessWidget {
     final colors = AppColors.of(context);
 
     return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-        side: BorderSide(color: colors.cardBorder),
-      ),
-      color: colors.cardBg,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         child: Row(
@@ -78,12 +72,6 @@ class ScheduleCard extends StatelessWidget {
     final colors = AppColors.of(context);
 
     return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-        side: BorderSide(color: colors.cardBorder),
-      ),
-      color: colors.cardBg,
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -189,12 +177,6 @@ class OptionsCard extends StatelessWidget {
     final colors = AppColors.of(context);
 
     return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-        side: BorderSide(color: colors.cardBorder),
-      ),
-      color: colors.cardBg,
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(

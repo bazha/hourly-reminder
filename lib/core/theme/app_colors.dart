@@ -6,21 +6,10 @@ import 'package:flutter/material.dart';
 class AppColors extends ThemeExtension<AppColors> {
   // --- Background ---
   final Color bg;
-  final Color bgGradientStart;
-  final Color bgGradientEnd;
-
-  // --- Blobs (legacy, opacities zeroed) ---
-  final Color blobPurple;
-  final double blobPurpleOpacity;
-  final Color blobBlue;
-  final double blobBlueOpacity;
-  final Color blobAccent;
-  final double blobAccentOpacity;
 
   // --- Cards ---
   final Color cardBg;
   final Color cardBorder;
-  final Color cardShadow;
 
   // --- Text ---
   final Color textPrimary;
@@ -57,10 +46,6 @@ class AppColors extends ThemeExtension<AppColors> {
   // --- Button ---
   final Color buttonTextColor;
 
-  // --- AppBar (legacy, used as fallback) ---
-  final Color appBarBg;
-  final Color appBarFg;
-
   // --- Slider inactive tints ---
   final Color startSliderInactive;
   final Color endSliderInactive;
@@ -81,17 +66,8 @@ class AppColors extends ThemeExtension<AppColors> {
 
   const AppColors._({
     required this.bg,
-    required this.bgGradientStart,
-    required this.bgGradientEnd,
-    required this.blobPurple,
-    required this.blobPurpleOpacity,
-    required this.blobBlue,
-    required this.blobBlueOpacity,
-    required this.blobAccent,
-    required this.blobAccentOpacity,
     required this.cardBg,
     required this.cardBorder,
-    required this.cardShadow,
     required this.textPrimary,
     required this.textSecondary,
     required this.textMuted,
@@ -117,8 +93,6 @@ class AppColors extends ThemeExtension<AppColors> {
     required this.pickerInputBg,
     required this.pickerText,
     required this.buttonTextColor,
-    required this.appBarBg,
-    required this.appBarFg,
     required this.startSliderInactive,
     required this.endSliderInactive,
     required this.weekendSwitchActive,
@@ -134,17 +108,8 @@ class AppColors extends ThemeExtension<AppColors> {
   /// Dark theme - charcoal background, elevated dark cards.
   static const dark = AppColors._(
     bg:              Color(0xFF15181E),
-    bgGradientStart: Color(0xFF15181E),
-    bgGradientEnd:   Color(0xFF15181E),
-    blobPurple:       Color(0xFF6D28D9),
-    blobPurpleOpacity: 0.0,
-    blobBlue:         Color(0xFF1D4ED8),
-    blobBlueOpacity:   0.0,
-    blobAccent:       Color(0xFF7C3AED),
-    blobAccentOpacity: 0.0,
     cardBg:          Color(0xFF1E2128),
     cardBorder:      Color(0x14FFFFFF),
-    cardShadow:      Color(0x26000000),
     textPrimary:     Color(0xFFE8E8E8),
     textSecondary:   Color(0xFF8E95A2),
     textMuted:       Color(0xFF5A6070),
@@ -170,8 +135,6 @@ class AppColors extends ThemeExtension<AppColors> {
     pickerInputBg:   Color(0x265CC4B8),
     pickerText:      Color(0xFFE8E8E8),
     buttonTextColor: Colors.white,
-    appBarBg:        Color(0xFF1E2128),
-    appBarFg:        Color(0xFFE8E8E8),
     startSliderInactive: Color(0x264EAAA0),
     endSliderInactive:   Color(0x26E57373),
     weekendSwitchActive: Color(0xFF5CC4B8),
@@ -187,17 +150,8 @@ class AppColors extends ThemeExtension<AppColors> {
   /// Light theme - warm off-white background, clean white cards.
   static const light = AppColors._(
     bg:              Color(0xFFF5F3EE),
-    bgGradientStart: Color(0xFFF5F3EE),
-    bgGradientEnd:   Color(0xFFF5F3EE),
-    blobPurple:       Color(0xFFC4B5FD),
-    blobPurpleOpacity: 0.0,
-    blobBlue:         Color(0xFF93C5FD),
-    blobBlueOpacity:   0.0,
-    blobAccent:       Color(0xFFA78BFA),
-    blobAccentOpacity: 0.0,
     cardBg:          Color(0xFFFFFFFF),
     cardBorder:      Color(0x0D000000),
-    cardShadow:      Color(0x0A000000),
     textPrimary:     Color(0xFF1A1C1E),
     textSecondary:   Color(0xFF6B7280),
     textMuted:       Color(0xFF9CA3AF),
@@ -223,8 +177,6 @@ class AppColors extends ThemeExtension<AppColors> {
     pickerInputBg:   Color(0x1A4EAAA0),
     pickerText:      Color(0xFF1A1C1E),
     buttonTextColor: Colors.white,
-    appBarBg:        Color(0xFFF5F3EE),
-    appBarFg:        Color(0xFF1A1C1E),
     startSliderInactive: Color(0x1A4EAAA0),
     endSliderInactive:   Color(0x1AE57373),
     weekendSwitchActive: Color(0xFF4EAAA0),
@@ -242,7 +194,7 @@ class AppColors extends ThemeExtension<AppColors> {
     return Theme.of(context).extension<AppColors>()!;
   }
 
-  bool get isDark => bg == dark.bg;
+  bool get isDark => identical(this, dark) || bg == dark.bg;
 
   // --- Shared accent colours (same in both themes) ---
   static const startColor = Color(0xFF4EAAA0);   // Teal
@@ -255,17 +207,8 @@ class AppColors extends ThemeExtension<AppColors> {
   @override
   AppColors copyWith({
     Color? bg,
-    Color? bgGradientStart,
-    Color? bgGradientEnd,
-    Color? blobPurple,
-    double? blobPurpleOpacity,
-    Color? blobBlue,
-    double? blobBlueOpacity,
-    Color? blobAccent,
-    double? blobAccentOpacity,
     Color? cardBg,
     Color? cardBorder,
-    Color? cardShadow,
     Color? textPrimary,
     Color? textSecondary,
     Color? textMuted,
@@ -291,8 +234,6 @@ class AppColors extends ThemeExtension<AppColors> {
     Color? pickerInputBg,
     Color? pickerText,
     Color? buttonTextColor,
-    Color? appBarBg,
-    Color? appBarFg,
     Color? startSliderInactive,
     Color? endSliderInactive,
     Color? weekendSwitchActive,
@@ -306,17 +247,8 @@ class AppColors extends ThemeExtension<AppColors> {
   }) {
     return AppColors._(
       bg: bg ?? this.bg,
-      bgGradientStart: bgGradientStart ?? this.bgGradientStart,
-      bgGradientEnd: bgGradientEnd ?? this.bgGradientEnd,
-      blobPurple: blobPurple ?? this.blobPurple,
-      blobPurpleOpacity: blobPurpleOpacity ?? this.blobPurpleOpacity,
-      blobBlue: blobBlue ?? this.blobBlue,
-      blobBlueOpacity: blobBlueOpacity ?? this.blobBlueOpacity,
-      blobAccent: blobAccent ?? this.blobAccent,
-      blobAccentOpacity: blobAccentOpacity ?? this.blobAccentOpacity,
       cardBg: cardBg ?? this.cardBg,
       cardBorder: cardBorder ?? this.cardBorder,
-      cardShadow: cardShadow ?? this.cardShadow,
       textPrimary: textPrimary ?? this.textPrimary,
       textSecondary: textSecondary ?? this.textSecondary,
       textMuted: textMuted ?? this.textMuted,
@@ -342,8 +274,6 @@ class AppColors extends ThemeExtension<AppColors> {
       pickerInputBg: pickerInputBg ?? this.pickerInputBg,
       pickerText: pickerText ?? this.pickerText,
       buttonTextColor: buttonTextColor ?? this.buttonTextColor,
-      appBarBg: appBarBg ?? this.appBarBg,
-      appBarFg: appBarFg ?? this.appBarFg,
       startSliderInactive: startSliderInactive ?? this.startSliderInactive,
       endSliderInactive: endSliderInactive ?? this.endSliderInactive,
       weekendSwitchActive: weekendSwitchActive ?? this.weekendSwitchActive,
@@ -362,17 +292,8 @@ class AppColors extends ThemeExtension<AppColors> {
     if (other is! AppColors) return this;
     return AppColors._(
       bg: Color.lerp(bg, other.bg, t)!,
-      bgGradientStart: Color.lerp(bgGradientStart, other.bgGradientStart, t)!,
-      bgGradientEnd: Color.lerp(bgGradientEnd, other.bgGradientEnd, t)!,
-      blobPurple: Color.lerp(blobPurple, other.blobPurple, t)!,
-      blobPurpleOpacity: blobPurpleOpacity + (other.blobPurpleOpacity - blobPurpleOpacity) * t,
-      blobBlue: Color.lerp(blobBlue, other.blobBlue, t)!,
-      blobBlueOpacity: blobBlueOpacity + (other.blobBlueOpacity - blobBlueOpacity) * t,
-      blobAccent: Color.lerp(blobAccent, other.blobAccent, t)!,
-      blobAccentOpacity: blobAccentOpacity + (other.blobAccentOpacity - blobAccentOpacity) * t,
       cardBg: Color.lerp(cardBg, other.cardBg, t)!,
       cardBorder: Color.lerp(cardBorder, other.cardBorder, t)!,
-      cardShadow: Color.lerp(cardShadow, other.cardShadow, t)!,
       textPrimary: Color.lerp(textPrimary, other.textPrimary, t)!,
       textSecondary: Color.lerp(textSecondary, other.textSecondary, t)!,
       textMuted: Color.lerp(textMuted, other.textMuted, t)!,
@@ -398,8 +319,6 @@ class AppColors extends ThemeExtension<AppColors> {
       pickerInputBg: Color.lerp(pickerInputBg, other.pickerInputBg, t)!,
       pickerText: Color.lerp(pickerText, other.pickerText, t)!,
       buttonTextColor: Color.lerp(buttonTextColor, other.buttonTextColor, t)!,
-      appBarBg: Color.lerp(appBarBg, other.appBarBg, t)!,
-      appBarFg: Color.lerp(appBarFg, other.appBarFg, t)!,
       startSliderInactive: Color.lerp(startSliderInactive, other.startSliderInactive, t)!,
       endSliderInactive: Color.lerp(endSliderInactive, other.endSliderInactive, t)!,
       weekendSwitchActive: Color.lerp(weekendSwitchActive, other.weekendSwitchActive, t)!,
@@ -415,8 +334,10 @@ class AppColors extends ThemeExtension<AppColors> {
 
   @override
   bool operator ==(Object other) =>
-      identical(this, other) || (other is AppColors && other.bg == bg);
+      identical(this, other) ||
+      (other is AppColors && other.bg == bg && other.cardBg == cardBg &&
+       other.textPrimary == textPrimary);
 
   @override
-  int get hashCode => bg.hashCode;
+  int get hashCode => Object.hash(bg, cardBg, textPrimary);
 }

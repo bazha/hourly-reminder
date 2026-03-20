@@ -2,6 +2,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../core/utils/time_utils.dart';
 import '../../domain/entities/movement_stats.dart';
 
 class WeeklyChart extends StatelessWidget {
@@ -14,12 +15,6 @@ class WeeklyChart extends StatelessWidget {
     final colors = AppColors.of(context);
 
     return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-        side: BorderSide(color: colors.cardBorder),
-      ),
-      color: colors.cardBg,
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -129,7 +124,6 @@ class WeeklyChart extends StatelessWidget {
   }
 
   String _shortDayName(int weekday) {
-    const names = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
-    return names[weekday - 1];
+    return TimeUtils.russianDayNames[weekday - 1];
   }
 }

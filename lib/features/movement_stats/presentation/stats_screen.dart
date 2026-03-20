@@ -9,8 +9,13 @@ import 'widgets/streak_card.dart';
 
 class StatsScreen extends StatefulWidget {
   final MovementStatsRepository repository;
+  final bool isActive;
 
-  const StatsScreen({super.key, required this.repository});
+  const StatsScreen({
+    super.key,
+    required this.repository,
+    this.isActive = true,
+  });
 
   @override
   State<StatsScreen> createState() => _StatsScreenState();
@@ -25,6 +30,14 @@ class _StatsScreenState extends State<StatsScreen> {
   void initState() {
     super.initState();
     _loadStats();
+  }
+
+  @override
+  void didUpdateWidget(StatsScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isActive && !oldWidget.isActive) {
+      _loadStats();
+    }
   }
 
   Future<void> _loadStats() async {

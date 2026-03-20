@@ -13,6 +13,7 @@
   },
   "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [
-    "github"
+    "github",
+    "stitch"
   ]
 }

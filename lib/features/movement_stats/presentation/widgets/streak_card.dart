@@ -23,12 +23,6 @@ class StreakCard extends StatelessWidget {
     final colors = AppColors.of(context);
 
     return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-        side: BorderSide(color: colors.cardBorder),
-      ),
-      color: colors.cardBg,
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(

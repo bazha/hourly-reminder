@@ -57,7 +57,7 @@ class AlarmService {
     final startMin = startHour * 60 + startMinute;
     final endMin   = endHour   * 60 + endMinute;
 
-    bool _isDayValid(int weekday) =>
+    bool isDayValid(int weekday) =>
         (weekday != 6 && weekday != 7) ||
         (weekday == 6 && workOnSaturday) ||
         (weekday == 7 && workOnSunday);
@@ -65,7 +65,7 @@ class AlarmService {
     // First notification of the day fires after a settling delay.
     final firstMin = startMin + firstNotificationDelayMinutes;
 
-    if (_isDayValid(now.weekday)) {
+    if (isDayValid(now.weekday)) {
       if (nowMin < startMin) {
         // Before today's window — first notification after delay.
         if (firstMin <= endMin) {
@@ -95,7 +95,7 @@ class AlarmService {
     var candidate = DateTime(now.year, now.month, now.day)
         .add(const Duration(days: 1));
     while (true) {
-      if (_isDayValid(candidate.weekday)) {
+      if (isDayValid(candidate.weekday)) {
         final candidateFirstMin = startMin + firstNotificationDelayMinutes;
         if (candidateFirstMin <= endMin) {
           return DateTime(candidate.year, candidate.month, candidate.day)
