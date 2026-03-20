@@ -23,16 +23,20 @@ class ConfirmMovementUseCase {
         _generateId = generateId ??
             (() => DateTime.now().microsecondsSinceEpoch.toString());
 
-  Future<Duration> execute() async {
+  Future<Duration> execute({
+    MovementSource source = MovementSource.notification,
+  }) async {
     final now = _now();
 
     final notificationSentTime =
         await _repository.getLastNotificationSentTime();
     final sedentaryStartTime = await _repository.getSedentaryStartTime();
 
-    final reactionTime = notificationSentTime != null
-        ? now.difference(notificationSentTime)
-        : Duration.zero;
+    final reactionTime = source == MovementSource.manual
+        ? Duration.zero
+        : (notificationSentTime != null
+            ? now.difference(notificationSentTime)
+            : Duration.zero);
 
     final sedentaryDuration = sedentaryStartTime != null
         ? now.difference(sedentaryStartTime)
@@ -43,7 +47,7 @@ class ConfirmMovementUseCase {
       timestamp: now,
       sedentaryDuration: sedentaryDuration,
       reactionTime: reactionTime,
-      source: MovementSource.notification,
+      source: source,
     );
 
     await _repository.saveEvent(event);

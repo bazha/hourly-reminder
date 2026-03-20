@@ -6,8 +6,13 @@ import '../../domain/entities/movement_stats.dart';
 
 class TodaySummaryCard extends StatelessWidget {
   final DailyStats today;
+  final int dailyGoal;
 
-  const TodaySummaryCard({super.key, required this.today});
+  const TodaySummaryCard({
+    super.key,
+    required this.today,
+    required this.dailyGoal,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -37,8 +42,10 @@ class TodaySummaryCard extends StatelessWidget {
                 Expanded(
                   child: _StatTile(
                     label: 'Разминок',
-                    value: '${today.movementCount}',
-                    color: AppColors.startColor,
+                    value: '${today.movementCount}/$dailyGoal',
+                    color: today.movementCount >= dailyGoal
+                        ? AppColors.startColor
+                        : colors.accent,
                     colors: colors,
                   ),
                 ),

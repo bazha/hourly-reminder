@@ -17,6 +17,7 @@ class StorageService {
       workOnSunday:       _prefs.getBool('work_on_sunday')   ?? false,
       notificationGender: _genderFromString(
           _prefs.getString('notification_gender') ?? 'neutral'),
+      dailyGoal:          _prefs.getInt('daily_goal') ?? 8,
     );
   }
 
@@ -29,6 +30,7 @@ class StorageService {
     await _prefs.setBool('work_on_saturday',    prefs.workOnSaturday);
     await _prefs.setBool('work_on_sunday',      prefs.workOnSunday);
     await _prefs.setString('notification_gender', prefs.notificationGender.name);
+    await _prefs.setInt('daily_goal',              prefs.dailyGoal);
   }
 
   Future<void> setEnabled(bool value) async {
@@ -43,6 +45,7 @@ class StorageService {
   int  get endMinute      => _prefs.getInt('end_minute')        ?? 0;
   bool get workOnSaturday => _prefs.getBool('work_on_saturday') ?? false;
   bool get workOnSunday   => _prefs.getBool('work_on_sunday')   ?? false;
+  int  get dailyGoal      => _prefs.getInt('daily_goal')        ?? 8;
 
   NotificationGender _genderFromString(String value) {
     return NotificationGender.values.firstWhere(

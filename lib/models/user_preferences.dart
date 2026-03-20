@@ -9,6 +9,7 @@ class UserPreferences {
   final bool workOnSaturday;
   final bool workOnSunday;
   final NotificationGender notificationGender;
+  final int dailyGoal;
 
   UserPreferences({
     this.isEnabled = false,
@@ -19,6 +20,7 @@ class UserPreferences {
     this.workOnSaturday = false,
     this.workOnSunday = false,
     this.notificationGender = NotificationGender.neutral,
+    this.dailyGoal = 8,
   });
 
   UserPreferences copyWith({
@@ -30,6 +32,7 @@ class UserPreferences {
     bool? workOnSaturday,
     bool? workOnSunday,
     NotificationGender? notificationGender,
+    int? dailyGoal,
   }) {
     return UserPreferences(
       isEnabled:          isEnabled          ?? this.isEnabled,
@@ -40,6 +43,7 @@ class UserPreferences {
       workOnSaturday:     workOnSaturday     ?? this.workOnSaturday,
       workOnSunday:       workOnSunday       ?? this.workOnSunday,
       notificationGender: notificationGender ?? this.notificationGender,
+      dailyGoal:          dailyGoal          ?? this.dailyGoal,
     );
   }
 
@@ -66,10 +70,11 @@ class UserPreferences {
           endMinute          == other.endMinute &&
           workOnSaturday     == other.workOnSaturday &&
           workOnSunday       == other.workOnSunday &&
-          notificationGender == other.notificationGender;
+          notificationGender == other.notificationGender &&
+          dailyGoal          == other.dailyGoal;
 
   @override
   int get hashCode => Object.hash(
       isEnabled, startHour, startMinute, endHour, endMinute,
-      workOnSaturday, workOnSunday, notificationGender);
+      workOnSaturday, workOnSunday, notificationGender, dailyGoal);
 }

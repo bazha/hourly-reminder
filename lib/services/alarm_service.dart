@@ -4,6 +4,9 @@ import 'dart:io' show Platform;
 class AlarmService {
   static const _channel = MethodChannel('com.bazhanau.hourly_reminder/alarm');
 
+  /// Minutes after work day start before the first notification fires.
+  static const firstNotificationDelayMinutes = 45;
+
   Future<void> scheduleHourlyAlarm() async {
     if (!Platform.isAndroid) return;
     await _channel.invokeMethod('scheduleHourlyAlarm');
@@ -59,17 +62,26 @@ class AlarmService {
         (weekday == 6 && workOnSaturday) ||
         (weekday == 7 && workOnSunday);
 
+    // First notification of the day fires after a settling delay.
+    final firstMin = startMin + firstNotificationDelayMinutes;
+
     if (_isDayValid(now.weekday)) {
       if (nowMin < startMin) {
-        // Before today's window — first notification at window open.
+        // Before today's window — first notification after delay.
+        if (firstMin <= endMin) {
+          return DateTime(now.year, now.month, now.day)
+              .add(Duration(minutes: firstMin));
+        }
         return DateTime(now.year, now.month, now.day, startHour, startMinute);
+      } else if (nowMin < firstMin && firstMin <= endMin) {
+        // Within the settling delay — first notification at start + delay.
+        return DateTime(now.year, now.month, now.day)
+            .add(Duration(minutes: firstMin));
       } else if (nowMin <= endMin) {
-        // Inside today's window.
+        // Inside today's window, past the settling delay.
         if (now.minute == 0 && now.second == 0) {
-          // Exactly at the top of an hour — notification fires now.
           return DateTime(now.year, now.month, now.day, now.hour, 0);
         } else {
-          // Advance to the next full hour if it is still within the window.
           final nextHour = now.hour + 1;
           if (nextHour * 60 <= endMin) {
             return DateTime(now.year, now.month, now.day, nextHour, 0);
@@ -84,6 +96,11 @@ class AlarmService {
         .add(const Duration(days: 1));
     while (true) {
       if (_isDayValid(candidate.weekday)) {
+        final candidateFirstMin = startMin + firstNotificationDelayMinutes;
+        if (candidateFirstMin <= endMin) {
+          return DateTime(candidate.year, candidate.month, candidate.day)
+              .add(Duration(minutes: candidateFirstMin));
+        }
         return DateTime(
             candidate.year, candidate.month, candidate.day, startHour, startMinute);
       }

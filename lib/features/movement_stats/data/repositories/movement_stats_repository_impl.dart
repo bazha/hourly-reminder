@@ -27,6 +27,7 @@ class MovementStatsRepositoryImpl implements MovementStatsRepository {
       now: DateTime.now(),
       workOnSaturday: prefs.workOnSaturday,
       workOnSunday: prefs.workOnSunday,
+      dailyGoal: prefs.dailyGoal,
     );
   }
 }

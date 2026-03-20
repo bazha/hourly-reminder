@@ -70,6 +70,41 @@ void main() {
     });
   });
 
+  group('TimeUtils.formatNextReminder', () {
+    test('returns disabled message when next is null', () {
+      final now = DateTime(2026, 3, 19, 14, 30);
+      expect(
+        TimeUtils.formatNextReminder(null, now),
+        'Напоминания выключены',
+      );
+    });
+
+    test('returns same-day format', () {
+      final now = DateTime(2026, 3, 19, 14, 30);
+      final next = DateTime(2026, 3, 19, 15, 0);
+      expect(TimeUtils.formatNextReminder(next, now), 'Следующее в 15:00');
+    });
+
+    test('returns tomorrow format', () {
+      final now = DateTime(2026, 3, 19, 19, 0);
+      final next = DateTime(2026, 3, 20, 9, 0);
+      expect(TimeUtils.formatNextReminder(next, now), 'Следующее завтра в 9:00');
+    });
+
+    test('returns day name for 2+ days ahead', () {
+      // 2026-03-19 is Thursday, 2026-03-23 is Monday
+      final now = DateTime(2026, 3, 19, 19, 0);
+      final next = DateTime(2026, 3, 23, 9, 0);
+      expect(TimeUtils.formatNextReminder(next, now), 'Следующее в Пн в 9:00');
+    });
+
+    test('formats minutes with zero padding', () {
+      final now = DateTime(2026, 3, 19, 8, 0);
+      final next = DateTime(2026, 3, 19, 9, 5);
+      expect(TimeUtils.formatNextReminder(next, now), 'Следующее в 9:05');
+    });
+  });
+
   group('formatTime delegates to formatHourMinute', () {
     test('produces identical output', () {
       for (int h = 0; h < 24; h++) {

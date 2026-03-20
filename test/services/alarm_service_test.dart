@@ -288,45 +288,45 @@ void main() {
       expect(result, DateTime(2026, 2, 16, 11, 0));
     });
 
-    test('returns start time when before work window', () {
-      // 6:00 on Monday → next is 9:00
-      expect(nextNotif(now: mon06am), DateTime(2026, 2, 16, 9, 0));
+    test('returns start time + 45 min when before work window', () {
+      // 6:00 on Monday → next is 9:45 (45 min settling delay)
+      expect(nextNotif(now: mon06am), DateTime(2026, 2, 16, 9, 45));
     });
 
-    test('returns next day start when past end of window', () {
-      // 19:00 on Monday → next is Tuesday 9:00
+    test('returns next day start + 45 min when past end of window', () {
+      // 19:00 on Monday → next is Tuesday 9:45
       final now = DateTime(2026, 2, 16, 19, 0);
       final result = nextNotif(now: now);
-      expect(result, DateTime(2026, 2, 17, 9, 0));
+      expect(result, DateTime(2026, 2, 17, 9, 45));
     });
 
     test('skips both weekend days when both are off (default)', () {
-      // Friday 19:00 → should skip Sat+Sun → Monday 9:00
+      // Friday 19:00 → should skip Sat+Sun → Monday 9:45
       final fri19 = DateTime(2026, 2, 20, 19, 0); // Friday
       expect(fri19.weekday, 5); // verify it's Friday
       final result = nextNotif(now: fri19);
-      expect(result, DateTime(2026, 2, 23, 9, 0)); // Monday
+      expect(result, DateTime(2026, 2, 23, 9, 45)); // Monday
       expect(result!.weekday, 1); // verify Monday
     });
 
     test('lands on Saturday when workOnSaturday is true', () {
-      // Friday 19:00, Saturday enabled → Saturday 9:00
+      // Friday 19:00, Saturday enabled → Saturday 9:45
       final fri19 = DateTime(2026, 2, 20, 19, 0);
       final result = nextNotif(now: fri19, workOnSaturday: true);
-      expect(result, DateTime(2026, 2, 21, 9, 0)); // Saturday
+      expect(result, DateTime(2026, 2, 21, 9, 45)); // Saturday
     });
 
     test('skips Saturday and lands on Sunday when only workOnSunday is true', () {
-      // Friday 19:00, only Sunday enabled → Sunday 9:00
+      // Friday 19:00, only Sunday enabled → Sunday 9:45
       final fri19 = DateTime(2026, 2, 20, 19, 0);
       final result = nextNotif(now: fri19, workOnSunday: true);
-      expect(result, DateTime(2026, 2, 22, 9, 0)); // Sunday
+      expect(result, DateTime(2026, 2, 22, 9, 45)); // Sunday
     });
 
-    test('returns current hour if at exact start time', () {
-      // Exactly 9:00:00 → should be 9:00
+    test('returns settling time if at exact start time', () {
+      // Exactly 9:00:00 → within settling delay → 9:45
       final result = nextNotif(now: DateTime(2026, 2, 16, 9, 0, 0));
-      expect(result, DateTime(2026, 2, 16, 9, 0));
+      expect(result, DateTime(2026, 2, 16, 9, 45));
     });
 
     test('skips to Monday when Saturday is off and now is Saturday', () {
@@ -336,19 +336,19 @@ void main() {
       expect(result!.weekday, 1); // Monday
     });
 
-    test('stays on Saturday when workOnSaturday is true', () {
+    test('stays on Saturday when workOnSaturday is true past settling', () {
       final sat1030 = DateTime(2026, 2, 21, 10, 30);
       final result = nextNotif(now: sat1030, workOnSaturday: true);
       expect(result, DateTime(2026, 2, 21, 11, 0)); // next hour same day
     });
 
-    test('respects custom start minute', () {
-      // 9:00 with startHour=9, startMinute=30 → 9:30
+    test('respects custom start minute with settling delay', () {
+      // 9:00 with startHour=9, startMinute=30 → 9:30 + 45 = 10:15
       final result = nextNotif(
         now: DateTime(2026, 2, 16, 9, 0),
         startMinute: 30,
       );
-      expect(result, DateTime(2026, 2, 16, 9, 30));
+      expect(result, DateTime(2026, 2, 16, 10, 15));
     });
 
     test('returns end of window when near end', () {

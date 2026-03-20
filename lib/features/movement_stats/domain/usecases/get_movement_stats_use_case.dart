@@ -7,6 +7,7 @@ class GetMovementStatsUseCase {
     required DateTime now,
     required bool workOnSaturday,
     required bool workOnSunday,
+    required int dailyGoal,
   }) {
     final today = DateTime(now.year, now.month, now.day);
 
@@ -65,6 +66,7 @@ class GetMovementStatsUseCase {
       totalMovements: totalMovements,
       allTimeAverageReaction: allTimeAverageReaction,
       allTimeAverageSedentary: allTimeAverageSedentary,
+      dailyGoal: dailyGoal,
     );
   }
 

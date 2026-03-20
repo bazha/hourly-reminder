@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../core/theme/app_colors.dart';
 import '../core/theme/app_typography.dart';
+import '../core/utils/time_utils.dart';
+import '../features/movement/data/datasources/movement_local_datasource.dart';
+import '../features/movement/data/repositories/movement_repository_impl.dart';
+import '../features/movement/domain/entities/movement_event.dart';
+import '../features/movement/domain/usecases/confirm_movement_use_case.dart';
 import '../features/movement_stats/domain/repositories/movement_stats_repository.dart';
 import '../services/alarm_service.dart';
 import '../services/storage_service.dart';
@@ -14,12 +20,14 @@ class HomeScreen extends StatefulWidget {
   final StorageService storageService;
   final AlarmService alarmService;
   final MovementStatsRepository statsRepository;
+  final SharedPreferences sharedPreferences;
 
   const HomeScreen({
     super.key,
     required this.storageService,
     required this.alarmService,
     required this.statsRepository,
+    required this.sharedPreferences,
   });
 
   @override
@@ -29,19 +37,32 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   UserPreferences _prefs = UserPreferences();
   bool _isLoading = true;
+  int _todayMovementCount = 0;
 
   @override
   void initState() {
     super.initState();
-    _loadPreferences();
+    _loadData();
   }
 
-  Future<void> _loadPreferences() async {
+  Future<void> _loadData() async {
     final prefs = await widget.storageService.loadPreferences();
+    final count = _getTodayMovementCount();
     setState(() {
       _prefs = prefs;
+      _todayMovementCount = count;
       _isLoading = false;
     });
+  }
+
+  int _getTodayMovementCount() {
+    final datasource = MovementLocalDatasource(widget.sharedPreferences);
+    final events = datasource.getEvents();
+    final today = DateTime.now();
+    return events.where((e) {
+      final d = e.toEntity().timestamp;
+      return d.year == today.year && d.month == today.month && d.day == today.day;
+    }).length;
   }
 
   Future<void> _toggleReminders(bool value) async {
@@ -113,6 +134,39 @@ class _HomeScreenState extends State<HomeScreen> {
     await widget.storageService.savePreferences(_prefs);
   }
 
+  Future<void> _updateGoal(int goal) async {
+    setState(() {
+      _prefs = _prefs.copyWith(dailyGoal: goal);
+    });
+    await widget.storageService.savePreferences(_prefs);
+  }
+
+  Future<void> _recordManualMovement() async {
+    final datasource = MovementLocalDatasource(widget.sharedPreferences);
+    final repository = MovementRepositoryImpl(datasource);
+
+    final useCase = ConfirmMovementUseCase(
+      repository: repository,
+      scheduleNext: (_) => widget.alarmService.scheduleHourlyAlarm(),
+    );
+
+    await useCase.execute(source: MovementSource.manual);
+
+    setState(() {
+      _todayMovementCount = _getTodayMovementCount();
+    });
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Записано! Таймер сброшен'),
+          duration: Duration(seconds: 2),
+          backgroundColor: AppColors.startColor,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -133,7 +187,17 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 6),
             _StatusPill(isEnabled: _prefs.isEnabled, colors: colors),
-            const SizedBox(height: 24),
+            const SizedBox(height: 4),
+            _NextReminderText(prefs: _prefs, colors: colors),
+            const SizedBox(height: 20),
+            _GoalProgress(
+              current: _todayMovementCount,
+              goal: _prefs.dailyGoal,
+              colors: colors,
+            ),
+            const SizedBox(height: 20),
+            _ManualMoveButton(onPressed: _recordManualMovement),
+            const SizedBox(height: 20),
             WorkHoursCard(
               prefs: _prefs,
               onStartChanged: _updateStartTime,
@@ -156,6 +220,7 @@ class _HomeScreenState extends State<HomeScreen> {
               onToggleSaturday: _toggleSaturday,
               onToggleSunday: _toggleSunday,
               onGenderChanged: _updateGender,
+              onGoalChanged: _updateGoal,
             ),
             const SizedBox(height: 16),
             const TestNotificationButton(),
@@ -202,6 +267,131 @@ class _StatusPill extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _NextReminderText extends StatelessWidget {
+  final UserPreferences prefs;
+  final AppColors colors;
+
+  const _NextReminderText({required this.prefs, required this.colors});
+
+  @override
+  Widget build(BuildContext context) {
+    final now = DateTime.now();
+    final next = AlarmService.nextNotificationTime(
+      now: now,
+      isEnabled: prefs.isEnabled,
+      startHour: prefs.startHour,
+      startMinute: prefs.startMinute,
+      endHour: prefs.endHour,
+      endMinute: prefs.endMinute,
+      workOnSaturday: prefs.workOnSaturday,
+      workOnSunday: prefs.workOnSunday,
+    );
+    final text = TimeUtils.formatNextReminder(next, now);
+
+    return Text(
+      text,
+      style: AppTypography.label.copyWith(color: colors.textMuted),
+    );
+  }
+}
+
+class _GoalProgress extends StatelessWidget {
+  final int current;
+  final int goal;
+  final AppColors colors;
+
+  const _GoalProgress({
+    required this.current,
+    required this.goal,
+    required this.colors,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final progress = goal > 0 ? (current / goal).clamp(0.0, 1.0) : 0.0;
+    final isComplete = current >= goal;
+
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+        side: BorderSide(color: colors.cardBorder),
+      ),
+      color: colors.cardBg,
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Сегодня',
+                  style: AppTypography.cardTitle.copyWith(
+                    color: colors.textPrimary,
+                  ),
+                ),
+                Text(
+                  '$current/$goal',
+                  style: AppTypography.statNumber.copyWith(
+                    color: isComplete ? AppColors.startColor : colors.accent,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(6),
+              child: LinearProgressIndicator(
+                value: progress,
+                minHeight: 8,
+                backgroundColor: colors.sliderInactiveTrack,
+                valueColor: AlwaysStoppedAnimation(
+                  isComplete ? AppColors.startColor : colors.accent,
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              isComplete ? 'Цель выполнена!' : 'разминок из $goal',
+              style: AppTypography.label.copyWith(
+                color: isComplete ? AppColors.startColor : colors.textMuted,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ManualMoveButton extends StatelessWidget {
+  final VoidCallback onPressed;
+
+  const _ManualMoveButton({required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      child: OutlinedButton.icon(
+        onPressed: onPressed,
+        icon: const Icon(Icons.check_circle_outline, size: 20),
+        label: Text('Я подвигался!', style: AppTypography.button),
+        style: OutlinedButton.styleFrom(
+          foregroundColor: AppColors.startColor,
+          side: const BorderSide(color: AppColors.startColor, width: 1.5),
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+        ),
       ),
     );
   }
