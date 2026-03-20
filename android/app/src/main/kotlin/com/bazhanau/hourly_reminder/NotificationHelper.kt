@@ -23,7 +23,7 @@ object NotificationHelper {
         )
         val appLocale = prefs.getString("flutter.app_locale", null) ?: return context
         val locale = Locale(appLocale)
-        val config = context.resources.configuration
+        val config = android.content.res.Configuration(context.resources.configuration)
         config.setLocale(locale)
         return context.createConfigurationContext(config)
     }
