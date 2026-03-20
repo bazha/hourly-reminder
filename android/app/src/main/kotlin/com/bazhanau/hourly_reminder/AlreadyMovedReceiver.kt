@@ -13,8 +13,8 @@ class AlreadyMovedReceiver : BroadcastReceiver() {
         const val ACTION_ALREADY_MOVED = "com.bazhanau.hourly_reminder.ACTION_ALREADY_MOVED"
         private const val REQUEST_CODE = 300
         private const val FAST_REACTION_THRESHOLD_MS = 3 * 60 * 1000L  // 3 minutes
-        private const val SHORT_INTERVAL_MS = 30 * 60 * 1000L          // 30 minutes
-        private const val LONG_INTERVAL_MS = 45 * 60 * 1000L           // 45 minutes
+        private const val DEFAULT_INTERVAL_MINUTES = 60
+        private const val MINIMUM_INTERVAL_MS = 10 * 60 * 1000L        // 10 minutes
     }
 
     override fun onReceive(context: Context, intent: Intent) {
@@ -38,12 +38,17 @@ class AlreadyMovedReceiver : BroadcastReceiver() {
             0L
         }
 
-        // Semi-adaptive rule (same as IntervalCalculator in Dart)
-        val nextIntervalMs = if (reactionTimeMs <= FAST_REACTION_THRESHOLD_MS) {
-            SHORT_INTERVAL_MS
-        } else {
-            LONG_INTERVAL_MS
-        }
+        // Read base interval from preferences
+        val baseIntervalMinutes = prefs.getInt(
+            "flutter.reminder_interval_minutes", DEFAULT_INTERVAL_MINUTES
+        )
+
+        // Proportional adaptive rule (matches IntervalCalculator in Dart)
+        val factor = if (reactionTimeMs <= FAST_REACTION_THRESHOLD_MS) 0.5 else 0.75
+        val nextIntervalMs = maxOf(
+            (baseIntervalMinutes * factor * 60 * 1000).toLong(),
+            MINIMUM_INTERVAL_MS
+        )
 
         // Record sedentary start time = now
         prefs.edit()

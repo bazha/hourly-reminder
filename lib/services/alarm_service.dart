@@ -18,7 +18,7 @@ class AlarmService {
   }
 
   /// Pure function: given a moment in time and user settings, returns true if
-  /// a notification should be sent.  No side-effects — easy to unit-test.
+  /// a notification should be sent.  No side-effects - easy to unit-test.
   static bool shouldSendReminder({
     required DateTime now,
     required bool isEnabled,
@@ -30,17 +30,17 @@ class AlarmService {
     required bool workOnSunday,
   }) {
     if (!isEnabled) return false;
-    final day = now.weekday; // 1 = Mon … 7 = Sun
+    final day = now.weekday; // 1 = Mon ... 7 = Sun
     if (day == 6 && !workOnSaturday) return false;
-    if (day == 7 && !workOnSunday)   return false;
-    final nowMin   = now.hour * 60 + now.minute;
+    if (day == 7 && !workOnSunday) return false;
+    final nowMin = now.hour * 60 + now.minute;
     final startMin = startHour * 60 + startMinute;
-    final endMin   = endHour   * 60 + endMinute;
+    final endMin = endHour * 60 + endMinute;
     return nowMin >= startMin && nowMin <= endMin;
   }
 
   /// Returns the DateTime of the next notification, or null when disabled.
-  /// Pure calculation — does not schedule anything.
+  /// Pure calculation - does not schedule anything.
   static DateTime? nextNotificationTime({
     required DateTime now,
     required bool isEnabled,
@@ -50,12 +50,13 @@ class AlarmService {
     required int endMinute,
     required bool workOnSaturday,
     required bool workOnSunday,
+    int intervalMinutes = 60,
   }) {
     if (!isEnabled) return null;
 
-    final nowMin   = now.hour * 60 + now.minute;
+    final nowMin = now.hour * 60 + now.minute;
     final startMin = startHour * 60 + startMinute;
-    final endMin   = endHour   * 60 + endMinute;
+    final endMin = endHour * 60 + endMinute;
 
     bool isDayValid(int weekday) =>
         (weekday != 6 && weekday != 7) ||
@@ -67,33 +68,32 @@ class AlarmService {
 
     if (isDayValid(now.weekday)) {
       if (nowMin < startMin) {
-        // Before today's window — first notification after delay.
+        // Before today's window - first notification after delay.
         if (firstMin <= endMin) {
           return DateTime(now.year, now.month, now.day)
               .add(Duration(minutes: firstMin));
         }
         return DateTime(now.year, now.month, now.day, startHour, startMinute);
       } else if (nowMin < firstMin && firstMin <= endMin) {
-        // Within the settling delay — first notification at start + delay.
+        // Within the settling delay - first notification at start + delay.
         return DateTime(now.year, now.month, now.day)
             .add(Duration(minutes: firstMin));
       } else if (nowMin <= endMin) {
         // Inside today's window, past the settling delay.
-        if (now.minute == 0 && now.second == 0) {
-          return DateTime(now.year, now.month, now.day, now.hour, 0);
-        } else {
-          final nextHour = now.hour + 1;
-          if (nextHour * 60 <= endMin) {
-            return DateTime(now.year, now.month, now.day, nextHour, 0);
-          }
+        // Schedule at now + interval, clamped to work window.
+        final nextMin = nowMin + intervalMinutes;
+        if (nextMin <= endMin) {
+          return DateTime(now.year, now.month, now.day)
+              .add(Duration(minutes: nextMin));
         }
+        // Next interval would be past end - fall through to next day.
       }
-      // Past window for today — fall through to next valid day.
+      // Past window for today - fall through to next valid day.
     }
 
     // Walk forward day by day until we find a valid work day.
-    var candidate = DateTime(now.year, now.month, now.day)
-        .add(const Duration(days: 1));
+    var candidate =
+        DateTime(now.year, now.month, now.day).add(const Duration(days: 1));
     while (true) {
       if (isDayValid(candidate.weekday)) {
         final candidateFirstMin = startMin + firstNotificationDelayMinutes;
@@ -101,8 +101,8 @@ class AlarmService {
           return DateTime(candidate.year, candidate.month, candidate.day)
               .add(Duration(minutes: candidateFirstMin));
         }
-        return DateTime(
-            candidate.year, candidate.month, candidate.day, startHour, startMinute);
+        return DateTime(candidate.year, candidate.month, candidate.day,
+            startHour, startMinute);
       }
       candidate = candidate.add(const Duration(days: 1));
     }

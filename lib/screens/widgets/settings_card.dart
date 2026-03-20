@@ -12,6 +12,7 @@ class SettingsSection extends StatelessWidget {
     required this.onToggleSunday,
     required this.onGenderChanged,
     required this.onGoalChanged,
+    required this.onIntervalChanged,
   });
 
   final UserPreferences prefs;
@@ -19,6 +20,7 @@ class SettingsSection extends StatelessWidget {
   final ValueChanged<bool> onToggleSunday;
   final ValueChanged<NotificationGender> onGenderChanged;
   final ValueChanged<int> onGoalChanged;
+  final ValueChanged<int> onIntervalChanged;
 
   String _workDaysLabel() {
     if (prefs.workOnSaturday && prefs.workOnSunday) return 'Пн-Вс';
@@ -65,6 +67,14 @@ class SettingsSection extends StatelessWidget {
           value: '${prefs.dailyGoal} разминок',
           colors: colors,
           onTap: () => _showGoalSheet(context),
+        ),
+        Divider(height: 1, color: colors.divider),
+        _SettingsRow(
+          icon: Icons.timer_outlined,
+          label: 'Интервал напоминаний',
+          value: '${prefs.reminderIntervalMinutes} мин',
+          colors: colors,
+          onTap: () => _showIntervalSheet(context),
         ),
         Divider(height: 1, color: colors.divider),
         _SettingsRow(
@@ -137,6 +147,22 @@ class SettingsSection extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _showIntervalSheet(BuildContext context) {
+    final colors = AppColors.of(context);
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: colors.cardBg,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (ctx) => _IntervalPicker(
+        currentInterval: prefs.reminderIntervalMinutes,
+        onChanged: onIntervalChanged,
+        colors: colors,
       ),
     );
   }
@@ -361,6 +387,108 @@ class _GoalPickerState extends State<_GoalPicker> {
                   style: AppTypography.label
                       .copyWith(color: widget.colors.textMuted)),
               Text('15',
+                  style: AppTypography.label
+                      .copyWith(color: widget.colors.textMuted)),
+            ],
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            child: TextButton(
+              onPressed: () {
+                widget.onChanged(_value.round());
+                Navigator.pop(context);
+              },
+              child: Text(
+                'Готово',
+                style: AppTypography.button.copyWith(
+                  color: AppColors.primary,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _IntervalPicker extends StatefulWidget {
+  final int currentInterval;
+  final ValueChanged<int> onChanged;
+  final AppColors colors;
+
+  const _IntervalPicker({
+    required this.currentInterval,
+    required this.onChanged,
+    required this.colors,
+  });
+
+  @override
+  State<_IntervalPicker> createState() => _IntervalPickerState();
+}
+
+class _IntervalPickerState extends State<_IntervalPicker> {
+  late double _value;
+
+  @override
+  void initState() {
+    super.initState();
+    _value = widget.currentInterval.toDouble();
+  }
+
+  String _formatInterval(int minutes) {
+    if (minutes >= 60 && minutes % 60 == 0) {
+      final hours = minutes ~/ 60;
+      return '$hours ч';
+    }
+    if (minutes > 60) {
+      final hours = minutes ~/ 60;
+      final mins = minutes % 60;
+      return '$hours ч $mins мин';
+    }
+    return '$minutes мин';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 24, 24, 40),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Интервал напоминаний',
+            style: AppTypography.cardTitle.copyWith(
+              color: widget.colors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            _formatInterval(_value.round()),
+            style: AppTypography.statMedium.copyWith(
+              color: AppColors.primary,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Slider(
+            value: _value,
+            min: 15,
+            max: 120,
+            divisions: 7,
+            label: _formatInterval(_value.round()),
+            onChanged: (v) => setState(() => _value = v),
+            activeColor: AppColors.primary,
+            inactiveColor: widget.colors.sliderInactiveTrack,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('15 мин',
+                  style: AppTypography.label
+                      .copyWith(color: widget.colors.textMuted)),
+              Text('2 ч',
                   style: AppTypography.label
                       .copyWith(color: widget.colors.textMuted)),
             ],
