@@ -16,10 +16,10 @@ object NotificationHelper {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 CHANNEL_ID,
-                "Hourly Reminders",
+                context.getString(R.string.channel_name),
                 NotificationManager.IMPORTANCE_HIGH
             ).apply {
-                description = "Напоминания встать и размяться"
+                description = context.getString(R.string.channel_description)
                 enableVibration(true)
             }
             val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -49,7 +49,7 @@ object NotificationHelper {
             (System.currentTimeMillis() - startMillis) / 60_000L
         } else 0L
 
-        val contentTitle = ExerciseRepository.buildTitle(prefs, minutes)
+        val contentTitle = ExerciseRepository.buildTitle(context, prefs, minutes)
 
         val snoozePendingIntent = PendingIntent.getBroadcast(
             context, 0,
@@ -88,8 +88,8 @@ object NotificationHelper {
             .setSmallIcon(R.mipmap.ic_launcher)
             .setContentTitle(contentTitle)
             .setContentText(
-                if (isFirst) "Время сделать перерыв \uD83D\uDEB6"
-                else "Время упражнения! \uD83D\uDCAA"
+                if (isFirst) context.getString(R.string.notif_body_first)
+                else context.getString(R.string.notif_body_exercise)
             )
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
@@ -97,17 +97,17 @@ object NotificationHelper {
             .setVibrate(longArrayOf(0, 250, 250, 250))
             .setContentIntent(openAppPendingIntent)
             .setDeleteIntent(dismissPendingIntent)
-            .addAction(0, "Через 10 минут", snoozePendingIntent)
-            .addAction(0, "Я уже двигался", alreadyMovedPendingIntent)
+            .addAction(0, context.getString(R.string.action_snooze), snoozePendingIntent)
+            .addAction(0, context.getString(R.string.action_already_moved), alreadyMovedPendingIntent)
 
         if (!isFirst) {
-            val exercise = ExerciseRepository.getNextExercise(prefs)
+            val exercise = ExerciseRepository.getNextExercise(context, prefs)
             builder.setStyle(
                 NotificationCompat.BigTextStyle()
                     .bigText(
                         "${exercise.name}\n" +
                         "${exercise.description}\n" +
-                        "\u23F1 ${exercise.durationSeconds} секунд"
+                        "\u23F1 ${context.getString(R.string.notif_duration_seconds, exercise.durationSeconds)}"
                     )
             )
         }

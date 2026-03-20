@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/time_utils.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../domain/entities/movement_stats.dart';
 
 class TodaySummaryCard extends StatelessWidget {
@@ -17,6 +18,7 @@ class TodaySummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = AppColors.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final goalMet = today.movementCount >= dailyGoal;
 
     return Row(
@@ -25,7 +27,7 @@ class TodaySummaryCard extends StatelessWidget {
         Expanded(
           child: _MetricCard(
             icon: Icons.fitness_center,
-            label: 'Разминок',
+            label: l10n.metricMovements,
             value: '${today.movementCount}/$dailyGoal',
             accentColor: goalMet ? AppColors.startColor : colors.accent,
             colors: colors,
@@ -35,8 +37,8 @@ class TodaySummaryCard extends StatelessWidget {
         Expanded(
           child: _MetricCard(
             icon: Icons.event_seat_outlined,
-            label: 'Время сидя',
-            value: TimeUtils.formatDuration(today.totalSedentaryTime),
+            label: l10n.metricSedentary,
+            value: TimeUtils.formatDuration(today.totalSedentaryTime, l10n),
             accentColor: AppColors.endColor,
             colors: colors,
           ),
@@ -45,8 +47,8 @@ class TodaySummaryCard extends StatelessWidget {
         Expanded(
           child: _MetricCard(
             icon: Icons.bolt_outlined,
-            label: 'Реакция',
-            value: TimeUtils.formatDuration(today.averageReactionTime),
+            label: l10n.metricReaction,
+            value: TimeUtils.formatDuration(today.averageReactionTime, l10n),
             accentColor: colors.accent,
             colors: colors,
           ),

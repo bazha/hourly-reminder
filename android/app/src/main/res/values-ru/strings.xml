@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Напоминалка</string>
+
+    <!-- Notification channel -->
+    <string name="channel_name">Напоминания каждый час</string>
+    <string name="channel_description">Напоминания встать и размяться</string>
+
+    <!-- Notification content -->
+    <string name="notif_title_first">Пора размяться</string>
+    <string name="notif_title_neutral">Без движения %d мин.</string>
+    <string name="notif_title_male">Ты не двигался %d мин.</string>
+    <string name="notif_title_female">Ты не двигалась %d мин.</string>
+    <string name="notif_body_first">Время сделать перерыв 🚶</string>
+    <string name="notif_body_exercise">Время упражнения! 💪</string>
+    <string name="notif_duration_seconds">%d секунд</string>
+
+    <!-- Notification actions -->
+    <string name="action_snooze">Через 10 минут</string>
+    <string name="action_already_moved">Я уже двигался</string>
+
+    <!-- Exercises -->
+    <string name="exercise_neck">Повороты шеи</string>
+    <string name="exercise_neck_desc">Медленно поворачивай голову влево-вправо</string>
+    <string name="exercise_shoulder">Растяжка плеч</string>
+    <string name="exercise_shoulder_desc">Потяни руку через грудь, держи 15 сек</string>
+    <string name="exercise_wrist">Растяжка запястий</string>
+    <string name="exercise_wrist_desc">Вращай запястья по 10 раз в каждую сторону</string>
+    <string name="exercise_calf">Подъём на носки</string>
+    <string name="exercise_calf_desc">Встань и поднимись на носки 15 раз</string>
+    <string name="exercise_torso">Повороты корпуса</string>
+    <string name="exercise_torso_desc">Сидя, повернись влево-вправо 10 раз</string>
+    <string name="exercise_back">Растяжка спины</string>
+    <string name="exercise_back_desc">Потянись руками вверх, держи 15 сек</string>
+    <string name="exercise_scapula">Сжатие плеч</string>
+    <string name="exercise_scapula_desc">Сведи лопатки вместе, держи 5 сек, повтори 10 раз</string>
+    <string name="exercise_head_tilt">Наклоны головы</string>
+    <string name="exercise_head_tilt_desc">Наклони голову к плечу, держи 10 сек</string>
+</resources>

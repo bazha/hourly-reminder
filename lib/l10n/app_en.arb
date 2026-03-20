@@ -1,0 +1,100 @@
+{
+  "@@locale": "en",
+
+  "appTitle": "Reminder",
+  "navHome": "Home",
+  "navStats": "Statistics",
+
+  "toggleOn": "ON",
+  "toggleOff": "OFF",
+  "toggleSemanticsLabel": "Reminders",
+
+  "remindersDisabled": "Reminders disabled",
+  "nextReminderToday": "Next at {time}",
+  "nextReminderTomorrow": "Next tomorrow at {time}",
+  "nextReminderOnDay": "Next on {dayName} at {time}",
+
+  "todayLabel": "TODAY",
+  "goalProgressText": "of {goal} movements",
+  "recordMovement": "Record movement",
+  "movementRecorded": "Recorded! Timer reset",
+  "permissionRequired": "Allow notifications in settings",
+
+  "workHoursLabel": "WORK HOURS",
+  "timeChipStart": "Start",
+  "timeChipEnd": "End",
+
+  "settingsLabel": "SETTINGS",
+  "settingWorkDays": "Work days",
+  "settingDailyGoal": "Daily goal",
+  "settingInterval": "Reminder interval",
+  "settingNotificationStyle": "Notification style",
+  "settingTestNotification": "Test notification",
+  "testNotificationSent": "Test notification sent",
+
+  "workDaysMonFri": "Mon-Fri",
+  "workDaysMonSat": "Mon-Sat",
+  "workDaysMonSun": "Mon-Sun",
+  "workDaysMonFriSun": "Mon-Fri, Sun",
+  "saturday": "Saturday",
+  "sunday": "Sunday",
+
+  "nMovements": "{count} movements",
+  "nMinutes": "{count} min",
+
+  "genderNeutralShort": "Neutral",
+  "genderMaleShort": "Masculine",
+  "genderFemaleShort": "Feminine",
+  "genderNeutralFull": "Neutral",
+  "genderMaleFull": "Masculine",
+  "genderFemaleFull": "Feminine",
+  "genderNeutralExample": "No movement for X min.",
+  "genderMaleExample": "You haven't moved for X min.",
+  "genderFemaleExample": "You haven't moved for X min.",
+
+  "done": "Done",
+  "retry": "Retry",
+  "statsLoadError": "Failed to load statistics",
+
+  "metricMovements": "Movements",
+  "metricSedentary": "Sedentary",
+  "metricReaction": "Reaction",
+  "thisWeek": "THIS WEEK",
+  "noData": "No data",
+  "goalLine": "goal",
+
+  "totalMovements": "Total movements",
+  "avgReaction": "Avg. reaction",
+  "avgSedentary": "Avg. sedentary",
+  "currentStreak": "Current streak",
+  "bestStreak": "Best streak",
+
+  "streakDays": "{count, plural, one{day in a row} other{days in a row}}",
+
+  "dayMon": "Mon",
+  "dayTue": "Tue",
+  "dayWed": "Wed",
+  "dayThu": "Thu",
+  "dayFri": "Fri",
+  "daySat": "Sat",
+  "daySun": "Sun",
+
+  "durationSeconds": "{count}s",
+  "durationMinutes": "{count}m",
+  "durationHoursMinutes": "{hours}h {minutes}m",
+  "durationHours": "{hours}h",
+
+  "intervalSliderMin": "15 min",
+  "intervalSliderMax": "2 h",
+
+  "notificationTitle": "Time to stand up! ⏰",
+  "notificationBody": "Stretch and walk around 🚶",
+  "notificationSnooze": "In 10 minutes",
+  "notificationAlreadyMoved": "Already moved",
+
+  "settingLanguage": "Language",
+  "languageSystem": "System",
+  "languageRu": "Русский",
+  "languageEn": "English",
+  "languageBe": "Беларуская"
+}

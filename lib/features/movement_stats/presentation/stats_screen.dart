@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../l10n/app_localizations.dart';
 import '../domain/entities/movement_stats.dart';
 import '../domain/repositories/movement_stats_repository.dart';
 import 'widgets/today_summary_card.dart';
@@ -54,7 +55,7 @@ class _StatsScreenState extends State<StatsScreen> {
       if (mounted) {
         setState(() {
           _isLoading = false;
-          _error = 'Не удалось загрузить статистику';
+          _error = 'stats_load_error';
         });
       }
     }
@@ -70,6 +71,7 @@ class _StatsScreenState extends State<StatsScreen> {
   }
 
   Widget _buildBody(AppColors colors) {
+    final l10n = AppLocalizations.of(context)!;
     if (_isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -78,7 +80,8 @@ class _StatsScreenState extends State<StatsScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(_error!, style: TextStyle(color: colors.textSecondary)),
+            Text(l10n.statsLoadError,
+                style: TextStyle(color: colors.textSecondary)),
             const SizedBox(height: 12),
             TextButton(
               onPressed: () {
@@ -88,7 +91,7 @@ class _StatsScreenState extends State<StatsScreen> {
                 });
                 _loadStats();
               },
-              child: const Text('Повторить'),
+              child: Text(l10n.retry),
             ),
           ],
         ),
@@ -108,7 +111,7 @@ class _StatsScreenState extends State<StatsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Статистика',
+              AppLocalizations.of(context)!.navStats,
               style: AppTypography.heading.copyWith(color: colors.textPrimary),
             ),
             const SizedBox(height: 24),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'core/theme/app_colors.dart';
+import 'l10n/app_localizations.dart';
 import 'services/alarm_service.dart';
 import 'services/notification_service.dart';
 import 'services/storage_service.dart';
@@ -40,7 +41,7 @@ void main() async {
   ));
 }
 
-class HourlyReminderApp extends StatelessWidget {
+class HourlyReminderApp extends StatefulWidget {
   final StorageService storageService;
   final AlarmService alarmService;
   final MovementStatsRepository statsRepository;
@@ -53,6 +54,43 @@ class HourlyReminderApp extends StatelessWidget {
     required this.statsRepository,
     required this.movementRepository,
   });
+
+  static void setLocale(BuildContext context, Locale? locale) {
+    final state = context.findAncestorStateOfType<_HourlyReminderAppState>();
+    state?._setLocale(locale);
+  }
+
+  @override
+  State<HourlyReminderApp> createState() => _HourlyReminderAppState();
+}
+
+class _HourlyReminderAppState extends State<HourlyReminderApp> {
+  Locale? _locale;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadLocale();
+  }
+
+  Future<void> _loadLocale() async {
+    final prefs = await SharedPreferences.getInstance();
+    final code = prefs.getString('app_locale');
+    if (code != null && mounted) {
+      setState(() => _locale = Locale(code));
+    }
+  }
+
+  void _setLocale(Locale? locale) {
+    setState(() => _locale = locale);
+    SharedPreferences.getInstance().then((prefs) {
+      if (locale == null) {
+        prefs.remove('app_locale');
+      } else {
+        prefs.setString('app_locale', locale.languageCode);
+      }
+    });
+  }
 
   static ThemeData _buildTheme(Brightness brightness, AppColors colors) {
     const teal = Color(0xFF4EAAA0);
@@ -114,14 +152,17 @@ class HourlyReminderApp extends StatelessWidget {
     return MaterialApp(
       title: 'Hourly Reminder',
       debugShowCheckedModeBanner: false,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: _locale,
       themeMode: ThemeMode.system,
       theme: _buildTheme(Brightness.light, AppColors.light),
       darkTheme: _buildTheme(Brightness.dark, AppColors.dark),
       home: MainShell(
-        storageService: storageService,
-        alarmService: alarmService,
-        statsRepository: statsRepository,
-        movementRepository: movementRepository,
+        storageService: widget.storageService,
+        alarmService: widget.alarmService,
+        statsRepository: widget.statsRepository,
+        movementRepository: widget.movementRepository,
       ),
     );
   }

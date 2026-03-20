@@ -1,0 +1,100 @@
+{
+  "@@locale": "be",
+
+  "appTitle": "Нагадвалка",
+  "navHome": "Галоўная",
+  "navStats": "Статыстыка",
+
+  "toggleOn": "УКЛ",
+  "toggleOff": "ВЫКЛ",
+  "toggleSemanticsLabel": "Нагадванні",
+
+  "remindersDisabled": "Нагадванні выключаны",
+  "nextReminderToday": "Наступнае ў {time}",
+  "nextReminderTomorrow": "Наступнае заўтра ў {time}",
+  "nextReminderOnDay": "Наступнае ў {dayName} ў {time}",
+
+  "todayLabel": "СЁННЯ",
+  "goalProgressText": "з {goal} разминак",
+  "recordMovement": "Запiсаць разминку",
+  "movementRecorded": "Запiсана! Таймер скiнуты",
+  "permissionRequired": "Дазвольце апавяшчэнні ў наладах",
+
+  "workHoursLabel": "ПРАЦОЎНЫЯ ГАДЗІНЫ",
+  "timeChipStart": "Пачатак",
+  "timeChipEnd": "Канец",
+
+  "settingsLabel": "НАЛАДЫ",
+  "settingWorkDays": "Працоўныя дні",
+  "settingDailyGoal": "Мэта на дзень",
+  "settingInterval": "Iнтэрвал нагадванняў",
+  "settingNotificationStyle": "Стыль апавяшчэнняў",
+  "settingTestNotification": "Тэст апавяшчэння",
+  "testNotificationSent": "Тэставае апавяшчэнне адпраўлена",
+
+  "workDaysMonFri": "Пн-Пт",
+  "workDaysMonSat": "Пн-Сб",
+  "workDaysMonSun": "Пн-Нд",
+  "workDaysMonFriSun": "Пн-Пт, Нд",
+  "saturday": "Субота",
+  "sunday": "Нядзеля",
+
+  "nMovements": "{count} разминак",
+  "nMinutes": "{count} хвiл",
+
+  "genderNeutralShort": "Нейтральны",
+  "genderMaleShort": "Мужчынскі",
+  "genderFemaleShort": "Жаночы",
+  "genderNeutralFull": "Нейтральнае",
+  "genderMaleFull": "Мужчынскі род",
+  "genderFemaleFull": "Жаночы род",
+  "genderNeutralExample": "Без руху X хвіл.",
+  "genderMaleExample": "Ты не рухаўся X хвіл.",
+  "genderFemaleExample": "Ты не рухалася X хвіл.",
+
+  "done": "Гатова",
+  "retry": "Паўтарыць",
+  "statsLoadError": "Не атрымалася загрузiць статыстыку",
+
+  "metricMovements": "Разминак",
+  "metricSedentary": "Час сядзення",
+  "metricReaction": "Рэакцыя",
+  "thisWeek": "ГЭТЫ ТЫДЗЕНЬ",
+  "noData": "Няма даных",
+  "goalLine": "мэта",
+
+  "totalMovements": "Усяго разминак",
+  "avgReaction": "Ср. рэакцыя",
+  "avgSedentary": "Ср. час сядзення",
+  "currentStreak": "Бягучая серыя",
+  "bestStreak": "Лепшая серыя",
+
+  "streakDays": "{count, plural, one{дзень запар} few{дні запар} many{дзён запар} other{дзён запар}}",
+
+  "dayMon": "Пн",
+  "dayTue": "Аў",
+  "dayWed": "Ср",
+  "dayThu": "Чц",
+  "dayFri": "Пт",
+  "daySat": "Сб",
+  "daySun": "Нд",
+
+  "durationSeconds": "{count}с",
+  "durationMinutes": "{count}хв",
+  "durationHoursMinutes": "{hours}г {minutes}хв",
+  "durationHours": "{hours}г",
+
+  "intervalSliderMin": "15 хвiл",
+  "intervalSliderMax": "2 г",
+
+  "notificationTitle": "Час устаць! ⏰",
+  "notificationBody": "Пара размяцца і пахадзiць 🚶",
+  "notificationSnooze": "Праз 10 хвілін",
+  "notificationAlreadyMoved": "Ужо рухаўся",
+
+  "settingLanguage": "Мова",
+  "languageSystem": "Сістэмная",
+  "languageRu": "Русский",
+  "languageEn": "English",
+  "languageBe": "Беларуская"
+}

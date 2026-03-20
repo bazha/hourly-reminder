@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/time_utils.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../domain/entities/movement_stats.dart';
 
 class WeeklyChart extends StatelessWidget {
@@ -18,6 +19,7 @@ class WeeklyChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = AppColors.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return Card(
       child: Padding(
@@ -29,7 +31,7 @@ class WeeklyChart extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'ЭТА НЕДЕЛЯ',
+                  l10n.thisWeek,
                   style: AppTypography.sectionLabel.copyWith(
                     color: colors.textMuted,
                   ),
@@ -49,11 +51,11 @@ class WeeklyChart extends StatelessWidget {
               child: weeklyStats.isEmpty
                   ? Center(
                       child: Text(
-                        'Нет данных',
+                        l10n.noData,
                         style: TextStyle(color: colors.textMuted),
                       ),
                     )
-                  : _buildChart(colors),
+                  : _buildChart(colors, l10n),
             ),
           ],
         ),
@@ -69,7 +71,7 @@ class WeeklyChart extends StatelessWidget {
         '${last.day}.${last.month.toString().padLeft(2, '0')}';
   }
 
-  Widget _buildChart(AppColors colors) {
+  Widget _buildChart(AppColors colors, AppLocalizations l10n) {
     final maxCount = weeklyStats
         .map((s) => s.movementCount)
         .fold(0, (a, b) => a > b ? a : b);
@@ -106,7 +108,7 @@ class WeeklyChart extends StatelessWidget {
                 return Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: Text(
-                    '${_shortDayName(date.weekday)}\n${date.day}',
+                    '${TimeUtils.dayName(l10n, date.weekday)}\n${date.day}',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 10,
@@ -146,7 +148,7 @@ class WeeklyChart extends StatelessWidget {
                   fontSize: 9,
                   color: colors.textMuted,
                 ),
-                labelResolver: (_) => 'цель',
+                labelResolver: (_) => l10n.goalLine,
               ),
             ),
           ],
@@ -170,9 +172,5 @@ class WeeklyChart extends StatelessWidget {
         }),
       ),
     );
-  }
-
-  String _shortDayName(int weekday) {
-    return TimeUtils.russianDayNames[weekday - 1];
   }
 }

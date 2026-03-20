@@ -1,0 +1,111 @@
+{
+  "@@locale": "ru",
+
+  "appTitle": "Напоминалка",
+  "navHome": "Главная",
+  "navStats": "Статистика",
+
+  "toggleOn": "ВКЛ",
+  "toggleOff": "ВЫКЛ",
+  "toggleSemanticsLabel": "Напоминания",
+
+  "remindersDisabled": "Напоминания выключены",
+  "nextReminderToday": "Следующее в {time}",
+  "@nextReminderToday": { "placeholders": { "time": { "type": "String" } } },
+  "nextReminderTomorrow": "Следующее завтра в {time}",
+  "@nextReminderTomorrow": { "placeholders": { "time": { "type": "String" } } },
+  "nextReminderOnDay": "Следующее в {dayName} в {time}",
+  "@nextReminderOnDay": { "placeholders": { "dayName": { "type": "String" }, "time": { "type": "String" } } },
+
+  "todayLabel": "СЕГОДНЯ",
+  "goalProgressText": "из {goal} разминок",
+  "@goalProgressText": { "placeholders": { "goal": { "type": "int" } } },
+  "recordMovement": "Записать разминку",
+  "movementRecorded": "Записано! Таймер сброшен",
+  "permissionRequired": "Разрешите уведомления в настройках",
+
+  "workHoursLabel": "РАБОЧИЕ ЧАСЫ",
+  "timeChipStart": "Начало",
+  "timeChipEnd": "Конец",
+
+  "settingsLabel": "НАСТРОЙКИ",
+  "settingWorkDays": "Рабочие дни",
+  "settingDailyGoal": "Дневная цель",
+  "settingInterval": "Интервал напоминаний",
+  "settingNotificationStyle": "Стиль уведомлений",
+  "settingTestNotification": "Тест уведомления",
+  "testNotificationSent": "Тестовое уведомление отправлено",
+
+  "workDaysMonFri": "Пн-Пт",
+  "workDaysMonSat": "Пн-Сб",
+  "workDaysMonSun": "Пн-Вс",
+  "workDaysMonFriSun": "Пн-Пт, Вс",
+  "saturday": "Суббота",
+  "sunday": "Воскресенье",
+
+  "nMovements": "{count} разминок",
+  "@nMovements": { "placeholders": { "count": { "type": "int" } } },
+  "nMinutes": "{count} мин",
+  "@nMinutes": { "placeholders": { "count": { "type": "int" } } },
+
+  "genderNeutralShort": "Нейтральный",
+  "genderMaleShort": "Мужской",
+  "genderFemaleShort": "Женский",
+  "genderNeutralFull": "Нейтральное",
+  "genderMaleFull": "Мужской род",
+  "genderFemaleFull": "Женский род",
+  "genderNeutralExample": "Без движения X мин.",
+  "genderMaleExample": "Ты не двигался X мин.",
+  "genderFemaleExample": "Ты не двигалась X мин.",
+
+  "done": "Готово",
+  "retry": "Повторить",
+  "statsLoadError": "Не удалось загрузить статистику",
+
+  "metricMovements": "Разминок",
+  "metricSedentary": "Время сидя",
+  "metricReaction": "Реакция",
+  "thisWeek": "ЭТА НЕДЕЛЯ",
+  "noData": "Нет данных",
+  "goalLine": "цель",
+
+  "totalMovements": "Всего разминок",
+  "avgReaction": "Ср. реакция",
+  "avgSedentary": "Ср. время сидя",
+  "currentStreak": "Текущая серия",
+  "bestStreak": "Лучшая серия",
+
+  "streakDays": "{count, plural, one{день подряд} few{дня подряд} many{дней подряд} other{дней подряд}}",
+  "@streakDays": { "placeholders": { "count": { "type": "int" } } },
+
+  "dayMon": "Пн",
+  "dayTue": "Вт",
+  "dayWed": "Ср",
+  "dayThu": "Чт",
+  "dayFri": "Пт",
+  "daySat": "Сб",
+  "daySun": "Вс",
+
+  "durationSeconds": "{count}с",
+  "@durationSeconds": { "placeholders": { "count": { "type": "int" } } },
+  "durationMinutes": "{count}м",
+  "@durationMinutes": { "placeholders": { "count": { "type": "int" } } },
+  "durationHoursMinutes": "{hours}ч {minutes}м",
+  "@durationHoursMinutes": { "placeholders": { "hours": { "type": "int" }, "minutes": { "type": "int" } } },
+  "durationHours": "{hours}ч",
+  "@durationHours": { "placeholders": { "hours": { "type": "int" } } },
+
+  "intervalSliderMin": "15 мин",
+  "intervalSliderMax": "2 ч",
+
+  "notificationTitle": "Время встать! ⏰",
+  "notificationBody": "Пора размяться и походить 🚶",
+  "notificationSnooze": "Через 10 минут",
+  "notificationAlreadyMoved": "Я уже двигался",
+
+  "settingLanguage": "Язык",
+  "languageSystem": "Системный",
+  "languageRu": "Русский",
+  "languageEn": "English",
+  "languageBe": "Беларуская"
+}

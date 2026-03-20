@@ -1,4 +1,5 @@
 import 'dart:io' show Platform;
+import 'dart:ui' as ui;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -6,6 +7,7 @@ import 'package:timezone/data/latest.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
 import '../features/movement/presentation/movement_action_handler.dart';
 import '../features/movement/data/datasources/movement_local_datasource.dart';
+import '../l10n/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class NotificationService {
@@ -29,6 +31,8 @@ class NotificationService {
     const androidSettings =
         AndroidInitializationSettings('@mipmap/ic_launcher');
 
+    final l10n = await _resolveLocalizations();
+
     final iosSettings = DarwinInitializationSettings(
       requestAlertPermission: true,
       requestBadgePermission: true,
@@ -39,11 +43,11 @@ class NotificationService {
           actions: [
             DarwinNotificationAction.plain(
               _snoozeActionId,
-              'Через 10 минут',
+              l10n.notificationSnooze,
             ),
             DarwinNotificationAction.plain(
               _alreadyMovedActionId,
-              'Я уже двигался',
+              l10n.notificationAlreadyMoved,
             ),
           ],
         ),
@@ -74,6 +78,8 @@ class NotificationService {
   }
 
   static Future<void> _snoozeForIos() async {
+    final l10n = await _resolveLocalizations();
+
     const iosDetails = DarwinNotificationDetails(
       presentAlert: true,
       presentBadge: true,
@@ -83,8 +89,8 @@ class NotificationService {
 
     await _notifications.zonedSchedule(
       _snoozeNotificationId,
-      'Время встать! ⏰',
-      'Пора размяться и походить 🚶',
+      l10n.notificationTitle,
+      l10n.notificationBody,
       tz.TZDateTime.now(tz.local).add(const Duration(minutes: 10)),
       const NotificationDetails(iOS: iosDetails),
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
@@ -120,6 +126,8 @@ class NotificationService {
     }
 
     // iOS path: use flutter_local_notifications with "I already moved" action
+    final l10n = await _resolveLocalizations();
+
     const iosDetails = DarwinNotificationDetails(
       presentAlert: true,
       presentBadge: true,
@@ -131,8 +139,8 @@ class NotificationService {
 
     await _notifications.show(
       1,
-      'Время встать! ⏰',
-      'Пора размяться и походить 🚶',
+      l10n.notificationTitle,
+      l10n.notificationBody,
       notificationDetails,
       payload: 'hourly_reminder',
     );
@@ -142,5 +150,16 @@ class NotificationService {
     final prefs = await SharedPreferences.getInstance();
     final datasource = MovementLocalDatasource(prefs);
     await datasource.setLastNotificationSentTime(DateTime.now());
+  }
+
+  /// Resolves AppLocalizations without a BuildContext by using the platform locale.
+  static Future<AppLocalizations> _resolveLocalizations() async {
+    final locale = ui.PlatformDispatcher.instance.locale;
+    final supported = AppLocalizations.supportedLocales;
+    final match = supported.firstWhere(
+      (l) => l.languageCode == locale.languageCode,
+      orElse: () => const ui.Locale('ru'),
+    );
+    return AppLocalizations.delegate.load(match);
   }
 }
