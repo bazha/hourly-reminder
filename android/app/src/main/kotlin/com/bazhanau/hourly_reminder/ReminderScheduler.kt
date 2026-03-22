@@ -4,6 +4,7 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Build
 import java.util.Calendar
 
@@ -17,13 +18,18 @@ object ReminderScheduler {
         val prefs = context.getSharedPreferences(
             "FlutterSharedPreferences", Context.MODE_PRIVATE
         )
-        val intervalMinutes = prefs.getInt("flutter.reminder_interval_minutes", DEFAULT_INTERVAL_MINUTES).toLong()
+        val intervalMinutes = prefs.getFlutterInt("flutter.reminder_interval_minutes", DEFAULT_INTERVAL_MINUTES)
+        val startHour = prefs.getFlutterInt("flutter.start_hour", 9)
+        val startMinute = prefs.getFlutterInt("flutter.start_minute", 0)
+        val endHour = prefs.getFlutterInt("flutter.end_hour", 18)
+        val endMinute = prefs.getFlutterInt("flutter.end_minute", 0)
 
-        val next = Calendar.getInstance().apply {
-            add(Calendar.MINUTE, intervalMinutes.toInt())
-            set(Calendar.SECOND, 0)
-            set(Calendar.MILLISECOND, 0)
-        }
+        val startMin = startHour * 60 + startMinute
+        val endMin = endHour * 60 + endMinute
+
+        val next = nextValidAlarmTime(
+            prefs, intervalMinutes, startMin, endMin
+        ) ?: return
 
         val pendingIntent = buildHourlyPendingIntent(context)
 
@@ -40,6 +46,47 @@ object ReminderScheduler {
                 pendingIntent
             )
         }
+    }
+
+    private fun nextValidAlarmTime(
+        prefs: SharedPreferences,
+        intervalMinutes: Int,
+        startMin: Int,
+        endMin: Int,
+    ): Calendar? {
+        val now = Calendar.getInstance()
+        val nowMin = now.get(Calendar.HOUR_OF_DAY) * 60 + now.get(Calendar.MINUTE)
+
+        if (isDayEnabled(prefs, now)) {
+            val candidateMin = nowMin + intervalMinutes
+            if (candidateMin <= endMin && nowMin >= startMin) {
+                return Calendar.getInstance().apply {
+                    set(Calendar.HOUR_OF_DAY, candidateMin / 60)
+                    set(Calendar.MINUTE, candidateMin % 60)
+                    set(Calendar.SECOND, 0)
+                    set(Calendar.MILLISECOND, 0)
+                }
+            }
+        }
+
+        val candidate = Calendar.getInstance().apply {
+            add(Calendar.DAY_OF_YEAR, 1)
+        }
+        for (i in 0 until 8) {
+            if (isDayEnabled(prefs, candidate)) {
+                val firstMin = startMin + intervalMinutes
+                val targetMin = if (firstMin <= endMin) firstMin else startMin
+                return candidate.apply {
+                    set(Calendar.HOUR_OF_DAY, targetMin / 60)
+                    set(Calendar.MINUTE, targetMin % 60)
+                    set(Calendar.SECOND, 0)
+                    set(Calendar.MILLISECOND, 0)
+                }
+            }
+            candidate.add(Calendar.DAY_OF_YEAR, 1)
+        }
+
+        return null
     }
 
     fun cancel(context: Context) {
