@@ -8,6 +8,11 @@ class UserPreferences {
   final int endMinute;
   final bool workOnSaturday;
   final bool workOnSunday;
+  final bool workOnMonday;
+  final bool workOnTuesday;
+  final bool workOnWednesday;
+  final bool workOnThursday;
+  final bool workOnFriday;
   final NotificationGender notificationGender;
   final int dailyGoal;
   final int reminderIntervalMinutes;
@@ -18,6 +23,11 @@ class UserPreferences {
     this.startMinute = 0,
     this.endHour = 18,
     this.endMinute = 0,
+    this.workOnMonday = true,
+    this.workOnTuesday = true,
+    this.workOnWednesday = true,
+    this.workOnThursday = true,
+    this.workOnFriday = true,
     this.workOnSaturday = false,
     this.workOnSunday = false,
     this.notificationGender = NotificationGender.neutral,
@@ -31,6 +41,11 @@ class UserPreferences {
     int? startMinute,
     int? endHour,
     int? endMinute,
+    bool? workOnMonday,
+    bool? workOnTuesday,
+    bool? workOnWednesday,
+    bool? workOnThursday,
+    bool? workOnFriday,
     bool? workOnSaturday,
     bool? workOnSunday,
     NotificationGender? notificationGender,
@@ -43,6 +58,11 @@ class UserPreferences {
       startMinute: startMinute ?? this.startMinute,
       endHour: endHour ?? this.endHour,
       endMinute: endMinute ?? this.endMinute,
+      workOnMonday: workOnMonday ?? this.workOnMonday,
+      workOnTuesday: workOnTuesday ?? this.workOnTuesday,
+      workOnWednesday: workOnWednesday ?? this.workOnWednesday,
+      workOnThursday: workOnThursday ?? this.workOnThursday,
+      workOnFriday: workOnFriday ?? this.workOnFriday,
       workOnSaturday: workOnSaturday ?? this.workOnSaturday,
       workOnSunday: workOnSunday ?? this.workOnSunday,
       notificationGender: notificationGender ?? this.notificationGender,
@@ -50,6 +70,20 @@ class UserPreferences {
       reminderIntervalMinutes:
           reminderIntervalMinutes ?? this.reminderIntervalMinutes,
     );
+  }
+
+  /// Whether a given weekday is a work day (1=Mon, 7=Sun).
+  bool isWorkDay(int weekday) {
+    return switch (weekday) {
+      1 => workOnMonday,
+      2 => workOnTuesday,
+      3 => workOnWednesday,
+      4 => workOnThursday,
+      5 => workOnFriday,
+      6 => workOnSaturday,
+      7 => workOnSunday,
+      _ => false,
+    };
   }
 
   double get startTime => startHour + (startMinute / 60.0);
@@ -75,6 +109,11 @@ class UserPreferences {
           startMinute == other.startMinute &&
           endHour == other.endHour &&
           endMinute == other.endMinute &&
+          workOnMonday == other.workOnMonday &&
+          workOnTuesday == other.workOnTuesday &&
+          workOnWednesday == other.workOnWednesday &&
+          workOnThursday == other.workOnThursday &&
+          workOnFriday == other.workOnFriday &&
           workOnSaturday == other.workOnSaturday &&
           workOnSunday == other.workOnSunday &&
           notificationGender == other.notificationGender &&
@@ -83,14 +122,8 @@ class UserPreferences {
 
   @override
   int get hashCode => Object.hash(
-      isEnabled,
-      startHour,
-      startMinute,
-      endHour,
-      endMinute,
-      workOnSaturday,
-      workOnSunday,
-      notificationGender,
-      dailyGoal,
-      reminderIntervalMinutes);
+      isEnabled, startHour, startMinute, endHour, endMinute,
+      workOnMonday, workOnTuesday, workOnWednesday, workOnThursday,
+      workOnFriday, workOnSaturday, workOnSunday,
+      notificationGender, dailyGoal, reminderIntervalMinutes);
 }

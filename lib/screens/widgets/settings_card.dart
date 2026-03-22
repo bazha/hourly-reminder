@@ -10,25 +10,33 @@ class SettingsSection extends StatelessWidget {
   const SettingsSection({
     super.key,
     required this.prefs,
-    required this.onToggleSaturday,
-    required this.onToggleSunday,
+    required this.onWorkDayChanged,
     required this.onGenderChanged,
     required this.onGoalChanged,
     required this.onIntervalChanged,
   });
 
   final UserPreferences prefs;
-  final ValueChanged<bool> onToggleSaturday;
-  final ValueChanged<bool> onToggleSunday;
+  final void Function(int weekday, bool value) onWorkDayChanged;
   final ValueChanged<NotificationGender> onGenderChanged;
   final ValueChanged<int> onGoalChanged;
   final ValueChanged<int> onIntervalChanged;
 
   String _workDaysLabel(AppLocalizations l10n) {
-    if (prefs.workOnSaturday && prefs.workOnSunday) return l10n.workDaysMonSun;
-    if (prefs.workOnSaturday) return l10n.workDaysMonSat;
-    if (prefs.workOnSunday) return l10n.workDaysMonFriSun;
-    return l10n.workDaysMonFri;
+    final active = <int>[
+      for (int d = 1; d <= 7; d++)
+        if (prefs.isWorkDay(d)) d,
+    ];
+    if (active.length == 7) return l10n.workDaysMonSun;
+    if (active.length == 5 && !prefs.workOnSaturday && !prefs.workOnSunday) {
+      return l10n.workDaysMonFri;
+    }
+    // Build abbreviated day list from l10n
+    final dayNames = [
+      l10n.dayMon, l10n.dayTue, l10n.dayWed, l10n.dayThu,
+      l10n.dayFri, l10n.daySat, l10n.daySun,
+    ];
+    return active.map((d) => dayNames[d - 1]).join(', ');
   }
 
   String _genderLabel(AppLocalizations l10n) {
@@ -178,6 +186,10 @@ class SettingsSection extends StatelessWidget {
   void _showWorkDaysSheet(BuildContext context) {
     final colors = AppColors.of(context);
     final l10n = AppLocalizations.of(context)!;
+    final dayNames = [
+      l10n.monday, l10n.tuesday, l10n.wednesday, l10n.thursday,
+      l10n.friday, l10n.saturday, l10n.sunday,
+    ];
     showModalBottomSheet(
       context: context,
       backgroundColor: colors.cardBg,
@@ -195,26 +207,17 @@ class SettingsSection extends StatelessWidget {
               style:
                   AppTypography.cardTitle.copyWith(color: colors.textPrimary),
             ),
-            const SizedBox(height: 20),
-            _SheetToggleRow(
-              label: l10n.saturday,
-              value: prefs.workOnSaturday,
-              onChanged: (v) {
-                onToggleSaturday(v);
-                Navigator.pop(ctx);
-              },
-              colors: colors,
-            ),
             const SizedBox(height: 12),
-            _SheetToggleRow(
-              label: l10n.sunday,
-              value: prefs.workOnSunday,
-              onChanged: (v) {
-                onToggleSunday(v);
-                Navigator.pop(ctx);
-              },
-              colors: colors,
-            ),
+            for (int weekday = 1; weekday <= 7; weekday++)
+              _SheetToggleRow(
+                label: dayNames[weekday - 1],
+                value: prefs.isWorkDay(weekday),
+                onChanged: (v) {
+                  onWorkDayChanged(weekday, v);
+                  Navigator.pop(ctx);
+                },
+                colors: colors,
+              ),
           ],
         ),
       ),

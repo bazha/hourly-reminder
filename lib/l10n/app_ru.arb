@@ -18,6 +18,7 @@
   "@nextReminderOnDay": { "placeholders": { "dayName": { "type": "String" }, "time": { "type": "String" } } },
 
   "todayLabel": "СЕГОДНЯ",
+  "goalZeroMotivation": "Самое время начать!",
   "goalProgressText": "из {goal} разминок",
   "@goalProgressText": { "placeholders": { "goal": { "type": "int" } } },
   "recordMovement": "Записать разминку",
@@ -40,6 +41,11 @@
   "workDaysMonSat": "Пн-Сб",
   "workDaysMonSun": "Пн-Вс",
   "workDaysMonFriSun": "Пн-Пт, Вс",
+  "monday": "Понедельник",
+  "tuesday": "Вторник",
+  "wednesday": "Среда",
+  "thursday": "Четверг",
+  "friday": "Пятница",
   "saturday": "Суббота",
   "sunday": "Воскресенье",
 
@@ -102,6 +108,10 @@
   "notificationBody": "Пора размяться и походить 🚶",
   "notificationSnooze": "Через 10 минут",
   "notificationAlreadyMoved": "Я уже двигался",
+
+  "dayOffButton": "Выходной сегодня",
+  "dayOffActive": "Выходной включён",
+  "dayOffBanner": "Сегодня выходной, уведомлений не будет",
 
   "settingLanguage": "Язык",
   "languageSystem": "Системный",
