@@ -48,6 +48,9 @@ class AppLocalizationsBe extends AppLocalizations {
   String get todayLabel => 'СЁННЯ';
 
   @override
+  String get goalZeroMotivation => 'Самы час пачаць!';
+
+  @override
   String goalProgressText(int goal) {
     return 'з $goal разминак';
   }
@@ -102,6 +105,21 @@ class AppLocalizationsBe extends AppLocalizations {
 
   @override
   String get workDaysMonFriSun => 'Пн-Пт, Нд';
+
+  @override
+  String get monday => 'Панядзелак';
+
+  @override
+  String get tuesday => 'Аўторак';
+
+  @override
+  String get wednesday => 'Серада';
+
+  @override
+  String get thursday => 'Чацвер';
+
+  @override
+  String get friday => 'Пятнiца';
 
   @override
   String get saturday => 'Субота';
@@ -259,6 +277,15 @@ class AppLocalizationsBe extends AppLocalizations {
 
   @override
   String get notificationAlreadyMoved => 'Ужо рухаўся';
+
+  @override
+  String get dayOffButton => 'Выхадны сёння';
+
+  @override
+  String get dayOffActive => 'Выхадны ўключаны';
+
+  @override
+  String get dayOffBanner => 'Сёння выхадны, апавяшчэнняў не будзе';
 
   @override
   String get settingLanguage => 'Мова';
