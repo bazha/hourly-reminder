@@ -67,7 +67,7 @@ class StreakCard extends StatelessWidget {
               Text(
                 '${streak.currentStreak}',
                 style: AppTypography.statSmall.copyWith(
-                  color: AppColors.startColor,
+                  color: AppColors.primary,
                 ),
               ),
               const SizedBox(height: 4),

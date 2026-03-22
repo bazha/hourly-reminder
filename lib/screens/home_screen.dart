@@ -14,13 +14,6 @@ import '../models/user_preferences.dart';
 import 'widgets/work_hours_card.dart';
 import 'widgets/settings_card.dart';
 
-Set<int> workDaysFrom(UserPreferences prefs) {
-  return {
-    for (int d = 1; d <= 7; d++)
-      if (prefs.isWorkDay(d)) d,
-  };
-}
-
 class HomeScreen extends StatefulWidget {
   final StorageService storageService;
   final AlarmService alarmService;
@@ -114,9 +107,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _toggleDayOff() async {
-    final now = DateTime.now();
-    final today =
-        '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+    final today = TimeUtils.formatDate(DateTime.now());
     final newValue = !_isDayOff;
     setState(() {
       _isDayOff = newValue;
@@ -210,7 +201,7 @@ class _HomeScreenState extends State<HomeScreen> {
         SnackBar(
           content: Text(l10n.movementRecorded),
           duration: const Duration(seconds: 2),
-          backgroundColor: AppColors.startColor,
+          backgroundColor: AppColors.primary,
         ),
       );
     }
@@ -305,19 +296,19 @@ class _EnableToggle extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
             color: isEnabled
-                ? AppColors.startColor.withValues(alpha: 0.15)
+                ? AppColors.primary.withValues(alpha: 0.15)
                 : colors.sliderInactiveTrack,
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
               color: isEnabled
-                  ? AppColors.startColor.withValues(alpha: 0.3)
+                  ? AppColors.primary.withValues(alpha: 0.3)
                   : colors.divider,
             ),
           ),
           child: Text(
             isEnabled ? l10n.toggleOn : l10n.toggleOff,
             style: AppTypography.label.copyWith(
-              color: isEnabled ? AppColors.startColor : colors.textMuted,
+              color: isEnabled ? AppColors.primary : colors.textMuted,
               fontWeight: FontWeight.w600,
               letterSpacing: 0.5,
             ),
@@ -413,7 +404,7 @@ class _NextReminderBanner extends StatelessWidget {
       startMinute: prefs.startMinute,
       endHour: prefs.endHour,
       endMinute: prefs.endMinute,
-      workDays: workDaysFrom(prefs),
+      workDays: prefs.workDaySet,
       intervalMinutes: prefs.reminderIntervalMinutes,
     );
     final text = TimeUtils.formatNextReminder(next, now, l10n);
@@ -479,7 +470,7 @@ class _GoalProgress extends StatelessWidget {
                 '$current',
                 style: AppTypography.statLarge.copyWith(
                   color: isComplete
-                      ? AppColors.startColor
+                      ? AppColors.primary
                       : AppColors.primary,
                 ),
               ),
@@ -498,7 +489,7 @@ class _GoalProgress extends StatelessWidget {
                 minHeight: 4,
                 backgroundColor: colors.sliderInactiveTrack,
                 valueColor: AlwaysStoppedAnimation(
-                  isComplete ? AppColors.startColor : AppColors.primary,
+                  isComplete ? AppColors.primary : AppColors.primary,
                 ),
               ),
             ),
@@ -526,8 +517,8 @@ class _ManualMoveButton extends StatelessWidget {
         label: Text(l10n.recordMovement,
             style: AppTypography.button.copyWith(fontSize: 14)),
         style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.startColor,
-          side: const BorderSide(color: AppColors.startColor),
+          foregroundColor: AppColors.primary,
+          side: const BorderSide(color: AppColors.primary),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
           ),

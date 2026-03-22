@@ -1,4 +1,5 @@
 import 'package:shared_preferences/shared_preferences.dart';
+import '../core/utils/time_utils.dart';
 import '../models/user_preferences.dart';
 
 class StorageService {
@@ -47,37 +48,12 @@ class StorageService {
         'reminder_interval_minutes', prefs.reminderIntervalMinutes);
   }
 
-  Future<void> setEnabled(bool value) async {
-    await _prefs.setBool('is_enabled', value);
-  }
-
-  // Synchronous getters used by AlarmService.alarmCallback (runs in isolate).
-  bool get isEnabled => _prefs.getBool('is_enabled') ?? false;
-  int get startHour => _prefs.getInt('start_hour') ?? 9;
-  int get startMinute => _prefs.getInt('start_minute') ?? 0;
-  int get endHour => _prefs.getInt('end_hour') ?? 18;
-  int get endMinute => _prefs.getInt('end_minute') ?? 0;
-  bool get workOnSaturday => _prefs.getBool('work_on_saturday') ?? false;
-  bool get workOnSunday => _prefs.getBool('work_on_sunday') ?? false;
-  int get dailyGoal => _prefs.getInt('daily_goal') ?? 8;
-  int get reminderIntervalMinutes =>
-      _prefs.getInt('reminder_interval_minutes') ?? 60;
-
   NotificationGender _genderFromString(String value) {
     return NotificationGender.values.firstWhere(
       (e) => e.name == value,
       orElse: () => NotificationGender.neutral,
     );
   }
-
-  // Deduplication - tracks the last time a notification was actually sent.
-  DateTime? get lastNotifiedAt {
-    final millis = _prefs.getInt('last_notified_millis');
-    return millis == null ? null : DateTime.fromMillisecondsSinceEpoch(millis);
-  }
-
-  Future<void> recordNotificationSent(DateTime at) =>
-      _prefs.setInt('last_notified_millis', at.millisecondsSinceEpoch);
 
   /// Day-off: stores today's date string to suppress notifications for the day.
   String? get dayOffDate => _prefs.getString('day_off_date');
@@ -93,9 +69,6 @@ class StorageService {
   bool get isDayOff {
     final saved = dayOffDate;
     if (saved == null) return false;
-    final now = DateTime.now();
-    final today =
-        '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
-    return saved == today;
+    return saved == TimeUtils.formatDate(DateTime.now());
   }
 }
