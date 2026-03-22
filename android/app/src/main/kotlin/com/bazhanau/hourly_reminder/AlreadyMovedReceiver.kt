@@ -6,12 +6,11 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import java.util.Calendar
 
 class AlreadyMovedReceiver : BroadcastReceiver() {
     companion object {
         const val ACTION_ALREADY_MOVED = "com.bazhanau.hourly_reminder.ACTION_ALREADY_MOVED"
-        private const val REQUEST_CODE = 300
+        private const val REQUEST_CODE = 100 // Same as ReminderScheduler
         private const val FAST_REACTION_THRESHOLD_MS = 3 * 60 * 1000L  // 3 minutes
         private const val DEFAULT_INTERVAL_MINUTES = 60
         private const val MINIMUM_INTERVAL_MS = 10 * 60 * 1000L        // 10 minutes
@@ -39,9 +38,8 @@ class AlreadyMovedReceiver : BroadcastReceiver() {
         }
 
         // Read base interval from preferences
-        val baseIntervalMinutes = prefs.getInt(
-            "flutter.reminder_interval_minutes", DEFAULT_INTERVAL_MINUTES
-        )
+        val baseIntervalMinutes = prefs.getLong(
+            "flutter.reminder_interval_minutes", DEFAULT_INTERVAL_MINUTES.toLong()).toInt()
 
         // Proportional adaptive rule (matches IntervalCalculator in Dart)
         val factor = if (reactionTimeMs <= FAST_REACTION_THRESHOLD_MS) 0.5 else 0.75
@@ -55,8 +53,26 @@ class AlreadyMovedReceiver : BroadcastReceiver() {
             .putLong("flutter.movement_sedentary_start_millis", now)
             .apply()
 
-        // Schedule next reminder after the computed interval
-        scheduleNextReminder(context, nextIntervalMs)
+        // Schedule next reminder after the computed interval,
+        // but only if it falls within work hours. Otherwise use ReminderScheduler
+        // to jump to the next valid work time.
+        val startHour = prefs.getFlutterInt("flutter.start_hour", 9)
+        val startMinute = prefs.getFlutterInt("flutter.start_minute", 0)
+        val endHour = prefs.getFlutterInt("flutter.end_hour", 18)
+        val endMinute = prefs.getFlutterInt("flutter.end_minute", 0)
+        val endMin = endHour * 60 + endMinute
+        val cal = java.util.Calendar.getInstance()
+        val triggerAt = now + nextIntervalMs
+        cal.timeInMillis = triggerAt
+        val triggerMin = cal.get(java.util.Calendar.HOUR_OF_DAY) * 60 + cal.get(java.util.Calendar.MINUTE)
+
+        val startMin = startHour * 60 + startMinute
+        if (triggerMin in startMin..endMin) {
+            scheduleNextReminder(context, nextIntervalMs)
+        } else {
+            // Adaptive interval lands outside work hours. Let scheduler find next valid time.
+            ReminderScheduler.scheduleNextHourlyAlarm(context)
+        }
     }
 
     private fun scheduleNextReminder(context: Context, delayMs: Long) {
