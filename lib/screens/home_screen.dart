@@ -12,13 +12,13 @@ import '../services/storage_service.dart';
 import '../services/notification_service.dart';
 import '../models/user_preferences.dart';
 import 'widgets/work_hours_card.dart';
-import 'widgets/settings_card.dart';
 
 class HomeScreen extends StatefulWidget {
   final StorageService storageService;
   final AlarmService alarmService;
   final MovementStatsRepository statsRepository;
   final MovementRepository movementRepository;
+  final bool isActive;
 
   const HomeScreen({
     super.key,
@@ -26,6 +26,7 @@ class HomeScreen extends StatefulWidget {
     required this.alarmService,
     required this.statsRepository,
     required this.movementRepository,
+    this.isActive = true,
   });
 
   @override
@@ -44,10 +45,35 @@ class _HomeScreenState extends State<HomeScreen> {
     _loadData();
   }
 
+  @override
+  void didUpdateWidget(HomeScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isActive && !oldWidget.isActive) {
+      _loadData();
+    }
+  }
+
   Future<void> _loadData() async {
+    final oldPrefs = _prefs;
     final prefs = await widget.storageService.loadPreferences();
     final count = await _getTodayMovementCount();
-    final dayOff = widget.storageService.isDayOff;
+    var dayOff = widget.storageService.isDayOff;
+
+    // Clear day off if today's weekday was just toggled ON in Settings.
+    // Compare old vs new prefs to detect the change.
+    if (dayOff && !_isLoading) {
+      final today = DateTime.now().weekday;
+      final wasWorkDay = oldPrefs.isWorkDay(today);
+      final isWorkDay = prefs.isWorkDay(today);
+      if (!wasWorkDay && isWorkDay) {
+        await widget.storageService.setDayOff(null);
+        dayOff = false;
+        if (prefs.isEnabled) {
+          await widget.alarmService.scheduleHourlyAlarm();
+        }
+      }
+    }
+
     if (!mounted) return;
     setState(() {
       _prefs = prefs;
@@ -135,46 +161,6 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Future<void> _toggleWorkDay(int weekday, bool value) async {
-    setState(() {
-      _prefs = switch (weekday) {
-        1 => _prefs.copyWith(workOnMonday: value),
-        2 => _prefs.copyWith(workOnTuesday: value),
-        3 => _prefs.copyWith(workOnWednesday: value),
-        4 => _prefs.copyWith(workOnThursday: value),
-        5 => _prefs.copyWith(workOnFriday: value),
-        6 => _prefs.copyWith(workOnSaturday: value),
-        7 => _prefs.copyWith(workOnSunday: value),
-        _ => _prefs,
-      };
-    });
-    await widget.storageService.savePreferences(_prefs);
-  }
-
-  Future<void> _updateGender(NotificationGender gender) async {
-    setState(() {
-      _prefs = _prefs.copyWith(notificationGender: gender);
-    });
-    await widget.storageService.savePreferences(_prefs);
-  }
-
-  Future<void> _updateGoal(int goal) async {
-    setState(() {
-      _prefs = _prefs.copyWith(dailyGoal: goal);
-    });
-    await widget.storageService.savePreferences(_prefs);
-  }
-
-  Future<void> _updateInterval(int minutes) async {
-    setState(() {
-      _prefs = _prefs.copyWith(reminderIntervalMinutes: minutes);
-    });
-    await widget.storageService.savePreferences(_prefs);
-    if (_prefs.isEnabled && mounted) {
-      await widget.alarmService.scheduleHourlyAlarm();
-    }
-  }
-
   Future<void> _recordManualMovement() async {
     // Optimistic update: show +1 immediately.
     setState(() {
@@ -237,7 +223,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ],
             ),
-            if (_prefs.isEnabled) ...[
+            if (_prefs.isEnabled && _isDayOff) ...[
               const SizedBox(height: 8),
               _DayOffChip(
                 isDayOff: _isDayOff,
@@ -260,14 +246,6 @@ class _HomeScreenState extends State<HomeScreen> {
               prefs: _prefs,
               onStartChanged: (v) => _updateTime(v, isStart: true),
               onEndChanged: (v) => _updateTime(v, isStart: false),
-            ),
-            const SizedBox(height: 32),
-            SettingsSection(
-              prefs: _prefs,
-              onWorkDayChanged: _toggleWorkDay,
-              onGenderChanged: _updateGender,
-              onGoalChanged: _updateGoal,
-              onIntervalChanged: _updateInterval,
             ),
           ],
         ),
@@ -469,16 +447,13 @@ class _GoalProgress extends StatelessWidget {
               Text(
                 '$current',
                 style: AppTypography.statLarge.copyWith(
-                  color: isComplete
-                      ? AppColors.primary
-                      : AppColors.primary,
+                  color: AppColors.primary,
                 ),
               ),
               const SizedBox(height: 4),
               Text(
                 l10n.goalProgressText(goal),
-                style:
-                    AppTypography.body.copyWith(color: colors.textSecondary),
+                style: AppTypography.body.copyWith(color: colors.textSecondary),
               ),
             ],
             const SizedBox(height: 16),

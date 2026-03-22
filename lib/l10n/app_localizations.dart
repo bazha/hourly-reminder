@@ -118,6 +118,12 @@ abstract class AppLocalizations {
   /// **'Статистика'**
   String get navStats;
 
+  /// No description provided for @navSettings.
+  ///
+  /// In ru, this message translates to:
+  /// **'Настройки'**
+  String get navSettings;
+
   /// No description provided for @toggleOn.
   ///
   /// In ru, this message translates to:
@@ -597,6 +603,114 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Сегодня выходной, уведомлений не будет'**
   String get dayOffBanner;
+
+  /// No description provided for @sectionSchedule.
+  ///
+  /// In ru, this message translates to:
+  /// **'РАСПИСАНИЕ'**
+  String get sectionSchedule;
+
+  /// No description provided for @sectionNotifications.
+  ///
+  /// In ru, this message translates to:
+  /// **'УВЕДОМЛЕНИЯ'**
+  String get sectionNotifications;
+
+  /// No description provided for @sectionGeneral.
+  ///
+  /// In ru, this message translates to:
+  /// **'ОБЩЕЕ'**
+  String get sectionGeneral;
+
+  /// No description provided for @sectionAbout.
+  ///
+  /// In ru, this message translates to:
+  /// **'О ПРИЛОЖЕНИИ'**
+  String get sectionAbout;
+
+  /// No description provided for @settingWorkHours.
+  ///
+  /// In ru, this message translates to:
+  /// **'Рабочие часы'**
+  String get settingWorkHours;
+
+  /// No description provided for @settingTheme.
+  ///
+  /// In ru, this message translates to:
+  /// **'Тема'**
+  String get settingTheme;
+
+  /// No description provided for @themeSystem.
+  ///
+  /// In ru, this message translates to:
+  /// **'Системная'**
+  String get themeSystem;
+
+  /// No description provided for @themeDark.
+  ///
+  /// In ru, this message translates to:
+  /// **'Тёмная'**
+  String get themeDark;
+
+  /// No description provided for @themeLight.
+  ///
+  /// In ru, this message translates to:
+  /// **'Светлая'**
+  String get themeLight;
+
+  /// No description provided for @aboutVersion.
+  ///
+  /// In ru, this message translates to:
+  /// **'Версия'**
+  String get aboutVersion;
+
+  /// No description provided for @aboutRateApp.
+  ///
+  /// In ru, this message translates to:
+  /// **'Оценить приложение'**
+  String get aboutRateApp;
+
+  /// No description provided for @aboutFeedback.
+  ///
+  /// In ru, this message translates to:
+  /// **'Обратная связь'**
+  String get aboutFeedback;
+
+  /// No description provided for @feedbackNoEmail.
+  ///
+  /// In ru, this message translates to:
+  /// **'Почтовое приложение не найдено'**
+  String get feedbackNoEmail;
+
+  /// No description provided for @rateTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Оцените приложение'**
+  String get rateTitle;
+
+  /// No description provided for @rateMessage.
+  ///
+  /// In ru, this message translates to:
+  /// **'Нажмите на звезду'**
+  String get rateMessage;
+
+  /// No description provided for @rateThanks.
+  ///
+  /// In ru, this message translates to:
+  /// **'Спасибо за оценку!'**
+  String get rateThanks;
+
+  /// No description provided for @rateSend.
+  ///
+  /// In ru, this message translates to:
+  /// **'Отправить'**
+  String get rateSend;
+
+  /// No description provided for @rateCancel.
+  ///
+  /// In ru, this message translates to:
+  /// **'Отмена'**
+  String get rateCancel;
 
   /// No description provided for @settingLanguage.
   ///
