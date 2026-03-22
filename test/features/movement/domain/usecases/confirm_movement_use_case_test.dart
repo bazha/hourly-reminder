@@ -1,40 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hourly_reminder/features/movement/domain/entities/movement_event.dart';
-import 'package:hourly_reminder/features/movement/domain/repositories/movement_repository.dart';
 import 'package:hourly_reminder/features/movement/domain/usecases/confirm_movement_use_case.dart';
 
-class FakeMovementRepository implements MovementRepository {
-  MovementEvent? savedEvent;
-  DateTime? sedentaryStartTime;
-  DateTime? lastNotificationSentTime;
-  DateTime? updatedSedentaryStartTime;
-  List<MovementEvent> events = [];
-
-  @override
-  Future<List<MovementEvent>> getEvents() async => events;
-
-  @override
-  Future<void> saveEvent(MovementEvent event) async {
-    savedEvent = event;
-  }
-
-  @override
-  Future<DateTime?> getSedentaryStartTime() async => sedentaryStartTime;
-
-  @override
-  Future<void> setSedentaryStartTime(DateTime time) async {
-    updatedSedentaryStartTime = time;
-  }
-
-  @override
-  Future<DateTime?> getLastNotificationSentTime() async =>
-      lastNotificationSentTime;
-
-  @override
-  Future<void> setLastNotificationSentTime(DateTime time) async {
-    lastNotificationSentTime = time;
-  }
-}
+import '../../../../helpers/fake_movement_repository.dart';
 
 void main() {
   late FakeMovementRepository repository;

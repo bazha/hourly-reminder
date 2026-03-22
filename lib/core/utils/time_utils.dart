@@ -54,6 +54,10 @@ class TimeUtils {
     return l10n.nextReminderOnDay(day, time);
   }
 
+  /// Returns a date as `YYYY-MM-DD` string.
+  static String formatDate(DateTime date) =>
+      '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+
   /// Formats a [Duration] as a compact localized string.
   static String formatDuration(Duration d, AppLocalizations l10n) {
     if (d.inMinutes < 1) return l10n.durationSeconds(d.inSeconds);
@@ -65,16 +69,4 @@ class TimeUtils {
         : l10n.durationHours(hours);
   }
 
-  // --- Backwards-compatible non-localized versions for tests and native code ---
-
-  static const russianDayNames = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
-
-  /// Non-localized formatDuration (used by code without BuildContext).
-  static String formatDurationRaw(Duration d) {
-    if (d.inMinutes < 1) return '${d.inSeconds}с';
-    if (d.inHours < 1) return '${d.inMinutes}м';
-    final hours = d.inHours;
-    final minutes = d.inMinutes % 60;
-    return minutes > 0 ? '$hoursч $minutesм' : '$hoursч';
-  }
 }

@@ -117,7 +117,7 @@ class _HourlyReminderAppState extends State<HourlyReminderApp> {
         }),
         trackColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return AppColors.startColor;
+            return AppColors.primary;
           }
           return colors.switchInactiveTrack;
         }),

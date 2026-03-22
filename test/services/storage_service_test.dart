@@ -69,23 +69,5 @@ void main() {
       expect(loaded.notificationGender, NotificationGender.neutral);
     });
 
-    test('sync getters reflect saved preferences', () async {
-      await service.savePreferences(
-        UserPreferences(
-          isEnabled: true,
-          startHour: 7,
-          endHour: 15,
-          workOnSaturday: true,
-          workOnSunday: false,
-          dailyGoal: 10,
-        ),
-      );
-      expect(service.isEnabled, isTrue);
-      expect(service.startHour, 7);
-      expect(service.endHour, 15);
-      expect(service.workOnSaturday, isTrue);
-      expect(service.workOnSunday, isFalse);
-      expect(service.dailyGoal, 10);
-    });
   });
 }

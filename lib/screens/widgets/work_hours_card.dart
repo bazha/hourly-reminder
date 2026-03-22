@@ -75,7 +75,7 @@ class WorkHoursCard extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             _TimeChip(
-              dotColor: AppColors.startColor,
+              dotColor: AppColors.primary,
               label: l10n.timeChipStart,
               time: TimeUtils.formatHourMinute(
                   prefs.startHour, prefs.startMinute),

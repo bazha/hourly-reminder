@@ -49,28 +49,4 @@ void main() {
       expect(TimeUtils.formatHourMinute(0, 0), '0:00');
     });
   });
-
-  group('TimeUtils.formatDurationRaw', () {
-    test('formats seconds for sub-minute durations', () {
-      expect(TimeUtils.formatDurationRaw(Duration.zero), '0с');
-      expect(TimeUtils.formatDurationRaw(const Duration(seconds: 30)), '30с');
-      expect(TimeUtils.formatDurationRaw(const Duration(seconds: 59)), '59с');
-    });
-
-    test('formats minutes for sub-hour durations', () {
-      expect(TimeUtils.formatDurationRaw(const Duration(minutes: 1)), '1м');
-      expect(TimeUtils.formatDurationRaw(const Duration(minutes: 45)), '45м');
-      expect(
-          TimeUtils.formatDurationRaw(const Duration(minutes: 59, seconds: 30)),
-          '59м');
-    });
-
-    test('formats hours and minutes for long durations', () {
-      expect(TimeUtils.formatDurationRaw(const Duration(hours: 1)), '1ч');
-      expect(TimeUtils.formatDurationRaw(const Duration(hours: 2, minutes: 15)),
-          '2ч 15м');
-      expect(TimeUtils.formatDurationRaw(const Duration(hours: 5, minutes: 0)),
-          '5ч');
-    });
-  });
 }

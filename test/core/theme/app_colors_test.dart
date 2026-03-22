@@ -12,9 +12,8 @@ void main() {
   });
 
   test('shared accent constants have expected values', () {
-    expect(AppColors.startColor, const Color(0xFF4EAAA0));
-    expect(AppColors.endColor, const Color(0xFFE57373));
     expect(AppColors.primary, const Color(0xFF4EAAA0));
+    expect(AppColors.endColor, const Color(0xFFE57373));
     expect(AppColors.nowColor, const Color(0xFFF5A623));
   });
 

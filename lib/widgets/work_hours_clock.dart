@@ -118,7 +118,7 @@ class _ClockPainter extends CustomPainter {
   final DateTime? currentTime;
   final AppColors colors;
 
-  static const _cStart = AppColors.startColor;
+  static const _cStart = AppColors.primary;
   static const _cEnd   = AppColors.endColor;
   static const _cNow   = AppColors.nowColor;
 

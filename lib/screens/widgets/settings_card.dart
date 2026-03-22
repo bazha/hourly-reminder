@@ -6,6 +6,18 @@ import '../../l10n/app_localizations.dart';
 import '../../main.dart';
 import '../../services/notification_service.dart';
 
+void _showSheet(BuildContext context, WidgetBuilder builder) {
+  final colors = AppColors.of(context);
+  showModalBottomSheet(
+    context: context,
+    backgroundColor: colors.cardBg,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+    ),
+    builder: builder,
+  );
+}
+
 class SettingsSection extends StatelessWidget {
   const SettingsSection({
     super.key,
@@ -31,7 +43,6 @@ class SettingsSection extends StatelessWidget {
     if (active.length == 5 && !prefs.workOnSaturday && !prefs.workOnSunday) {
       return l10n.workDaysMonFri;
     }
-    // Build abbreviated day list from l10n
     final dayNames = [
       l10n.dayMon, l10n.dayTue, l10n.dayWed, l10n.dayThu,
       l10n.dayFri, l10n.daySat, l10n.daySun,
@@ -115,7 +126,7 @@ class SettingsSection extends StatelessWidget {
                 SnackBar(
                   content: Text(l10n.testNotificationSent),
                   duration: const Duration(seconds: 2),
-                  backgroundColor: AppColors.startColor,
+                  backgroundColor: AppColors.primary,
                 ),
               );
             }
@@ -144,13 +155,9 @@ class SettingsSection extends StatelessWidget {
       (const Locale('en'), l10n.languageEn),
       (const Locale('be'), l10n.languageBe),
     ];
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: colors.cardBg,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (ctx) => Padding(
+    _showSheet(
+      context,
+      (ctx) => Padding(
         padding: const EdgeInsets.fromLTRB(24, 24, 24, 40),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -190,13 +197,9 @@ class SettingsSection extends StatelessWidget {
       l10n.monday, l10n.tuesday, l10n.wednesday, l10n.thursday,
       l10n.friday, l10n.saturday, l10n.sunday,
     ];
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: colors.cardBg,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (ctx) => Padding(
+    _showSheet(
+      context,
+      (ctx) => Padding(
         padding: const EdgeInsets.fromLTRB(24, 24, 24, 40),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -225,47 +228,59 @@ class SettingsSection extends StatelessWidget {
   }
 
   void _showIntervalSheet(BuildContext context) {
-    final colors = AppColors.of(context);
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: colors.cardBg,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (ctx) => _IntervalPicker(
-        currentInterval: prefs.reminderIntervalMinutes,
+    final l10n = AppLocalizations.of(context)!;
+    _showSheet(
+      context,
+      (_) => _SliderPicker(
+        title: l10n.settingInterval,
+        currentValue: prefs.reminderIntervalMinutes,
+        min: 15,
+        max: 120,
+        divisions: 7,
+        formatValue: (v) => _formatInterval(v, l10n),
+        minLabel: l10n.intervalSliderMin,
+        maxLabel: l10n.intervalSliderMax,
         onChanged: onIntervalChanged,
-        colors: colors,
+        colors: AppColors.of(context),
       ),
     );
   }
 
   void _showGoalSheet(BuildContext context) {
-    final colors = AppColors.of(context);
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: colors.cardBg,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (ctx) => _GoalPicker(
-        currentGoal: prefs.dailyGoal,
+    final l10n = AppLocalizations.of(context)!;
+    _showSheet(
+      context,
+      (_) => _SliderPicker(
+        title: l10n.settingDailyGoal,
+        currentValue: prefs.dailyGoal,
+        min: 1,
+        max: 15,
+        divisions: 14,
+        formatValue: (v) => l10n.nMovements(v),
+        minLabel: '1',
+        maxLabel: '15',
         onChanged: onGoalChanged,
-        colors: colors,
+        colors: AppColors.of(context),
       ),
     );
+  }
+
+  static String _formatInterval(int minutes, AppLocalizations l10n) {
+    if (minutes >= 60 && minutes % 60 == 0) {
+      return l10n.durationHours(minutes ~/ 60);
+    }
+    if (minutes > 60) {
+      return l10n.durationHoursMinutes(minutes ~/ 60, minutes % 60);
+    }
+    return l10n.nMinutes(minutes);
   }
 
   void _showGenderSheet(BuildContext context) {
     final colors = AppColors.of(context);
     final l10n = AppLocalizations.of(context)!;
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: colors.cardBg,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (ctx) => Padding(
+    _showSheet(
+      context,
+      (ctx) => Padding(
         padding: const EdgeInsets.fromLTRB(24, 24, 24, 40),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -390,7 +405,7 @@ class _SheetToggleRow extends StatelessWidget {
         Switch(
           value: value,
           onChanged: onChanged,
-          activeTrackColor: AppColors.startColor,
+          activeTrackColor: AppColors.primary,
           activeThumbColor: Colors.white,
         ),
       ],
@@ -398,32 +413,47 @@ class _SheetToggleRow extends StatelessWidget {
   }
 }
 
-class _GoalPicker extends StatefulWidget {
-  final int currentGoal;
+class _SliderPicker extends StatefulWidget {
+  final String title;
+  final int currentValue;
+  final double min;
+  final double max;
+  final int divisions;
+  final String Function(int) formatValue;
+  final String minLabel;
+  final String maxLabel;
   final ValueChanged<int> onChanged;
   final AppColors colors;
 
-  const _GoalPicker({
-    required this.currentGoal,
+  const _SliderPicker({
+    required this.title,
+    required this.currentValue,
+    required this.min,
+    required this.max,
+    required this.divisions,
+    required this.formatValue,
+    required this.minLabel,
+    required this.maxLabel,
     required this.onChanged,
     required this.colors,
   });
 
   @override
-  State<_GoalPicker> createState() => _GoalPickerState();
+  State<_SliderPicker> createState() => _SliderPickerState();
 }
 
-class _GoalPickerState extends State<_GoalPicker> {
+class _SliderPickerState extends State<_SliderPicker> {
   late double _value;
 
   @override
   void initState() {
     super.initState();
-    _value = widget.currentGoal.toDouble();
+    _value = widget.currentValue.toDouble();
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 24, 24, 40),
       child: Column(
@@ -431,14 +461,14 @@ class _GoalPickerState extends State<_GoalPicker> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            AppLocalizations.of(context)!.settingDailyGoal,
+            widget.title,
             style: AppTypography.cardTitle.copyWith(
               color: widget.colors.textPrimary,
             ),
           ),
           const SizedBox(height: 8),
           Text(
-            AppLocalizations.of(context)!.nMovements(_value.round()),
+            widget.formatValue(_value.round()),
             style: AppTypography.statMedium.copyWith(
               color: AppColors.primary,
             ),
@@ -446,10 +476,10 @@ class _GoalPickerState extends State<_GoalPicker> {
           const SizedBox(height: 16),
           Slider(
             value: _value,
-            min: 1,
-            max: 15,
-            divisions: 14,
-            label: '${_value.round()}',
+            min: widget.min,
+            max: widget.max,
+            divisions: widget.divisions,
+            label: widget.formatValue(_value.round()),
             onChanged: (v) => setState(() => _value = v),
             activeColor: AppColors.primary,
             inactiveColor: widget.colors.sliderInactiveTrack,
@@ -457,10 +487,10 @@ class _GoalPickerState extends State<_GoalPicker> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('1',
+              Text(widget.minLabel,
                   style: AppTypography.label
                       .copyWith(color: widget.colors.textMuted)),
-              Text('15',
+              Text(widget.maxLabel,
                   style: AppTypography.label
                       .copyWith(color: widget.colors.textMuted)),
             ],
@@ -474,109 +504,7 @@ class _GoalPickerState extends State<_GoalPicker> {
                 Navigator.pop(context);
               },
               child: Text(
-                AppLocalizations.of(context)!.done,
-                style: AppTypography.button.copyWith(
-                  color: AppColors.primary,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _IntervalPicker extends StatefulWidget {
-  final int currentInterval;
-  final ValueChanged<int> onChanged;
-  final AppColors colors;
-
-  const _IntervalPicker({
-    required this.currentInterval,
-    required this.onChanged,
-    required this.colors,
-  });
-
-  @override
-  State<_IntervalPicker> createState() => _IntervalPickerState();
-}
-
-class _IntervalPickerState extends State<_IntervalPicker> {
-  late double _value;
-
-  @override
-  void initState() {
-    super.initState();
-    _value = widget.currentInterval.toDouble();
-  }
-
-  String _formatInterval(int minutes) {
-    if (minutes >= 60 && minutes % 60 == 0) {
-      final hours = minutes ~/ 60;
-      return '$hours ч';
-    }
-    if (minutes > 60) {
-      final hours = minutes ~/ 60;
-      final mins = minutes % 60;
-      return '$hours ч $mins мин';
-    }
-    return '$minutes мин';
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 24, 24, 40),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            AppLocalizations.of(context)!.settingInterval,
-            style: AppTypography.cardTitle.copyWith(
-              color: widget.colors.textPrimary,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            _formatInterval(_value.round()),
-            style: AppTypography.statMedium.copyWith(
-              color: AppColors.primary,
-            ),
-          ),
-          const SizedBox(height: 16),
-          Slider(
-            value: _value,
-            min: 15,
-            max: 120,
-            divisions: 7,
-            label: _formatInterval(_value.round()),
-            onChanged: (v) => setState(() => _value = v),
-            activeColor: AppColors.primary,
-            inactiveColor: widget.colors.sliderInactiveTrack,
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(AppLocalizations.of(context)!.intervalSliderMin,
-                  style: AppTypography.label
-                      .copyWith(color: widget.colors.textMuted)),
-              Text(AppLocalizations.of(context)!.intervalSliderMax,
-                  style: AppTypography.label
-                      .copyWith(color: widget.colors.textMuted)),
-            ],
-          ),
-          const SizedBox(height: 16),
-          SizedBox(
-            width: double.infinity,
-            child: TextButton(
-              onPressed: () {
-                widget.onChanged(_value.round());
-                Navigator.pop(context);
-              },
-              child: Text(
-                AppLocalizations.of(context)!.done,
+                l10n.done,
                 style: AppTypography.button.copyWith(
                   color: AppColors.primary,
                 ),

@@ -22,8 +22,6 @@ class AppColors extends ThemeExtension<AppColors> {
   final Color sliderInactiveTrack;
   final Color sliderThumb;
   final Color divider;
-  final Color clockPillBg;
-  final Color clockPillBorder;
 
   // --- Clock face ---
   final Color clockFaceInner;
@@ -46,21 +44,12 @@ class AppColors extends ThemeExtension<AppColors> {
   // --- Button ---
   final Color buttonTextColor;
 
-  // --- Slider inactive tints ---
-  final Color startSliderInactive;
-  final Color endSliderInactive;
-
-  // --- Weekend switch ---
-  final Color weekendSwitchActive;
-
   // --- Navigation bar ---
   final Color navBarBg;
   final Color navBarSelected;
   final Color navBarUnselected;
 
   // --- Surfaces ---
-  final Color surface;
-  final Color onSurface;
   final Color primaryContainer;
   final Color accent;
 
@@ -76,8 +65,6 @@ class AppColors extends ThemeExtension<AppColors> {
     required this.sliderInactiveTrack,
     required this.sliderThumb,
     required this.divider,
-    required this.clockPillBg,
-    required this.clockPillBorder,
     required this.clockFaceInner,
     required this.clockFaceOuter,
     required this.clockRing,
@@ -93,14 +80,9 @@ class AppColors extends ThemeExtension<AppColors> {
     required this.pickerInputBg,
     required this.pickerText,
     required this.buttonTextColor,
-    required this.startSliderInactive,
-    required this.endSliderInactive,
-    required this.weekendSwitchActive,
     required this.navBarBg,
     required this.navBarSelected,
     required this.navBarUnselected,
-    required this.surface,
-    required this.onSurface,
     required this.primaryContainer,
     required this.accent,
   });
@@ -118,8 +100,6 @@ class AppColors extends ThemeExtension<AppColors> {
     sliderInactiveTrack: Color(0xFF25282F),
     sliderThumb: Color(0xFF4EAAA0),
     divider: Color(0xFF25282F),
-    clockPillBg: Color(0xFF1A1D24),
-    clockPillBorder: Color(0xFF25282F),
     clockFaceInner: Color(0xFF1A1D24),
     clockFaceOuter: Color(0xFF151820),
     clockRing: Color(0xFF25282F),
@@ -135,14 +115,9 @@ class AppColors extends ThemeExtension<AppColors> {
     pickerInputBg: Color(0x264EAAA0),
     pickerText: Color(0xFFECEEF1),
     buttonTextColor: Colors.white,
-    startSliderInactive: Color(0x264EAAA0),
-    endSliderInactive: Color(0x26E57373),
-    weekendSwitchActive: Color(0xFF4EAAA0),
     navBarBg: Color(0xFF111318),
     navBarSelected: Color(0xFF4EAAA0),
     navBarUnselected: Color(0xFF484F58),
-    surface: Color(0xFF1A1D24),
-    onSurface: Color(0xFFECEEF1),
     primaryContainer: Color(0xFF1A3A36),
     accent: Color(0xFFF5A623),
   );
@@ -160,8 +135,6 @@ class AppColors extends ThemeExtension<AppColors> {
     sliderInactiveTrack: Color(0xFFE2E5E9),
     sliderThumb: Color(0xFF3D9A8F),
     divider: Color(0xFFE2E5E9),
-    clockPillBg: Color(0xFFF0F1F3),
-    clockPillBorder: Color(0xFFE2E5E9),
     clockFaceInner: Color(0xFFF0F1F3),
     clockFaceOuter: Color(0xFFE8EAED),
     clockRing: Color(0xFFE2E5E9),
@@ -177,14 +150,9 @@ class AppColors extends ThemeExtension<AppColors> {
     pickerInputBg: Color(0x1A3D9A8F),
     pickerText: Color(0xFF1B1F23),
     buttonTextColor: Colors.white,
-    startSliderInactive: Color(0x1A3D9A8F),
-    endSliderInactive: Color(0x1AD94F4F),
-    weekendSwitchActive: Color(0xFF3D9A8F),
     navBarBg: Color(0xFFFFFFFF),
     navBarSelected: Color(0xFF3D9A8F),
     navBarUnselected: Color(0xFF8B949E),
-    surface: Color(0xFFFFFFFF),
-    onSurface: Color(0xFF1B1F23),
     primaryContainer: Color(0xFFE6F5F3),
     accent: Color(0xFFF5A623),
   );
@@ -197,9 +165,8 @@ class AppColors extends ThemeExtension<AppColors> {
   bool get isDark => identical(this, dark) || bg == dark.bg;
 
   // --- Shared accent colours (same in both themes) ---
-  static const startColor = Color(0xFF4EAAA0); // Teal
-  static const endColor = Color(0xFFE57373); // Coral
   static const primary = Color(0xFF4EAAA0); // Teal
+  static const endColor = Color(0xFFE57373); // Coral
   static const nowColor = Color(0xFFF5A623); // Amber
 
   // --- ThemeExtension overrides ---
@@ -217,8 +184,6 @@ class AppColors extends ThemeExtension<AppColors> {
     Color? sliderInactiveTrack,
     Color? sliderThumb,
     Color? divider,
-    Color? clockPillBg,
-    Color? clockPillBorder,
     Color? clockFaceInner,
     Color? clockFaceOuter,
     Color? clockRing,
@@ -234,14 +199,9 @@ class AppColors extends ThemeExtension<AppColors> {
     Color? pickerInputBg,
     Color? pickerText,
     Color? buttonTextColor,
-    Color? startSliderInactive,
-    Color? endSliderInactive,
-    Color? weekendSwitchActive,
     Color? navBarBg,
     Color? navBarSelected,
     Color? navBarUnselected,
-    Color? surface,
-    Color? onSurface,
     Color? primaryContainer,
     Color? accent,
   }) {
@@ -257,8 +217,6 @@ class AppColors extends ThemeExtension<AppColors> {
       sliderInactiveTrack: sliderInactiveTrack ?? this.sliderInactiveTrack,
       sliderThumb: sliderThumb ?? this.sliderThumb,
       divider: divider ?? this.divider,
-      clockPillBg: clockPillBg ?? this.clockPillBg,
-      clockPillBorder: clockPillBorder ?? this.clockPillBorder,
       clockFaceInner: clockFaceInner ?? this.clockFaceInner,
       clockFaceOuter: clockFaceOuter ?? this.clockFaceOuter,
       clockRing: clockRing ?? this.clockRing,
@@ -274,14 +232,9 @@ class AppColors extends ThemeExtension<AppColors> {
       pickerInputBg: pickerInputBg ?? this.pickerInputBg,
       pickerText: pickerText ?? this.pickerText,
       buttonTextColor: buttonTextColor ?? this.buttonTextColor,
-      startSliderInactive: startSliderInactive ?? this.startSliderInactive,
-      endSliderInactive: endSliderInactive ?? this.endSliderInactive,
-      weekendSwitchActive: weekendSwitchActive ?? this.weekendSwitchActive,
       navBarBg: navBarBg ?? this.navBarBg,
       navBarSelected: navBarSelected ?? this.navBarSelected,
       navBarUnselected: navBarUnselected ?? this.navBarUnselected,
-      surface: surface ?? this.surface,
-      onSurface: onSurface ?? this.onSurface,
       primaryContainer: primaryContainer ?? this.primaryContainer,
       accent: accent ?? this.accent,
     );
@@ -305,8 +258,6 @@ class AppColors extends ThemeExtension<AppColors> {
           Color.lerp(sliderInactiveTrack, other.sliderInactiveTrack, t)!,
       sliderThumb: Color.lerp(sliderThumb, other.sliderThumb, t)!,
       divider: Color.lerp(divider, other.divider, t)!,
-      clockPillBg: Color.lerp(clockPillBg, other.clockPillBg, t)!,
-      clockPillBorder: Color.lerp(clockPillBorder, other.clockPillBorder, t)!,
       clockFaceInner: Color.lerp(clockFaceInner, other.clockFaceInner, t)!,
       clockFaceOuter: Color.lerp(clockFaceOuter, other.clockFaceOuter, t)!,
       clockRing: Color.lerp(clockRing, other.clockRing, t)!,
@@ -322,18 +273,10 @@ class AppColors extends ThemeExtension<AppColors> {
       pickerInputBg: Color.lerp(pickerInputBg, other.pickerInputBg, t)!,
       pickerText: Color.lerp(pickerText, other.pickerText, t)!,
       buttonTextColor: Color.lerp(buttonTextColor, other.buttonTextColor, t)!,
-      startSliderInactive:
-          Color.lerp(startSliderInactive, other.startSliderInactive, t)!,
-      endSliderInactive:
-          Color.lerp(endSliderInactive, other.endSliderInactive, t)!,
-      weekendSwitchActive:
-          Color.lerp(weekendSwitchActive, other.weekendSwitchActive, t)!,
       navBarBg: Color.lerp(navBarBg, other.navBarBg, t)!,
       navBarSelected: Color.lerp(navBarSelected, other.navBarSelected, t)!,
       navBarUnselected:
           Color.lerp(navBarUnselected, other.navBarUnselected, t)!,
-      surface: Color.lerp(surface, other.surface, t)!,
-      onSurface: Color.lerp(onSurface, other.onSurface, t)!,
       primaryContainer:
           Color.lerp(primaryContainer, other.primaryContainer, t)!,
       accent: Color.lerp(accent, other.accent, t)!,

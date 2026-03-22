@@ -86,6 +86,11 @@ class UserPreferences {
     };
   }
 
+  Set<int> get workDaySet => {
+    for (int d = 1; d <= 7; d++)
+      if (isWorkDay(d)) d,
+  };
+
   double get startTime => startHour + (startMinute / 60.0);
   double get endTime => endHour + (endMinute / 60.0);
 

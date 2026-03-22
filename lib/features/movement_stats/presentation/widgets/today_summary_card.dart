@@ -29,7 +29,7 @@ class TodaySummaryCard extends StatelessWidget {
             icon: Icons.fitness_center,
             label: l10n.metricMovements,
             value: '${today.movementCount}/$dailyGoal',
-            accentColor: goalMet ? AppColors.startColor : colors.accent,
+            accentColor: goalMet ? AppColors.primary : colors.accent,
             colors: colors,
           ),
         ),
