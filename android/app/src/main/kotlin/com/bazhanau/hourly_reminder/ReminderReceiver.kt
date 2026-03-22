@@ -11,7 +11,7 @@ import java.util.Calendar
 class ReminderReceiver : BroadcastReceiver() {
     companion object {
         const val ACTION_HOURLY_REMINDER = "com.bazhanau.hourly_reminder.ACTION_HOURLY_REMINDER"
-        private const val FIRST_NOTIFICATION_DELAY_MINUTES = 45
+        private const val DEFAULT_INTERVAL_MINUTES = 60
         private const val SETTLING_REQUEST_CODE = 150
     }
 
@@ -29,18 +29,26 @@ class ReminderReceiver : BroadcastReceiver() {
         val isEnabled = prefs.getBoolean("flutter.is_enabled", false)
         if (!isEnabled) return
 
+        // Day-off check: skip if today matches the stored day-off date.
+        val dayOffDate = prefs.getString("flutter.day_off_date", null)
+        if (dayOffDate != null) {
+            val now = Calendar.getInstance()
+            val today = String.format(
+                "%04d-%02d-%02d",
+                now.get(Calendar.YEAR),
+                now.get(Calendar.MONTH) + 1,
+                now.get(Calendar.DAY_OF_MONTH)
+            )
+            if (dayOffDate == today) return
+        }
+
         val now = Calendar.getInstance()
-        val dayOfWeek = now.get(Calendar.DAY_OF_WEEK) // 1=Sun, 2=Mon, ..., 7=Sat
-        val workOnSaturday = prefs.getBoolean("flutter.work_on_saturday", false)
-        val workOnSunday = prefs.getBoolean("flutter.work_on_sunday", false)
+        if (!isDayEnabled(prefs, now)) return
 
-        if (dayOfWeek == Calendar.SATURDAY && !workOnSaturday) return
-        if (dayOfWeek == Calendar.SUNDAY && !workOnSunday) return
-
-        val startHour = prefs.getInt("flutter.start_hour", 9)
-        val startMinute = prefs.getInt("flutter.start_minute", 0)
-        val endHour = prefs.getInt("flutter.end_hour", 18)
-        val endMinute = prefs.getInt("flutter.end_minute", 0)
+        val startHour = prefs.getFlutterInt("flutter.start_hour", 9)
+        val startMinute = prefs.getFlutterInt("flutter.start_minute", 0)
+        val endHour = prefs.getFlutterInt("flutter.end_hour", 18)
+        val endMinute = prefs.getFlutterInt("flutter.end_minute", 0)
 
         val nowMin = now.get(Calendar.HOUR_OF_DAY) * 60 + now.get(Calendar.MINUTE)
         val startMin = startHour * 60 + startMinute
@@ -48,9 +56,9 @@ class ReminderReceiver : BroadcastReceiver() {
 
         if (nowMin < startMin || nowMin > endMin) return
 
-        // First notification delay: skip the first 45 min of the work day.
-        // Schedule a one-shot alarm at start + 45 min instead.
-        val firstNotifMin = startMin + FIRST_NOTIFICATION_DELAY_MINUTES
+        // First notification delay: skip the first interval of the work day.
+        val intervalMinutes = prefs.getFlutterInt("flutter.reminder_interval_minutes", DEFAULT_INTERVAL_MINUTES)
+        val firstNotifMin = startMin + intervalMinutes
         if (nowMin < firstNotifMin && firstNotifMin <= endMin) {
             // Only schedule the settling alarm if no notification was sent today yet
             val lastNotifiedMillis = prefs.getLong("flutter.last_notified_millis", 0L)
@@ -68,7 +76,6 @@ class ReminderReceiver : BroadcastReceiver() {
         }
 
         // Deduplication: suppress if last notification was less than half the interval ago
-        val intervalMinutes = prefs.getInt("flutter.reminder_interval_minutes", 60)
         val dedupeThresholdMs = intervalMinutes * 60 * 1000L / 2
         val lastNotifiedMillis = prefs.getLong("flutter.last_notified_millis", 0L)
         if (lastNotifiedMillis > 0) {

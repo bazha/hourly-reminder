@@ -1,6 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hourly_reminder/services/alarm_service.dart';
 
+const _defaultWorkDays = {1, 2, 3, 4, 5};
+
 bool shouldSend({
   required DateTime now,
   bool isEnabled = true,
@@ -8,8 +10,7 @@ bool shouldSend({
   int startMinute = 0,
   int endHour = 18,
   int endMinute = 0,
-  bool workOnSaturday = false,
-  bool workOnSunday = false,
+  Set<int> workDays = _defaultWorkDays,
 }) =>
     AlarmService.shouldSendReminder(
       now: now,
@@ -18,8 +19,7 @@ bool shouldSend({
       startMinute: startMinute,
       endHour: endHour,
       endMinute: endMinute,
-      workOnSaturday: workOnSaturday,
-      workOnSunday: workOnSunday,
+      workDays: workDays,
     );
 
 // Monday 2026-02-16
@@ -58,21 +58,24 @@ void main() {
     });
 
     test('weekend day configuration', () {
-      // Both off by default
+      // Both off by default (Mon-Fri only)
       expect(shouldSend(now: sat10am), isFalse);
       expect(shouldSend(now: sun10am), isFalse);
       // Enable individually
-      expect(shouldSend(now: sat10am, workOnSaturday: true), isTrue);
-      expect(shouldSend(now: sun10am, workOnSunday: true), isTrue);
+      expect(shouldSend(now: sat10am, workDays: {1, 2, 3, 4, 5, 6}), isTrue);
+      expect(shouldSend(now: sun10am, workDays: {1, 2, 3, 4, 5, 7}), isTrue);
       // One on doesn't affect the other
-      expect(
-          shouldSend(now: sun10am, workOnSaturday: true, workOnSunday: false),
-          isFalse);
-      expect(
-          shouldSend(now: sat10am, workOnSaturday: false, workOnSunday: true),
-          isFalse);
+      expect(shouldSend(now: sun10am, workDays: {1, 2, 3, 4, 5, 6}), isFalse);
+      expect(shouldSend(now: sat10am, workDays: {1, 2, 3, 4, 5, 7}), isFalse);
       // Weekdays always fire
       expect(shouldSend(now: mon10am), isTrue);
+    });
+
+    test('individual weekdays can be disabled', () {
+      // Disable Monday (weekday 1)
+      expect(shouldSend(now: mon10am, workDays: {2, 3, 4, 5}), isFalse);
+      // All days enabled
+      expect(shouldSend(now: mon10am, workDays: {1, 2, 3, 4, 5, 6, 7}), isTrue);
     });
 
     test('minute-precision boundaries', () {
@@ -128,8 +131,7 @@ void main() {
     int startMinute = 0,
     int endHour = 18,
     int endMinute = 0,
-    bool workOnSaturday = false,
-    bool workOnSunday = false,
+    Set<int> workDays = _defaultWorkDays,
   }) =>
       AlarmService.nextNotificationTime(
         now: now,
@@ -138,8 +140,7 @@ void main() {
         startMinute: startMinute,
         endHour: endHour,
         endMinute: endMinute,
-        workOnSaturday: workOnSaturday,
-        workOnSunday: workOnSunday,
+        workDays: workDays,
       );
 
   group('nextNotificationTime', () {
@@ -153,51 +154,52 @@ void main() {
       expect(nextNotif(now: now), DateTime(2026, 2, 16, 11, 30));
     });
 
-    test('returns start + 45 min when before work window', () {
-      expect(nextNotif(now: mon06am), DateTime(2026, 2, 16, 9, 45));
+    test('returns start + interval when before work window', () {
+      // Default 60 min interval: 9:00 + 60 = 10:00
+      expect(nextNotif(now: mon06am), DateTime(2026, 2, 16, 10, 0));
     });
 
-    test('returns start + 45 min when at exact start time (settling)', () {
+    test('returns start + interval when at exact start time (settling)', () {
       expect(nextNotif(now: DateTime(2026, 2, 16, 9, 0, 0)),
-          DateTime(2026, 2, 16, 9, 45));
+          DateTime(2026, 2, 16, 10, 0));
     });
 
-    test('returns next day start + 45 min when past end of window', () {
-      expect(nextNotif(now: mon19pm), DateTime(2026, 2, 17, 9, 45));
+    test('returns next day start + interval when past end of window', () {
+      expect(nextNotif(now: mon19pm), DateTime(2026, 2, 17, 10, 0));
     });
 
     test('skips weekend days correctly', () {
       final fri19 = DateTime(2026, 2, 20, 19, 0);
       expect(fri19.weekday, 5);
       // Both off -> Monday
-      expect(nextNotif(now: fri19), DateTime(2026, 2, 23, 9, 45));
+      expect(nextNotif(now: fri19), DateTime(2026, 2, 23, 10, 0));
       // Saturday on
-      expect(nextNotif(now: fri19, workOnSaturday: true),
-          DateTime(2026, 2, 21, 9, 45));
+      expect(nextNotif(now: fri19, workDays: {1, 2, 3, 4, 5, 6}),
+          DateTime(2026, 2, 21, 10, 0));
       // Only Sunday on
-      expect(nextNotif(now: fri19, workOnSunday: true),
-          DateTime(2026, 2, 22, 9, 45));
+      expect(nextNotif(now: fri19, workDays: {1, 2, 3, 4, 5, 7}),
+          DateTime(2026, 2, 22, 10, 0));
     });
 
     test('stays on current day when past settling on valid weekend day', () {
       final sat1030 = DateTime(2026, 2, 21, 10, 30);
       // 10:30 + 60 = 11:30
-      expect(nextNotif(now: sat1030, workOnSaturday: true),
+      expect(nextNotif(now: sat1030, workDays: {1, 2, 3, 4, 5, 6}),
           DateTime(2026, 2, 21, 11, 30));
     });
 
-    test('respects custom start minute with settling delay', () {
-      // startMinute=30, so first notif at 9:30+45 = 10:15
+    test('respects custom start minute with interval delay', () {
+      // startMinute=30, default interval 60: first notif at 9:30+60 = 10:30
       expect(
         nextNotif(now: DateTime(2026, 2, 16, 9, 0), startMinute: 30),
-        DateTime(2026, 2, 16, 10, 15),
+        DateTime(2026, 2, 16, 10, 30),
       );
     });
 
     test('wraps to next day when interval exceeds end of window', () {
-      // 17:30 + 60 = 18:30 > endMin(18:00), so next work day
+      // 17:30 + 60 = 18:30 > endMin(18:00), next day: 9:00 + 60 = 10:00
       expect(nextNotif(now: DateTime(2026, 2, 16, 17, 30)),
-          DateTime(2026, 2, 17, 9, 45));
+          DateTime(2026, 2, 17, 10, 0));
     });
 
     test('uses custom interval for next notification', () {
@@ -211,8 +213,7 @@ void main() {
           startMinute: 0,
           endHour: 18,
           endMinute: 0,
-          workOnSaturday: false,
-          workOnSunday: false,
+          workDays: {1, 2, 3, 4, 5},
           intervalMinutes: 30,
         ),
         DateTime(2026, 2, 16, 10, 30),
@@ -230,8 +231,7 @@ void main() {
           startMinute: 0,
           endHour: 18,
           endMinute: 0,
-          workOnSaturday: false,
-          workOnSunday: false,
+          workDays: {1, 2, 3, 4, 5},
           intervalMinutes: 30,
         ),
         DateTime(2026, 2, 16, 18, 0),
@@ -249,11 +249,10 @@ void main() {
           startMinute: 0,
           endHour: 18,
           endMinute: 0,
-          workOnSaturday: false,
-          workOnSunday: false,
+          workDays: {1, 2, 3, 4, 5},
           intervalMinutes: 120,
         ),
-        DateTime(2026, 2, 17, 9, 45),
+        DateTime(2026, 2, 17, 11, 0),
       );
     });
   });
