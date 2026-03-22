@@ -21,7 +21,7 @@ object ExerciseRepository {
         val savedDate = prefs.getString("flutter.notifications_shown_date", null)
         val today = LocalDate.now().toString()
         if (savedDate != today) return true
-        return prefs.getInt("flutter.notifications_shown_count", 0) == 0
+        return prefs.getFlutterInt("flutter.notifications_shown_count", 0) == 0
     }
 
     fun recordNotificationShown(prefs: SharedPreferences) {
@@ -29,7 +29,7 @@ object ExerciseRepository {
         val savedDate = prefs.getString("flutter.notifications_shown_date", null)
         val isNewDay = savedDate != today
         val currentCount = if (!isNewDay) {
-            prefs.getInt("flutter.notifications_shown_count", 0)
+            prefs.getFlutterInt("flutter.notifications_shown_count", 0)
         } else {
             0
         }
@@ -44,7 +44,7 @@ object ExerciseRepository {
 
     fun getNextExercise(context: Context, prefs: SharedPreferences): Exercise {
         val list = exercises(context)
-        val index = prefs.getInt("flutter.exercise_index", 0)
+        val index = prefs.getFlutterInt("flutter.exercise_index", 0)
         val exercise = list[index % list.size]
         prefs.edit()
             .putInt("flutter.exercise_index", (index + 1) % list.size)

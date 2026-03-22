@@ -37,6 +37,11 @@
   "workDaysMonSat": "Пн-Сб",
   "workDaysMonSun": "Пн-Нд",
   "workDaysMonFriSun": "Пн-Пт, Нд",
+  "monday": "Панядзелак",
+  "tuesday": "Аўторак",
+  "wednesday": "Серада",
+  "thursday": "Чацвер",
+  "friday": "Пятнiца",
   "saturday": "Субота",
   "sunday": "Нядзеля",
 
@@ -92,6 +97,10 @@
   "notificationBody": "Пара размяцца і пахадзiць 🚶",
   "notificationSnooze": "Праз 10 хвілін",
   "notificationAlreadyMoved": "Ужо рухаўся",
+
+  "dayOffButton": "Выхадны сёння",
+  "dayOffActive": "Выхадны ўключаны",
+  "dayOffBanner": "Сёння выхадны, апавяшчэнняў не будзе",
 
   "settingLanguage": "Мова",
   "languageSystem": "Сістэмная",

@@ -107,6 +107,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get workDaysMonFriSun => 'Mon-Fri, Sun';
 
   @override
+  String get monday => 'Monday';
+
+  @override
+  String get tuesday => 'Tuesday';
+
+  @override
+  String get wednesday => 'Wednesday';
+
+  @override
+  String get thursday => 'Thursday';
+
+  @override
+  String get friday => 'Friday';
+
+  @override
   String get saturday => 'Saturday';
 
   @override
@@ -260,6 +275,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notificationAlreadyMoved => 'Already moved';
+
+  @override
+  String get dayOffButton => 'Day off today';
+
+  @override
+  String get dayOffActive => 'Day off enabled';
+
+  @override
+  String get dayOffBanner => 'Day off today, no notifications';
 
   @override
   String get settingLanguage => 'Language';

@@ -66,9 +66,10 @@ Reminder interval is user-configurable (15-120 min, default 60). Stored in `flut
 
 ### First notification delay
 
-The first notification of the day fires 45 min after work start (not immediately). Implemented in both:
-- Dart: `AlarmService.nextNotificationTime()` adds `firstNotificationDelayMinutes` offset
-- Android: `ReminderReceiver` skips notifications within first 45 min and schedules a settling alarm
+The first notification of the day fires at `workStart + interval` (not immediately). For the default 60-min interval, that means 10:00 if work starts at 9:00. Implemented in both:
+- Dart: `AlarmService.nextNotificationTime()` uses `startMin + intervalMinutes`
+- Android: `ReminderReceiver` skips notifications within the first interval and schedules a settling alarm
+- Android: `ReminderScheduler.nextValidAlarmTime()` jumps to `startMin + interval` on the next work day
 
 ## Dependencies (pubspec.yaml)
 

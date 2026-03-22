@@ -107,6 +107,21 @@ class AppLocalizationsRu extends AppLocalizations {
   String get workDaysMonFriSun => 'Пн-Пт, Вс';
 
   @override
+  String get monday => 'Понедельник';
+
+  @override
+  String get tuesday => 'Вторник';
+
+  @override
+  String get wednesday => 'Среда';
+
+  @override
+  String get thursday => 'Четверг';
+
+  @override
+  String get friday => 'Пятница';
+
+  @override
   String get saturday => 'Суббота';
 
   @override
@@ -262,6 +277,15 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get notificationAlreadyMoved => 'Я уже двигался';
+
+  @override
+  String get dayOffButton => 'Выходной сегодня';
+
+  @override
+  String get dayOffActive => 'Выходной включён';
+
+  @override
+  String get dayOffBanner => 'Сегодня выходной, уведомлений не будет';
 
   @override
   String get settingLanguage => 'Язык';

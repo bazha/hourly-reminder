@@ -280,6 +280,36 @@ abstract class AppLocalizations {
   /// **'Пн-Пт, Вс'**
   String get workDaysMonFriSun;
 
+  /// No description provided for @monday.
+  ///
+  /// In ru, this message translates to:
+  /// **'Понедельник'**
+  String get monday;
+
+  /// No description provided for @tuesday.
+  ///
+  /// In ru, this message translates to:
+  /// **'Вторник'**
+  String get tuesday;
+
+  /// No description provided for @wednesday.
+  ///
+  /// In ru, this message translates to:
+  /// **'Среда'**
+  String get wednesday;
+
+  /// No description provided for @thursday.
+  ///
+  /// In ru, this message translates to:
+  /// **'Четверг'**
+  String get thursday;
+
+  /// No description provided for @friday.
+  ///
+  /// In ru, this message translates to:
+  /// **'Пятница'**
+  String get friday;
+
   /// No description provided for @saturday.
   ///
   /// In ru, this message translates to:
@@ -549,6 +579,24 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Я уже двигался'**
   String get notificationAlreadyMoved;
+
+  /// No description provided for @dayOffButton.
+  ///
+  /// In ru, this message translates to:
+  /// **'Выходной сегодня'**
+  String get dayOffButton;
+
+  /// No description provided for @dayOffActive.
+  ///
+  /// In ru, this message translates to:
+  /// **'Выходной включён'**
+  String get dayOffActive;
+
+  /// No description provided for @dayOffBanner.
+  ///
+  /// In ru, this message translates to:
+  /// **'Сегодня выходной, уведомлений не будет'**
+  String get dayOffBanner;
 
   /// No description provided for @settingLanguage.
   ///

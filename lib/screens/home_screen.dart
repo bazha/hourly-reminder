@@ -14,6 +14,13 @@ import '../models/user_preferences.dart';
 import 'widgets/work_hours_card.dart';
 import 'widgets/settings_card.dart';
 
+Set<int> workDaysFrom(UserPreferences prefs) {
+  return {
+    for (int d = 1; d <= 7; d++)
+      if (prefs.isWorkDay(d)) d,
+  };
+}
+
 class HomeScreen extends StatefulWidget {
   final StorageService storageService;
   final AlarmService alarmService;
@@ -36,6 +43,7 @@ class _HomeScreenState extends State<HomeScreen> {
   UserPreferences _prefs = UserPreferences();
   bool _isLoading = true;
   int _todayMovementCount = 0;
+  bool _isDayOff = false;
 
   @override
   void initState() {
@@ -46,10 +54,12 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _loadData() async {
     final prefs = await widget.storageService.loadPreferences();
     final count = await _getTodayMovementCount();
+    final dayOff = widget.storageService.isDayOff;
     if (!mounted) return;
     setState(() {
       _prefs = prefs;
       _todayMovementCount = count;
+      _isDayOff = dayOff;
       _isLoading = false;
     });
   }
@@ -65,27 +75,58 @@ class _HomeScreenState extends State<HomeScreen> {
     }).length;
   }
 
-  Future<void> _toggleReminders(bool value) async {
-    if (value) {
-      final hasPermission = await NotificationService.requestPermissions();
-      if (!hasPermission) {
-        if (mounted) {
-          final l10n = AppLocalizations.of(context)!;
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(l10n.permissionRequired)),
-          );
-        }
-        return;
-      }
-      await widget.alarmService.scheduleHourlyAlarm();
-    } else {
-      await widget.alarmService.cancelAlarm();
-    }
+  bool _togglingReminders = false;
 
+  Future<void> _toggleReminders(bool value) async {
+    if (_togglingReminders) return;
+    _togglingReminders = true;
+
+    // Update UI immediately so the toggle feels responsive.
     setState(() {
       _prefs = _prefs.copyWith(isEnabled: value);
     });
-    await widget.storageService.savePreferences(_prefs);
+
+    try {
+      if (value) {
+        final hasPermission = await NotificationService.requestPermissions();
+        if (!hasPermission) {
+          // Revert - permission denied.
+          if (mounted) {
+            setState(() {
+              _prefs = _prefs.copyWith(isEnabled: false);
+            });
+            final l10n = AppLocalizations.of(context)!;
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(l10n.permissionRequired)),
+            );
+          }
+          return;
+        }
+        await widget.alarmService.scheduleHourlyAlarm();
+      } else {
+        await widget.alarmService.cancelAlarm();
+      }
+
+      await widget.storageService.savePreferences(_prefs);
+    } finally {
+      _togglingReminders = false;
+    }
+  }
+
+  Future<void> _toggleDayOff() async {
+    final now = DateTime.now();
+    final today =
+        '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+    final newValue = !_isDayOff;
+    setState(() {
+      _isDayOff = newValue;
+    });
+    await widget.storageService.setDayOff(newValue ? today : null);
+    if (newValue) {
+      await widget.alarmService.cancelAlarm();
+    } else if (_prefs.isEnabled) {
+      await widget.alarmService.scheduleHourlyAlarm();
+    }
   }
 
   Future<void> _updateTime(double time, {required bool isStart}) async {
@@ -103,16 +144,18 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Future<void> _toggleSaturday(bool value) async {
+  Future<void> _toggleWorkDay(int weekday, bool value) async {
     setState(() {
-      _prefs = _prefs.copyWith(workOnSaturday: value);
-    });
-    await widget.storageService.savePreferences(_prefs);
-  }
-
-  Future<void> _toggleSunday(bool value) async {
-    setState(() {
-      _prefs = _prefs.copyWith(workOnSunday: value);
+      _prefs = switch (weekday) {
+        1 => _prefs.copyWith(workOnMonday: value),
+        2 => _prefs.copyWith(workOnTuesday: value),
+        3 => _prefs.copyWith(workOnWednesday: value),
+        4 => _prefs.copyWith(workOnThursday: value),
+        5 => _prefs.copyWith(workOnFriday: value),
+        6 => _prefs.copyWith(workOnSaturday: value),
+        7 => _prefs.copyWith(workOnSunday: value),
+        _ => _prefs,
+      };
     });
     await widget.storageService.savePreferences(_prefs);
   }
@@ -142,6 +185,11 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _recordManualMovement() async {
+    // Optimistic update: show +1 immediately.
+    setState(() {
+      _todayMovementCount++;
+    });
+
     final useCase = ConfirmMovementUseCase(
       repository: widget.movementRepository,
       scheduleNext: (_) => widget.alarmService.scheduleHourlyAlarm(),
@@ -149,6 +197,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     await useCase.execute(source: MovementSource.manual);
 
+    // Re-read actual count from storage to stay in sync.
     final count = await _getTodayMovementCount();
     if (!mounted) return;
     setState(() {
@@ -197,8 +246,16 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ],
             ),
+            if (_prefs.isEnabled) ...[
+              const SizedBox(height: 8),
+              _DayOffChip(
+                isDayOff: _isDayOff,
+                onToggle: _toggleDayOff,
+              ),
+            ],
             const SizedBox(height: 8),
-            _NextReminderBanner(prefs: _prefs, colors: colors),
+            _NextReminderBanner(
+                prefs: _prefs, colors: colors, isDayOff: _isDayOff),
             const SizedBox(height: 24),
             _GoalProgress(
               current: _todayMovementCount,
@@ -216,8 +273,7 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 32),
             SettingsSection(
               prefs: _prefs,
-              onToggleSaturday: _toggleSaturday,
-              onToggleSunday: _toggleSunday,
+              onWorkDayChanged: _toggleWorkDay,
               onGenderChanged: _updateGender,
               onGoalChanged: _updateGoal,
               onIntervalChanged: _updateInterval,
@@ -272,15 +328,83 @@ class _EnableToggle extends StatelessWidget {
   }
 }
 
+class _DayOffChip extends StatelessWidget {
+  final bool isDayOff;
+  final VoidCallback onToggle;
+
+  const _DayOffChip({required this.isDayOff, required this.onToggle});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
+    final l10n = AppLocalizations.of(context)!;
+    return GestureDetector(
+      onTap: onToggle,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: isDayOff
+              ? AppColors.endColor.withValues(alpha: 0.15)
+              : colors.sliderInactiveTrack,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isDayOff
+                ? AppColors.endColor.withValues(alpha: 0.3)
+                : colors.divider,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              isDayOff ? Icons.bedtime : Icons.bedtime_outlined,
+              size: 14,
+              color: isDayOff ? AppColors.endColor : colors.textMuted,
+            ),
+            const SizedBox(width: 6),
+            Text(
+              isDayOff ? l10n.dayOffActive : l10n.dayOffButton,
+              style: AppTypography.label.copyWith(
+                color: isDayOff ? AppColors.endColor : colors.textMuted,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _NextReminderBanner extends StatelessWidget {
   final UserPreferences prefs;
   final AppColors colors;
+  final bool isDayOff;
 
-  const _NextReminderBanner({required this.prefs, required this.colors});
+  const _NextReminderBanner({
+    required this.prefs,
+    required this.colors,
+    this.isDayOff = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+
+    if (isDayOff) {
+      return Row(
+        children: [
+          Icon(Icons.bedtime, size: 16, color: colors.textMuted),
+          const SizedBox(width: 8),
+          Text(
+            l10n.dayOffBanner,
+            style: AppTypography.label.copyWith(color: colors.textSecondary),
+          ),
+        ],
+      );
+    }
+
     final now = DateTime.now();
     final next = AlarmService.nextNotificationTime(
       now: now,
@@ -289,8 +413,7 @@ class _NextReminderBanner extends StatelessWidget {
       startMinute: prefs.startMinute,
       endHour: prefs.endHour,
       endMinute: prefs.endMinute,
-      workOnSaturday: prefs.workOnSaturday,
-      workOnSunday: prefs.workOnSunday,
+      workDays: workDaysFrom(prefs),
       intervalMinutes: prefs.reminderIntervalMinutes,
     );
     final text = TimeUtils.formatNextReminder(next, now, l10n);
@@ -363,7 +486,8 @@ class _GoalProgress extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 l10n.goalProgressText(goal),
-                style: AppTypography.body.copyWith(color: colors.textSecondary),
+                style:
+                    AppTypography.body.copyWith(color: colors.textSecondary),
               ),
             ],
             const SizedBox(height: 16),

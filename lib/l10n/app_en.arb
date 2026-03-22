@@ -37,6 +37,11 @@
   "workDaysMonSat": "Mon-Sat",
   "workDaysMonSun": "Mon-Sun",
   "workDaysMonFriSun": "Mon-Fri, Sun",
+  "monday": "Monday",
+  "tuesday": "Tuesday",
+  "wednesday": "Wednesday",
+  "thursday": "Thursday",
+  "friday": "Friday",
   "saturday": "Saturday",
   "sunday": "Sunday",
 
@@ -92,6 +97,10 @@
   "notificationBody": "Stretch and walk around 🚶",
   "notificationSnooze": "In 10 minutes",
   "notificationAlreadyMoved": "Already moved",
+
+  "dayOffButton": "Day off today",
+  "dayOffActive": "Day off enabled",
+  "dayOffBanner": "Day off today, no notifications",
 
   "settingLanguage": "Language",
   "languageSystem": "System",
