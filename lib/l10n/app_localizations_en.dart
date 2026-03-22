@@ -48,6 +48,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get todayLabel => 'TODAY';
 
   @override
+  String get goalZeroMotivation => 'Great time to start!';
+
+  @override
   String goalProgressText(int goal) {
     return 'of $goal movements';
   }

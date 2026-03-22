@@ -343,17 +343,29 @@ class _GoalProgress extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
-            Text(
-              '$current',
-              style: AppTypography.statLarge.copyWith(
-                color: isComplete ? AppColors.startColor : AppColors.primary,
+            if (current == 0)
+              Text(
+                l10n.goalZeroMotivation,
+                style: AppTypography.body.copyWith(
+                  color: colors.textSecondary,
+                ),
+                textAlign: TextAlign.center,
+              )
+            else ...[
+              Text(
+                '$current',
+                style: AppTypography.statLarge.copyWith(
+                  color: isComplete
+                      ? AppColors.startColor
+                      : AppColors.primary,
+                ),
               ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              l10n.goalProgressText(goal),
-              style: AppTypography.body.copyWith(color: colors.textSecondary),
-            ),
+              const SizedBox(height: 4),
+              Text(
+                l10n.goalProgressText(goal),
+                style: AppTypography.body.copyWith(color: colors.textSecondary),
+              ),
+            ],
             const SizedBox(height: 16),
             ClipRRect(
               borderRadius: BorderRadius.circular(2),

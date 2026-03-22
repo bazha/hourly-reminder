@@ -18,6 +18,7 @@
   "@nextReminderOnDay": { "placeholders": { "dayName": { "type": "String" }, "time": { "type": "String" } } },
 
   "todayLabel": "СЕГОДНЯ",
+  "goalZeroMotivation": "Самое время начать!",
   "goalProgressText": "из {goal} разминок",
   "@goalProgressText": { "placeholders": { "goal": { "type": "int" } } },
   "recordMovement": "Записать разминку",

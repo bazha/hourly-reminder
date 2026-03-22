@@ -166,6 +166,12 @@ abstract class AppLocalizations {
   /// **'СЕГОДНЯ'**
   String get todayLabel;
 
+  /// No description provided for @goalZeroMotivation.
+  ///
+  /// In ru, this message translates to:
+  /// **'Самое время начать!'**
+  String get goalZeroMotivation;
+
   /// No description provided for @goalProgressText.
   ///
   /// In ru, this message translates to:

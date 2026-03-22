@@ -15,6 +15,7 @@
   "nextReminderOnDay": "Next on {dayName} at {time}",
 
   "todayLabel": "TODAY",
+  "goalZeroMotivation": "Great time to start!",
   "goalProgressText": "of {goal} movements",
   "recordMovement": "Record movement",
   "movementRecorded": "Recorded! Timer reset",

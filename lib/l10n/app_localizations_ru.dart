@@ -48,6 +48,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get todayLabel => 'СЕГОДНЯ';
 
   @override
+  String get goalZeroMotivation => 'Самое время начать!';
+
+  @override
   String goalProgressText(int goal) {
     return 'из $goal разминок';
   }
