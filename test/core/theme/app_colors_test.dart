@@ -12,9 +12,9 @@ void main() {
   });
 
   test('shared accent constants have expected values', () {
-    expect(AppColors.primary, const Color(0xFF4EAAA0));
-    expect(AppColors.endColor, const Color(0xFFE57373));
-    expect(AppColors.nowColor, const Color(0xFFF5A623));
+    expect(AppColors.primary, const Color(0xFFE09040));
+    expect(AppColors.endColor, const Color(0xFFC74B4B));
+    expect(AppColors.nowColor, const Color(0xFFF0D9B5));
   });
 
   testWidgets('AppColors.of resolves correct palette per brightness', (tester) async {

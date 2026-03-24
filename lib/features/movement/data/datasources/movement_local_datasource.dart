@@ -37,7 +37,8 @@ class MovementLocalDatasource {
     await _prefs.setStringList(_eventsKey, existing);
   }
 
-  List<MovementEventModel> getEvents() {
+  Future<List<MovementEventModel>> getEvents() async {
+    await _prefs.reload();
     final raw = _prefs.getStringList(_eventsKey) ?? [];
     return raw
         .map((s) => MovementEventModel.fromJson(

@@ -345,6 +345,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get rateCancel => 'Отмена';
 
   @override
+  String get activityLabel => 'активность';
+
+  @override
+  String get motivationalMessage => 'Ваше тело скажет спасибо.';
+
+  @override
   String get settingLanguage => 'Язык';
 
   @override

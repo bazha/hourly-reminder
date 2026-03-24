@@ -122,6 +122,9 @@
   "rateSend": "Send",
   "rateCancel": "Cancel",
 
+  "activityLabel": "activity",
+  "motivationalMessage": "Your body will thank you.",
+
   "settingLanguage": "Language",
   "languageSystem": "System",
   "languageRu": "Русский",

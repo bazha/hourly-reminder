@@ -11,6 +11,7 @@ import '../services/alarm_service.dart';
 import '../services/storage_service.dart';
 import '../services/notification_service.dart';
 import '../models/user_preferences.dart';
+import 'widgets/goal_ring_painter.dart';
 import 'widgets/work_hours_card.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -33,16 +34,32 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   UserPreferences _prefs = UserPreferences();
   bool _isLoading = true;
   int _todayMovementCount = 0;
   bool _isDayOff = false;
+  int _streakDays = 0;
+  int _activityPercent = 0;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _loadData();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && widget.isActive) {
+      _loadData();
+    }
   }
 
   @override
@@ -60,7 +77,6 @@ class _HomeScreenState extends State<HomeScreen> {
     var dayOff = widget.storageService.isDayOff;
 
     // Clear day off if today's weekday was just toggled ON in Settings.
-    // Compare old vs new prefs to detect the change.
     if (dayOff && !_isLoading) {
       final today = DateTime.now().weekday;
       final wasWorkDay = oldPrefs.isWorkDay(today);
@@ -74,11 +90,22 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     }
 
+    // Load streak stats.
+    int streak = 0;
+    try {
+      final stats = await widget.statsRepository.getStats();
+      streak = stats.streak.currentStreak;
+    } catch (_) {
+      // Stats are optional - don't block the home screen.
+    }
+
     if (!mounted) return;
     setState(() {
       _prefs = prefs;
       _todayMovementCount = count;
       _isDayOff = dayOff;
+      _streakDays = streak;
+      _recalcActivity();
       _isLoading = false;
     });
   }
@@ -161,10 +188,16 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  void _recalcActivity() {
+    final goal = _prefs.dailyGoal;
+    _activityPercent = goal > 0 ? _todayMovementCount * 100 ~/ goal : 0;
+  }
+
   Future<void> _recordManualMovement() async {
-    // Optimistic update: show +1 immediately.
+    // Optimistic update: show +1 and recalculate activity immediately.
     setState(() {
       _todayMovementCount++;
+      _recalcActivity();
     });
 
     final useCase = ConfirmMovementUseCase(
@@ -179,6 +212,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (!mounted) return;
     setState(() {
       _todayMovementCount = count;
+      _recalcActivity();
     });
 
     if (mounted) {
@@ -191,6 +225,13 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       );
     }
+  }
+
+  String _workDaysLabel(AppLocalizations l10n) {
+    return _prefs.formatWorkDays([
+      l10n.dayMon, l10n.dayTue, l10n.dayWed, l10n.dayThu,
+      l10n.dayFri, l10n.daySat, l10n.daySun,
+    ]);
   }
 
   @override
@@ -208,6 +249,7 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Header
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -233,20 +275,46 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 8),
             _NextReminderBanner(
                 prefs: _prefs, colors: colors, isDayOff: _isDayOff),
-            const SizedBox(height: 24),
-            _GoalProgress(
+
+            // Hero ring
+            const SizedBox(height: 28),
+            _GoalRing(
               current: _todayMovementCount,
               goal: _prefs.dailyGoal,
               colors: colors,
             ),
-            const SizedBox(height: 12),
+
+            // Action button
+            const SizedBox(height: 24),
             _ManualMoveButton(onPressed: _recordManualMovement),
-            const SizedBox(height: 32),
+
+            // Work hours
+            const SizedBox(height: 24),
             WorkHoursCard(
               prefs: _prefs,
               onStartChanged: (v) => _updateTime(v, isStart: true),
               onEndChanged: (v) => _updateTime(v, isStart: false),
             ),
+
+            // Quick stats
+            const SizedBox(height: 12),
+            _QuickStats(
+              streakDays: _streakDays,
+              activityPercent: _activityPercent,
+              colors: colors,
+            ),
+
+            // Settings rows
+            const SizedBox(height: 12),
+            _SettingsCard(
+              workDays: _workDaysLabel(l10n),
+              dailyGoal: l10n.nMovements(_prefs.dailyGoal),
+              colors: colors,
+            ),
+
+            // Motivational footer
+            const SizedBox(height: 12),
+            _MotivationalCard(colors: colors),
           ],
         ),
       ),
@@ -273,20 +341,15 @@ class _EnableToggle extends StatelessWidget {
           duration: const Duration(milliseconds: 200),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
-            color: isEnabled
-                ? AppColors.primary.withValues(alpha: 0.15)
-                : colors.sliderInactiveTrack,
+            color: isEnabled ? AppColors.primary : colors.sliderInactiveTrack,
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: isEnabled
-                  ? AppColors.primary.withValues(alpha: 0.3)
-                  : colors.divider,
-            ),
           ),
           child: Text(
             isEnabled ? l10n.toggleOn : l10n.toggleOff,
             style: AppTypography.label.copyWith(
-              color: isEnabled ? AppColors.primary : colors.textMuted,
+              color: isEnabled
+                  ? (colors.isDark ? Colors.black : Colors.white)
+                  : colors.textMuted,
               fontWeight: FontWeight.w600,
               letterSpacing: 0.5,
             ),
@@ -400,12 +463,12 @@ class _NextReminderBanner extends StatelessWidget {
   }
 }
 
-class _GoalProgress extends StatelessWidget {
+class _GoalRing extends StatelessWidget {
   final int current;
   final int goal;
   final AppColors colors;
 
-  const _GoalProgress({
+  const _GoalRing({
     required this.current,
     required this.goal,
     required this.colors,
@@ -415,62 +478,152 @@ class _GoalProgress extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final progress = goal > 0 ? (current / goal).clamp(0.0, 1.0) : 0.0;
-    final isComplete = current >= goal;
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
+    return Center(
+      child: SizedBox(
+        width: 200,
+        height: 200,
+        child: Stack(
+          alignment: Alignment.center,
           children: [
-            Padding(
-              padding: const EdgeInsets.only(bottom: 4),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  l10n.todayLabel,
-                  style: AppTypography.sectionLabel.copyWith(
-                    color: colors.textMuted,
-                  ),
-                ),
+            CustomPaint(
+              size: const Size(200, 200),
+              painter: GoalRingPainter(
+                progress: progress,
+                trackColor: colors.ringTrack,
+                fillColor: AppColors.primary,
+                strokeWidth: 12,
               ),
             ),
-            const SizedBox(height: 8),
-            if (current == 0)
-              Text(
-                l10n.goalZeroMotivation,
-                style: AppTypography.body.copyWith(
-                  color: colors.textSecondary,
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  '$current',
+                  style: AppTypography.statLarge.copyWith(
+                    color: colors.textPrimary,
+                  ),
                 ),
-                textAlign: TextAlign.center,
-              )
-            else ...[
-              Text(
-                '$current',
-                style: AppTypography.statLarge.copyWith(
-                  color: AppColors.primary,
+                const SizedBox(height: 4),
+                Text(
+                  current == 0
+                      ? l10n.goalZeroMotivation
+                      : l10n.goalProgressText(goal),
+                  style: AppTypography.label.copyWith(
+                    color: colors.textSecondary,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                l10n.goalProgressText(goal),
-                style: AppTypography.body.copyWith(color: colors.textSecondary),
-              ),
-            ],
-            const SizedBox(height: 16),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(2),
-              child: LinearProgressIndicator(
-                value: progress,
-                minHeight: 4,
-                backgroundColor: colors.sliderInactiveTrack,
-                valueColor: AlwaysStoppedAnimation(
-                  isComplete ? AppColors.primary : AppColors.primary,
-                ),
-              ),
+              ],
             ),
           ],
         ),
       ),
+    );
+  }
+}
+
+class _QuickStats extends StatelessWidget {
+  final int streakDays;
+  final int activityPercent;
+  final AppColors colors;
+
+  const _QuickStats({
+    required this.streakDays,
+    required this.activityPercent,
+    required this.colors,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Row(
+      children: [
+        Expanded(
+          child: Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(Icons.loop, size: 16, color: colors.textMuted),
+                  const SizedBox(height: 8),
+                  Text(
+                    '$streakDays',
+                    style: AppTypography.statMedium
+                        .copyWith(color: colors.streakColor),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    l10n.streakDays(streakDays),
+                    style: AppTypography.label
+                        .copyWith(color: colors.textSecondary),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(Icons.show_chart, size: 16, color: colors.textMuted),
+                  const SizedBox(height: 8),
+                  Text(
+                    '$activityPercent%',
+                    style: AppTypography.statMedium
+                        .copyWith(color: colors.activityColor),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    l10n.activityLabel,
+                    style: AppTypography.label
+                        .copyWith(color: colors.textSecondary),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _SettingsCard extends StatelessWidget {
+  final String workDays;
+  final String dailyGoal;
+  final AppColors colors;
+
+  const _SettingsCard({
+    required this.workDays,
+    required this.dailyGoal,
+    required this.colors,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Column(
+      children: [
+        _SettingsRow(
+          icon: Icons.date_range_outlined,
+          label: l10n.settingWorkDays,
+          value: workDays,
+          colors: colors,
+        ),
+        const SizedBox(height: 8),
+        _SettingsRow(
+          icon: Icons.adjust,
+          label: l10n.settingDailyGoal,
+          value: dailyGoal,
+          colors: colors,
+        ),
+      ],
     );
   }
 }
@@ -483,20 +636,131 @@ class _ManualMoveButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final colors = AppColors.of(context);
     return SizedBox(
       width: double.infinity,
-      height: 48,
-      child: OutlinedButton.icon(
+      height: 56,
+      child: FilledButton(
         onPressed: onPressed,
-        icon: const Icon(Icons.check, size: 18),
-        label: Text(l10n.recordMovement,
-            style: AppTypography.button.copyWith(fontSize: 14)),
-        style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.primary,
-          side: const BorderSide(color: AppColors.primary),
+        style: FilledButton.styleFrom(
+          backgroundColor: colors.accent,
+          foregroundColor: colors.isDark ? Colors.black : Colors.white,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(28),
           ),
+          textStyle: AppTypography.button.copyWith(
+            fontWeight: FontWeight.w600,
+            fontSize: 16,
+          ),
+        ),
+        child: Text(l10n.recordMovement),
+      ),
+    );
+  }
+}
+
+class _SettingsRow extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String value;
+  final AppColors colors;
+
+  const _SettingsRow({
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.colors,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        child: Row(
+          children: [
+            Icon(icon, size: 18, color: colors.textSecondary),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                label,
+                style: AppTypography.body.copyWith(color: colors.textPrimary),
+              ),
+            ),
+            Text(
+              value,
+              style: AppTypography.body.copyWith(color: colors.textSecondary),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _MotivationalCard extends StatelessWidget {
+  final AppColors colors;
+
+  const _MotivationalCard({required this.colors});
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    // Slightly lighter than page background, not as bright as cardBg
+    final surface = Color.lerp(colors.bg, colors.cardBg, colors.isDark ? 0.7 : 0.05)!;
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      color: surface,
+      child: SizedBox(
+        width: double.infinity,
+        height: 160,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            Positioned(
+              top: -80,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: Opacity(
+                opacity: colors.isDark ? 0.35 : 0.12,
+                child: Image.asset(
+                  'assets/motivation.png',
+                  fit: BoxFit.cover,
+                  alignment: Alignment.topCenter,
+                ),
+              ),
+            ),
+            Positioned.fill(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      surface.withValues(alpha: 0.2),
+                      surface.withValues(alpha: 0.8),
+                      surface,
+                    ],
+                    stops: const [0.0, 0.55, 0.8],
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              left: 20,
+              bottom: 20,
+              right: 20,
+              child: Text(
+                l10n.motivationalMessage,
+                style: AppTypography.heading.copyWith(
+                  color: colors.textPrimary,
+                  fontWeight: FontWeight.w700,
+                  height: 1.3,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

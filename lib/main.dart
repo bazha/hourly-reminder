@@ -122,10 +122,9 @@ class _HourlyReminderAppState extends State<HourlyReminderApp> {
   }
 
   static ThemeData _buildTheme(Brightness brightness, AppColors colors) {
-    const teal = Color(0xFF4EAAA0);
     return ThemeData(
       colorScheme: ColorScheme.fromSeed(
-        seedColor: teal,
+        seedColor: AppColors.primary,
         brightness: brightness,
       ),
       useMaterial3: true,
@@ -134,7 +133,7 @@ class _HourlyReminderAppState extends State<HourlyReminderApp> {
       cardTheme: CardThemeData(
         elevation: 0,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(28),
           side: BorderSide(color: colors.cardBorder),
         ),
         color: colors.cardBg,
@@ -153,7 +152,7 @@ class _HourlyReminderAppState extends State<HourlyReminderApp> {
       ),
       sliderTheme: SliderThemeData(
         thumbColor: colors.sliderThumb,
-        overlayColor: teal.withValues(alpha: 0.12),
+        overlayColor: AppColors.primary.withValues(alpha: 0.12),
       ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: colors.navBarBg,

@@ -345,6 +345,12 @@ class AppLocalizationsBe extends AppLocalizations {
   String get rateCancel => 'Адмена';
 
   @override
+  String get activityLabel => 'актыўнасць';
+
+  @override
+  String get motivationalMessage => 'Ваша цела скажа дзякуй.';
+
+  @override
   String get settingLanguage => 'Мова';
 
   @override

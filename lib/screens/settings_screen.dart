@@ -205,7 +205,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 Divider(height: 1, color: colors.divider),
                 SettingsRow(
-                  icon: Icons.calendar_today_outlined,
+                  icon: Icons.date_range_outlined,
                   label: l10n.settingWorkDays,
                   value: _workDaysLabel(l10n),
                   colors: colors,
@@ -246,7 +246,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               colors: colors,
               children: [
                 SettingsRow(
-                  icon: Icons.flag_outlined,
+                  icon: Icons.adjust,
                   label: l10n.settingDailyGoal,
                   value: l10n.nMovements(_prefs.dailyGoal),
                   colors: colors,
@@ -345,24 +345,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   String _workDaysLabel(AppLocalizations l10n) {
-    final active = <int>[
-      for (int d = 1; d <= 7; d++)
-        if (_prefs.isWorkDay(d)) d,
-    ];
-    if (active.length == 7) return l10n.workDaysMonSun;
-    if (active.length == 5 && !_prefs.workOnSaturday && !_prefs.workOnSunday) {
-      return l10n.workDaysMonFri;
-    }
-    final dayNames = [
-      l10n.dayMon,
-      l10n.dayTue,
-      l10n.dayWed,
-      l10n.dayThu,
-      l10n.dayFri,
-      l10n.daySat,
-      l10n.daySun,
-    ];
-    return active.map((d) => dayNames[d - 1]).join(', ');
+    return _prefs.formatWorkDays([
+      l10n.dayMon, l10n.dayTue, l10n.dayWed, l10n.dayThu,
+      l10n.dayFri, l10n.daySat, l10n.daySun,
+    ]);
   }
 
   String _genderLabel(AppLocalizations l10n) {

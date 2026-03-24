@@ -103,7 +103,7 @@ object NotificationHelper {
         )
 
         val builder = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.mipmap.ic_launcher)
+            .setSmallIcon(R.drawable.ic_stat_notification)
             .setContentTitle(contentTitle)
             .setContentText(
                 if (isFirst) lc.getString(R.string.notif_body_first)
@@ -111,7 +111,7 @@ object NotificationHelper {
             )
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
-            .setColor(0xFF607D8B.toInt())
+            .setColor(0xFFE09040.toInt())
             .setVibrate(longArrayOf(0, 250, 250, 250))
             .setContentIntent(openAppPendingIntent)
             .setDeleteIntent(dismissPendingIntent)

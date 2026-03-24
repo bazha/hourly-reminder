@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_typography.dart';
 import '../../models/user_preferences.dart';
-import '../../widgets/work_hours_clock.dart';
 import '../../core/utils/time_utils.dart';
 import '../../l10n/app_localizations.dart';
 
@@ -46,75 +45,81 @@ class WorkHoursCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = AppColors.of(context);
-
     final l10n = AppLocalizations.of(context)!;
 
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 4, bottom: 12),
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: Text(
-              l10n.workHoursLabel,
-              style: AppTypography.sectionLabel.copyWith(
-                color: colors.textMuted,
-              ),
-            ),
-          ),
-        ),
-        WorkHoursClock(
-          startTime: prefs.startTime,
-          endTime: prefs.endTime,
-          size: 220,
-          onStartTimeChanged: onStartChanged,
-          onEndTimeChanged: onEndChanged,
-        ),
-        const SizedBox(height: 16),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+    final startTime =
+        TimeUtils.formatHourMinute(prefs.startHour, prefs.startMinute);
+    final endTime =
+        TimeUtils.formatHourMinute(prefs.endHour, prefs.endMinute);
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
           children: [
-            _TimeChip(
-              dotColor: AppColors.primary,
-              label: l10n.timeChipStart,
-              time: TimeUtils.formatHourMinute(
-                  prefs.startHour, prefs.startMinute),
-              onTap: () => _pickTime(
-                context,
-                prefs.startHour,
-                prefs.startMinute,
-                onStartChanged,
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                l10n.workHoursLabel,
+                style: AppTypography.sectionLabel.copyWith(
+                  color: colors.textMuted,
+                ),
               ),
-              colors: colors,
             ),
-            const SizedBox(width: 12),
-            _TimeChip(
-              dotColor: AppColors.endColor,
-              label: l10n.timeChipEnd,
-              time: TimeUtils.formatHourMinute(prefs.endHour, prefs.endMinute),
-              onTap: () => _pickTime(
-                context,
-                prefs.endHour,
-                prefs.endMinute,
-                onEndChanged,
-              ),
-              colors: colors,
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _TimeTap(
+                  dotColor: AppColors.primary,
+                  label: l10n.timeChipStart,
+                  time: startTime,
+                  onTap: () => _pickTime(
+                    context,
+                    prefs.startHour,
+                    prefs.startMinute,
+                    onStartChanged,
+                  ),
+                  colors: colors,
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Text(
+                    '\u2014',
+                    style: AppTypography.statMedium.copyWith(
+                      color: colors.textMuted,
+                    ),
+                  ),
+                ),
+                _TimeTap(
+                  dotColor: AppColors.endColor,
+                  label: l10n.timeChipEnd,
+                  time: endTime,
+                  onTap: () => _pickTime(
+                    context,
+                    prefs.endHour,
+                    prefs.endMinute,
+                    onEndChanged,
+                  ),
+                  colors: colors,
+                ),
+              ],
             ),
           ],
         ),
-      ],
+      ),
     );
   }
 }
 
-class _TimeChip extends StatelessWidget {
+class _TimeTap extends StatelessWidget {
   final Color dotColor;
   final String label;
   final String time;
   final VoidCallback onTap;
   final AppColors colors;
 
-  const _TimeChip({
+  const _TimeTap({
     required this.dotColor,
     required this.label,
     required this.time,
@@ -129,34 +134,35 @@ class _TimeChip extends StatelessWidget {
       label: '$label $time',
       child: GestureDetector(
         onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-          decoration: BoxDecoration(
-            color: colors.cardBg,
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: colors.cardBorder),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 8,
-                height: 8,
-                decoration: BoxDecoration(
-                  color: dotColor,
-                  shape: BoxShape.circle,
+        child: Column(
+          children: [
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    color: dotColor,
+                    shape: BoxShape.circle,
+                  ),
                 ),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                '$label $time',
-                style: AppTypography.label.copyWith(
-                  color: colors.textPrimary,
-                  fontWeight: FontWeight.w500,
+                const SizedBox(width: 6),
+                Icon(
+                  Icons.arrow_forward,
+                  size: 12,
+                  color: colors.textMuted,
                 ),
-              ),
-            ],
-          ),
+                const SizedBox(width: 6),
+                Text(
+                  time,
+                  style: AppTypography.statMedium.copyWith(
+                    color: colors.textPrimary,
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
