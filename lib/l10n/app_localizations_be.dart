@@ -18,6 +18,9 @@ class AppLocalizationsBe extends AppLocalizations {
   String get navStats => 'Статыстыка';
 
   @override
+  String get navSettings => 'Налады';
+
+  @override
   String get toggleOn => 'УКЛ';
 
   @override
@@ -286,6 +289,60 @@ class AppLocalizationsBe extends AppLocalizations {
 
   @override
   String get dayOffBanner => 'Сёння выхадны, апавяшчэнняў не будзе';
+
+  @override
+  String get sectionSchedule => 'РАСКЛАД';
+
+  @override
+  String get sectionNotifications => 'АПАВЯШЧЭННI';
+
+  @override
+  String get sectionGeneral => 'АГУЛЬНАЕ';
+
+  @override
+  String get sectionAbout => 'ПРА ПРАГРАМУ';
+
+  @override
+  String get settingWorkHours => 'Працоўныя гадзіны';
+
+  @override
+  String get settingTheme => 'Тэма';
+
+  @override
+  String get themeSystem => 'Сістэмная';
+
+  @override
+  String get themeDark => 'Цёмная';
+
+  @override
+  String get themeLight => 'Светлая';
+
+  @override
+  String get aboutVersion => 'Версія';
+
+  @override
+  String get aboutRateApp => 'Ацаніць праграму';
+
+  @override
+  String get aboutFeedback => 'Зваротная сувязь';
+
+  @override
+  String get feedbackNoEmail => 'Паштовая праграма не знойдзена';
+
+  @override
+  String get rateTitle => 'Ацаніце праграму';
+
+  @override
+  String get rateMessage => 'Націсніце на зорку';
+
+  @override
+  String get rateThanks => 'Дзякуй за ацэнку!';
+
+  @override
+  String get rateSend => 'Адправіць';
+
+  @override
+  String get rateCancel => 'Адмена';
 
   @override
   String get settingLanguage => 'Мова';

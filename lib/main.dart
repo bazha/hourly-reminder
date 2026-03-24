@@ -60,25 +60,43 @@ class HourlyReminderApp extends StatefulWidget {
     state?._setLocale(locale);
   }
 
+  static void setThemeMode(BuildContext context, ThemeMode mode) {
+    final state = context.findAncestorStateOfType<_HourlyReminderAppState>();
+    state?._setThemeMode(mode);
+  }
+
+  static ThemeMode getThemeMode(BuildContext context) {
+    final state = context.findAncestorStateOfType<_HourlyReminderAppState>();
+    return state?._themeMode ?? ThemeMode.system;
+  }
+
   @override
   State<HourlyReminderApp> createState() => _HourlyReminderAppState();
 }
 
 class _HourlyReminderAppState extends State<HourlyReminderApp> {
   Locale? _locale;
+  ThemeMode _themeMode = ThemeMode.system;
 
   @override
   void initState() {
     super.initState();
-    _loadLocale();
+    _loadSettings();
   }
 
-  Future<void> _loadLocale() async {
+  Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
     final code = prefs.getString('app_locale');
-    if (code != null && mounted) {
-      setState(() => _locale = Locale(code));
-    }
+    final theme = prefs.getString('app_theme_mode');
+    setState(() {
+      if (code != null) _locale = Locale(code);
+      _themeMode = switch (theme) {
+        'dark' => ThemeMode.dark,
+        'light' => ThemeMode.light,
+        _ => ThemeMode.system,
+      };
+    });
   }
 
   void _setLocale(Locale? locale) {
@@ -88,6 +106,17 @@ class _HourlyReminderAppState extends State<HourlyReminderApp> {
         prefs.remove('app_locale');
       } else {
         prefs.setString('app_locale', locale.languageCode);
+      }
+    });
+  }
+
+  void _setThemeMode(ThemeMode mode) {
+    setState(() => _themeMode = mode);
+    SharedPreferences.getInstance().then((prefs) {
+      if (mode == ThemeMode.system) {
+        prefs.remove('app_theme_mode');
+      } else {
+        prefs.setString('app_theme_mode', mode.name);
       }
     });
   }
@@ -155,7 +184,7 @@ class _HourlyReminderAppState extends State<HourlyReminderApp> {
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       locale: _locale,
-      themeMode: ThemeMode.system,
+      themeMode: _themeMode,
       theme: _buildTheme(Brightness.light, AppColors.light),
       darkTheme: _buildTheme(Brightness.dark, AppColors.dark),
       home: MainShell(

@@ -8,6 +8,7 @@ import '../services/alarm_service.dart';
 import '../services/notification_service.dart';
 import '../services/storage_service.dart';
 import 'home_screen.dart';
+import 'settings_screen.dart';
 import '../features/movement_stats/presentation/stats_screen.dart';
 
 class MainShell extends StatefulWidget {
@@ -93,10 +94,16 @@ class _MainShellState extends State<MainShell> {
             alarmService: widget.alarmService,
             statsRepository: widget.statsRepository,
             movementRepository: widget.movementRepository,
+            isActive: _currentIndex == 0,
           ),
           StatsScreen(
             repository: widget.statsRepository,
             isActive: _currentIndex == 1,
+          ),
+          SettingsScreen(
+            storageService: widget.storageService,
+            alarmService: widget.alarmService,
+            isActive: _currentIndex == 2,
           ),
         ],
       ),
@@ -128,6 +135,13 @@ class _MainShellState extends State<MainShell> {
               selectedIcon:
                   Icon(Icons.bar_chart_rounded, color: colors.navBarSelected),
               label: AppLocalizations.of(context)!.navStats,
+            ),
+            NavigationDestination(
+              icon:
+                  Icon(Icons.settings_outlined, color: colors.navBarUnselected),
+              selectedIcon:
+                  Icon(Icons.settings_rounded, color: colors.navBarSelected),
+              label: AppLocalizations.of(context)!.navSettings,
             ),
           ],
         ),

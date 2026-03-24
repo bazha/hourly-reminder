@@ -18,6 +18,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navStats => 'Statistics';
 
   @override
+  String get navSettings => 'Settings';
+
+  @override
   String get toggleOn => 'ON';
 
   @override
@@ -284,6 +287,60 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dayOffBanner => 'Day off today, no notifications';
+
+  @override
+  String get sectionSchedule => 'SCHEDULE';
+
+  @override
+  String get sectionNotifications => 'NOTIFICATIONS';
+
+  @override
+  String get sectionGeneral => 'GENERAL';
+
+  @override
+  String get sectionAbout => 'ABOUT';
+
+  @override
+  String get settingWorkHours => 'Work hours';
+
+  @override
+  String get settingTheme => 'Theme';
+
+  @override
+  String get themeSystem => 'System';
+
+  @override
+  String get themeDark => 'Dark';
+
+  @override
+  String get themeLight => 'Light';
+
+  @override
+  String get aboutVersion => 'Version';
+
+  @override
+  String get aboutRateApp => 'Rate app';
+
+  @override
+  String get aboutFeedback => 'Send feedback';
+
+  @override
+  String get feedbackNoEmail => 'No email app found';
+
+  @override
+  String get rateTitle => 'Rate the app';
+
+  @override
+  String get rateMessage => 'Tap a star to rate';
+
+  @override
+  String get rateThanks => 'Thanks for your rating!';
+
+  @override
+  String get rateSend => 'Send';
+
+  @override
+  String get rateCancel => 'Cancel';
 
   @override
   String get settingLanguage => 'Language';

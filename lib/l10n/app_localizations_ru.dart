@@ -18,6 +18,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get navStats => 'Статистика';
 
   @override
+  String get navSettings => 'Настройки';
+
+  @override
   String get toggleOn => 'ВКЛ';
 
   @override
@@ -286,6 +289,60 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get dayOffBanner => 'Сегодня выходной, уведомлений не будет';
+
+  @override
+  String get sectionSchedule => 'РАСПИСАНИЕ';
+
+  @override
+  String get sectionNotifications => 'УВЕДОМЛЕНИЯ';
+
+  @override
+  String get sectionGeneral => 'ОБЩЕЕ';
+
+  @override
+  String get sectionAbout => 'О ПРИЛОЖЕНИИ';
+
+  @override
+  String get settingWorkHours => 'Рабочие часы';
+
+  @override
+  String get settingTheme => 'Тема';
+
+  @override
+  String get themeSystem => 'Системная';
+
+  @override
+  String get themeDark => 'Тёмная';
+
+  @override
+  String get themeLight => 'Светлая';
+
+  @override
+  String get aboutVersion => 'Версия';
+
+  @override
+  String get aboutRateApp => 'Оценить приложение';
+
+  @override
+  String get aboutFeedback => 'Обратная связь';
+
+  @override
+  String get feedbackNoEmail => 'Почтовое приложение не найдено';
+
+  @override
+  String get rateTitle => 'Оцените приложение';
+
+  @override
+  String get rateMessage => 'Нажмите на звезду';
+
+  @override
+  String get rateThanks => 'Спасибо за оценку!';
+
+  @override
+  String get rateSend => 'Отправить';
+
+  @override
+  String get rateCancel => 'Отмена';
 
   @override
   String get settingLanguage => 'Язык';
