@@ -1,7 +1,30 @@
 package com.bazhanau.hourly_reminder
 
 import android.content.SharedPreferences
+import org.json.JSONArray
 import java.util.Calendar
+
+/** Prefix used by Flutter's shared_preferences plugin for StringList values. */
+private const val FLUTTER_LIST_PREFIX = "VGhpcyBpcyB0aGUgcHJlZml4IGZvciBhIGxpc3Qu!"
+
+/**
+ * Appends a string to a Flutter StringList stored in SharedPreferences.
+ * Flutter's shared_preferences plugin stores StringList as a regular string
+ * with a Base64 prefix followed by a JSON array.
+ */
+fun SharedPreferences.appendToFlutterStringList(key: String, value: String) {
+    val stored = getString(key, null)
+    val array = if (stored != null && stored.startsWith(FLUTTER_LIST_PREFIX)) {
+        JSONArray(stored.removePrefix(FLUTTER_LIST_PREFIX))
+    } else {
+        JSONArray()
+    }
+    array.put(value)
+
+    edit()
+        .putString(key, FLUTTER_LIST_PREFIX + array.toString())
+        .apply()
+}
 
 /**
  * Flutter's SharedPreferences plugin stores Dart `int` values as Java Long.
