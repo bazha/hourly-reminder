@@ -1,73 +1,52 @@
-# Hourly Reminder — Напоминалка
+# Hourly Reminder
 
-An Android app that sends hourly notifications during your configured work hours to remind you to stand up and move.
-
----
+A movement reminder app for Android and iOS. Sends notifications during work hours to remind you to stand up and move.
 
 ## Features
 
-- **Hourly notifications** during a configurable work window
-- **Sedentary duration** in notification title (e.g. "Без движения 60 мин.")
-- **Exercise suggestions** — office-friendly exercises shown in round-robin order starting from the second notification of the day
-- **Gender-aware text** — neutral, male, or female notification wording
-- **Interactive 24-hour clock** — drag handles to set start and end times (15-minute precision)
-- **Work hour sliders** — alternative fine-grained time adjustment
-- **Saturday / Sunday toggles** — include or exclude each weekend day independently
-- **Snooze and "I already moved"** — notification action buttons with semi-adaptive rescheduling
-- **Notification deduplication** — prevents spam when the device wakes from Doze mode
-- **Test notification button** — verify notifications work immediately
-- **Light / dark theme** — follows system theme automatically
-- **Persistent settings** — all preferences survive app restarts and device reboots
-
----
+- **Movement reminders** during configurable work hours with adjustable interval (15-120 min)
+- **Circular progress ring** showing daily movement goal (Apple Fitness style)
+- **"I already moved" action** on notifications with semi-adaptive rescheduling
+- **Manual movement recording** with optimistic UI updates
+- **Movement statistics** with weekly chart, streak tracking, and activity percentage
+- **Exercise suggestions** in notifications (office-friendly, round-robin order)
+- **Gender-aware text** (neutral, male, or female notification wording)
+- **Per-day work schedule** (toggle each day independently)
+- **Snooze** notification action (reschedules in 10 min)
+- **Light / dark theme** following system, with warm cosy light theme
+- **3 languages**: Russian, English, Belarusian
+- **Persistent settings** surviving app restarts and device reboots
 
 ## Screenshots
 
 > _Add screenshots here_
 
----
-
 ## Requirements
 
 | Tool | Version |
 |---|---|
-| Flutter | ≥ 3.5.0 |
-| Dart | ≥ 3.5.0 |
+| Flutter | 3.41+ |
+| Dart | 3.11+ |
 | Android SDK | API 21+ |
-
-> iOS is not currently supported (alarm scheduling is Android-only).
-
----
+| iOS | 13+ |
 
 ## Getting Started
 
 ```bash
-# Install dependencies
 flutter pub get
-
-# Run on a connected Android device or emulator
 flutter run
 
-# Build release APK
-flutter build apk --release
+# Build release
+flutter build apk --release    # Android
+flutter build ios --release    # iOS
 ```
-
----
 
 ## Running Tests
 
 ```bash
-# All tests
-flutter test
-
-# Single test file
-flutter test test/services/alarm_service_test.dart
-
-# Static analysis
-flutter analyze
+flutter test               # All tests (81)
+flutter analyze            # Static analysis
 ```
-
----
 
 ## Architecture
 
@@ -75,74 +54,75 @@ flutter analyze
 
 ```
 lib/
-├── main.dart                     # Entry point — service initialisation
+├── main.dart
 ├── models/
-│   └── user_preferences.dart    # Immutable settings model (copyWith, equality)
+│   └── user_preferences.dart     # Immutable settings model
 ├── services/
-│   ├── alarm_service.dart        # AndroidAlarmManager scheduling + callback
-│   ├── notification_service.dart # flutter_local_notifications wrapper
-│   └── storage_service.dart      # SharedPreferences wrapper (async + sync)
+│   ├── alarm_service.dart         # Alarm scheduling + next notification time
+│   ├── notification_service.dart  # flutter_local_notifications wrapper
+│   └── storage_service.dart       # SharedPreferences wrapper
 ├── screens/
-│   └── home_screen.dart          # Main UI (clock, settings, gender selector)
-├── widgets/
-│   └── work_hours_clock.dart     # Custom 24h analog clock (CustomPaint)
+│   ├── main_shell.dart            # Bottom nav (Home, Stats, Settings)
+│   ├── home_screen.dart           # Goal ring, quick stats, work hours
+│   ├── settings_screen.dart       # All user preferences
+│   └── widgets/
+│       ├── goal_ring_painter.dart # Circular progress ring
+│       └── work_hours_card.dart   # Time display with picker
 ├── features/
-│   └── movement/                 # Feature-first module (domain/data layers)
+│   ├── movement/                  # Movement event tracking (domain/data)
+│   └── movement_stats/            # Statistics screen (weekly/streak/goal)
+├── l10n/                          # Localization (ru, en, be)
 └── core/
-    ├── theme/app_colors.dart     # Design tokens — light & dark palettes
-    └── utils/time_utils.dart     # Time formatting helpers
+    ├── theme/app_colors.dart      # Design tokens (light & dark)
+    ├── theme/app_typography.dart   # Text styles
+    └── utils/time_utils.dart      # Time formatting
 ```
 
 ### Native Android (Kotlin)
 
 ```
-android/app/src/main/kotlin/com/bazhanau/hourly_reminder/
-├── MainActivity.kt          # MethodChannel handlers bridging Flutter to native
-├── NotificationHelper.kt    # Builds notifications (sedentary duration, exercises)
-├── ReminderScheduler.kt     # Schedules one-shot exact alarms for next hour
-├── ReminderReceiver.kt      # Alarm callback — checks work hours, shows notification
-├── SnoozeReceiver.kt        # Snooze action — reschedules in 10 min
-├── AlreadyMovedReceiver.kt  # "I already moved" — semi-adaptive rescheduling
-├── BootReceiver.kt          # Re-registers alarms after device reboot
-├── Exercise.kt              # Exercise data class
-└── ExerciseRepository.kt    # Exercise list, round-robin, notification counting
+android/.../com/bazhanau/hourly_reminder/
+├── MainActivity.kt           # MethodChannel handlers
+├── NotificationHelper.kt     # Builds notifications with actions
+├── ReminderScheduler.kt      # Exact alarm scheduling
+├── ReminderReceiver.kt       # Alarm callback, work hours check
+├── SnoozeReceiver.kt         # Snooze action (10 min)
+├── AlreadyMovedReceiver.kt   # "I already moved" + event persistence
+├── BootReceiver.kt           # Re-registers alarms after reboot
+├── PrefsExt.kt               # SharedPreferences extensions
+├── Exercise.kt               # Exercise data class
+└── ExerciseRepository.kt     # Exercise list, round-robin
 ```
 
-**Key design decisions:**
+### Dual notification pipeline
 
-- Notifications are built entirely on the native Android side (no FlutterEngine running). `NotificationHelper` reads SharedPreferences directly for sedentary duration, gender, and exercise state.
-- `AlarmService.shouldSendReminder()` and `nextNotificationTime()` are pure static functions with no side effects — easy to unit-test without mocks.
-- `alarmCallback()` runs in a fresh background isolate (Android Doze). It re-initialises `StorageService` and deduplicates by checking the last-notified calendar hour before firing.
-- `UserPreferences` is an immutable value object (`==` + `hashCode` via `Object.hash`).
-- `AppColors.of(context)` resolves the correct light/dark palette at runtime.
-- Exercises cycle in round-robin order. The first notification each day shows no exercise (sedentary tracking resets). Subsequent notifications include an exercise in the expanded view.
+- **Android**: Entirely native Kotlin. Alarms fire BroadcastReceivers that build and show notifications. No FlutterEngine running. Action buttons handled by native receivers.
+- **iOS**: Uses `flutter_local_notifications` from Dart side. Actions via `DarwinNotificationCategory`.
 
----
+Both read/write SharedPreferences (native key prefix: `flutter.`).
+
+## Dependencies
+
+| Package | Version | Purpose |
+|---|---|---|
+| `flutter_local_notifications` | 21.0 | Notifications (iOS) |
+| `android_alarm_manager_plus` | 4.0 | Background alarms |
+| `shared_preferences` | 2.3 | Persistent storage |
+| `permission_handler` | 12.0 | Runtime permissions |
+| `timezone` | 0.11 | Timezone utilities |
+| `fl_chart` | 1.2 | Weekly stats chart |
+| `url_launcher` | 6.3 | External links |
 
 ## Android Permissions
 
 | Permission | Purpose |
 |---|---|
 | `POST_NOTIFICATIONS` | Show notifications (Android 13+) |
-| `SCHEDULE_EXACT_ALARM` | Fire alarms at exact hour boundaries |
+| `SCHEDULE_EXACT_ALARM` | Exact alarm scheduling |
 | `RECEIVE_BOOT_COMPLETED` | Re-schedule alarms after reboot |
 | `WAKE_LOCK` | Keep CPU awake during alarm callback |
-| `VIBRATE` | Vibration on notification |
-| `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS` | Bypass battery saver for reliable delivery |
-
----
-
-## Dependencies
-
-| Package | Purpose |
-|---|---|
-| `android_alarm_manager_plus` | Periodic background alarms |
-| `flutter_local_notifications` | Display notifications |
-| `shared_preferences` | Persistent key-value storage |
-| `permission_handler` | Runtime permission requests |
-| `timezone` | Timezone utilities |
-
----
+| `VIBRATE` | Notification vibration |
+| `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS` | Reliable delivery |
 
 ## License
 
