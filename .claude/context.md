@@ -1,32 +1,42 @@
 # Project Context
 
-## Current State (2026-03-20)
+## Current State (2026-03-24)
 
-Main branch has PR #10 (UI redesign) merged. PR #11 (new features bundle) is open.
+Main branch up to date through PR #25. PR #26 (home screen redesign) is open.
 
-Flutter 3.41.5 (Dart 3.11.3), upgraded from 3.38.8 on 2026-03-19.
+Flutter 3.41.5 (Dart 3.11.3).
 
 ## Recent Changes
 
-### UI Redesign (PR #10, merged)
-- Replaced glassmorphism with clean card-based design (teal/coral/amber palette)
-- Bottom navigation bar (Home + Stats tabs) via `MainShell` widget
-- `AppTypography` system for consistent text styles
-- Cards: flat (elevation 0) with borders, 20px radius
-- Light: warm off-white `#F5F3EE`. Dark: charcoal `#15181E`
+### Home Screen Redesign (PR #26, open)
+- Circular progress ring (Apple Fitness style) replaces linear progress bar
+- Filled amber action button, quick stats row (streak + activity %), settings rows with icons
+- Motivational card with full-width image background
+- Warm cream light theme (`#F5F0E8`, Scandinavian cosy feel)
+- `WidgetsBindingObserver` for lifecycle-aware refresh
+- `SharedPreferences.reload()` fix for native event visibility
+- WorkHoursClock widget removed, replaced with card-based time display
 
-### New Features Bundle (PR #11, open)
-- **Next reminder indicator**: "Следующее в 15:00" on home screen, uses `AlarmService.nextNotificationTime()`
-- **Manual "I moved" button**: records `MovementSource.manual` event, resets sedentary timer
-- **Daily movement goal**: configurable (1-15, default 8), progress bar on home, "5/8" in stats
-- **Notification tap -> stats**: tapping notification body opens stats tab (Android intent extras + iOS ValueNotifier)
-- **First notification delay**: 45 min after work start (both Dart and Android native)
+### Settings Screen (PR #24, merged)
+- Dedicated Settings screen as 3rd tab in bottom nav
+- Work days, daily goal, reminder interval, notification gender, theme mode, language
+- Work days range formatting (Mon-Fri instead of listing all days)
+
+### Already Moved Fix (PR #25, merged)
+- Android `AlreadyMovedReceiver` now persists `MovementEvent` to SharedPreferences
+- `appendToFlutterStringList` extension in `PrefsExt.kt`
+
+### Earlier PRs (merged)
+- PR #23: Dead code cleanup, hardcoded string fixes, deduplication
+- PR #12: Test cleanup (181 -> 86 tests consolidated)
+- PR #11: Next reminder indicator, manual movement, daily goal, notification tap navigation
+- PR #10: UI redesign with card-based design, bottom nav, AppTypography
 
 ## Architecture Notes
 
 ### Two coexisting patterns
 
-The codebase is in a gradual migration from flat services to feature-first Clean Architecture:
+The codebase is in gradual migration from flat services to feature-first Clean Architecture:
 - Old: `lib/services/`, `lib/models/`, `lib/screens/` - static singletons, no injection
 - New: `lib/features/<name>/` with domain/data/presentation layers and constructor injection
 
@@ -34,7 +44,7 @@ New features should follow the feature-first pattern. Domain layer must stay pur
 
 ### Navigation structure
 
-`MainShell` (lib/screens/main_shell.dart) owns the Scaffold and bottom NavigationBar. Child screens (HomeScreen, StatsScreen) return body-only widgets (no AppBar/Scaffold of their own).
+`MainShell` (lib/screens/main_shell.dart) owns the Scaffold and bottom NavigationBar. Child screens (HomeScreen, StatsScreen, SettingsScreen) return body-only widgets (no AppBar/Scaffold of their own).
 
 Navigation channel `com.bazhanau.hourly_reminder/navigation` handles notification tap routing:
 - Android cold start: `getAndClearInitialTab` method
@@ -48,7 +58,7 @@ Navigation channel `com.bazhanau.hourly_reminder/navigation` handles notificatio
 
 ### SharedPreferences keys
 
-Flutter stores keys with `flutter.` prefix natively. Android native code must use `flutter.<key>` to read values written by Dart. Mismatch causes silent fallback to defaults - this was the root cause of the `getLong` vs `getInt` bug.
+Flutter stores keys with `flutter.` prefix natively. Android native code must use `flutter.<key>` to read values written by Dart. `MovementLocalDatasource.getEvents()` calls `_prefs.reload()` before reading to pick up native writes.
 
 Key categories:
 - User prefs: `is_enabled`, `start_hour`, `start_minute`, `end_hour`, `end_minute`, `work_on_saturday`, `work_on_sunday`, `notification_gender`, `daily_goal`
@@ -56,13 +66,9 @@ Key categories:
 - Exercise: `exercise_index`, `notifications_shown_count`, `last_notification_date`
 - Dedup: `last_notified_millis`
 
-### Exercise system
-
-`ExerciseRepository.kt` (Android only) tracks exercise index and daily notification count. Both must reset together on new day detection.
-
 ### Custom reminder interval
 
-Reminder interval is user-configurable (15-120 min, default 60). Stored in `flutter.reminder_interval_minutes`. Reminders are **not clock-aligned** - they fire at `now + interval`, so they drift over time (e.g. 10:01 -> 11:01 -> 12:01). Adaptive intervals after "I already moved" scale proportionally: fast reaction = base * 0.5, slow = base * 0.75, minimum 10 min.
+Reminder interval is user-configurable (15-120 min, default 60). Stored in `flutter.reminder_interval_minutes`. Reminders are **not clock-aligned** - they fire at `now + interval`. Adaptive intervals after "I already moved" scale proportionally: fast reaction = base * 0.5, slow = base * 0.75, minimum 10 min.
 
 ### First notification delay
 
@@ -74,19 +80,20 @@ The first notification of the day fires at `workStart + interval` (not immediate
 ## Dependencies (pubspec.yaml)
 
 ```
-flutter_local_notifications: ^18.0.1  (latest: 21.0.0)
-android_alarm_manager_plus: ^4.0.3    (latest: 5.0.0)
+flutter_local_notifications: ^21.0.0
+android_alarm_manager_plus: ^4.0.8
 shared_preferences: ^2.3.4
-permission_handler: ^11.3.1           (latest: 12.0.1)
-timezone: ^0.9.4                      (latest: 0.11.0)
-fl_chart: ^0.70.2
+permission_handler: ^12.0.1
+timezone: ^0.11.0
+fl_chart: ^1.2.0
+url_launcher: ^6.3.2
 ```
 
-Several deps are behind. Not blocking but worth a maintenance pass.
+All direct dependencies at latest compatible versions as of 2026-03-24.
 
 ## Tests
 
-13 test files, 181 tests. Coverage is good across services, domain logic, utilities, and models. Widget/integration coverage is minimal.
+12 test files, 81 tests. Coverage is good across services, domain logic, utilities, and models. Widget/integration coverage is minimal (smoke test only).
 
 Test files map to:
 - `test/services/` - alarm and storage services
@@ -94,7 +101,6 @@ Test files map to:
 - `test/features/movement/` - domain + data layer tests
 - `test/features/movement_stats/` - use case + repository tests
 - `test/core/` - theme, time utils (formatDuration, formatNextReminder)
-- `test/widgets/` - work hours clock
 
 ## Change Plans
 
@@ -107,7 +113,8 @@ Completed plans in `docs/01_change_plans/`:
 - 000008: Static singleton to instance injection
 - 000009: Fix ignored notification no follow-up
 - 000010: Movement statistics screen
-- 000011: Next reminder, manual movement, daily goal (PR #11)
+- 000011: Next reminder, manual movement, daily goal
+- 000015: Home screen redesign (PR #26)
 
 Partial: 000002 (refactoring opportunities), 000003 (test refactoring)
 
@@ -117,7 +124,6 @@ Partial: 000002 (refactoring opportunities), 000003 (test refactoring)
 - No Riverpod/Bloc - StatefulWidget + SharedPreferences for all state. Fine for current app size.
 - iOS support exists but is less tested than Android. Exercise notifications are Android-only.
 - Movement events stored as JSON StringList in SharedPreferences. Fine for current scale (~2,500 events/year). Consider SQLite if data grows.
-- Several dependencies behind latest versions.
 
 ## MethodChannels
 
