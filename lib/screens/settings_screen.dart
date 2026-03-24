@@ -145,30 +145,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Future<void> _pickTime(
-    BuildContext context,
-    int currentHour,
-    int currentMinute,
-    ValueChanged<double> onChanged,
-  ) async {
-    final colors = AppColors.of(context);
-    final picked = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay(hour: currentHour, minute: currentMinute),
-      builder: (ctx, child) => Theme(
-        data: Theme.of(ctx).copyWith(
-          colorScheme: Theme.of(ctx).colorScheme.copyWith(
-                surface: colors.pickerBg,
-                onSurface: colors.pickerText,
-              ),
-        ),
-        child: child!,
-      ),
-    );
-    if (picked != null) {
-      onChanged(picked.hour + picked.minute / 60.0);
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -316,7 +292,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 SettingsRow(
                   icon: Icons.info_outline,
                   label: l10n.aboutVersion,
-                  value: '1.0.0',
+                  value: appVersion,
                   colors: colors,
                   showChevron: false,
                 ),
@@ -397,7 +373,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     colors: colors,
                     onTap: () {
                       Navigator.pop(ctx);
-                      _pickTime(
+                      pickTime(
                         context,
                         _prefs.startHour,
                         _prefs.startMinute,
@@ -416,7 +392,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     colors: colors,
                     onTap: () {
                       Navigator.pop(ctx);
-                      _pickTime(
+                      pickTime(
                         context,
                         _prefs.endHour,
                         _prefs.endMinute,

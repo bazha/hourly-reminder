@@ -29,8 +29,7 @@ void main() {
       final result = useCase(
         events: [],
         now: now,
-        workOnSaturday: false,
-        workOnSunday: false,
+        workDays: {1, 2, 3, 4, 5},
         dailyGoal: 8,
       );
 
@@ -55,8 +54,7 @@ void main() {
       final result = useCase(
         events: [event],
         now: now,
-        workOnSaturday: false,
-        workOnSunday: false,
+        workDays: {1, 2, 3, 4, 5},
         dailyGoal: 8,
       );
 
@@ -84,8 +82,7 @@ void main() {
       final result = useCase(
         events: events,
         now: now,
-        workOnSaturday: false,
-        workOnSunday: false,
+        workDays: {1, 2, 3, 4, 5},
         dailyGoal: 8,
       );
 
@@ -102,8 +99,7 @@ void main() {
       final result = useCase(
         events: [],
         now: now,
-        workOnSaturday: false,
-        workOnSunday: false,
+        workDays: {1, 2, 3, 4, 5},
         dailyGoal: 8,
       );
 
@@ -114,14 +110,13 @@ void main() {
       expect(result.weeklyStats.first.date, DateTime(2026, 3, 10));
     });
 
-    test('includes Saturday when workOnSaturday is true', () {
+    test('includes Saturday when Saturday is a work day', () {
       final now = DateTime(2026, 3, 19, 14, 0); // Thursday
 
       final result = useCase(
         events: [],
         now: now,
-        workOnSaturday: true,
-        workOnSunday: false,
+        workDays: {1, 2, 3, 4, 5, 6},
         dailyGoal: 8,
       );
 
@@ -141,8 +136,7 @@ void main() {
       final result = useCase(
         events: events,
         now: now,
-        workOnSaturday: false,
-        workOnSunday: false,
+        workDays: {1, 2, 3, 4, 5},
         dailyGoal: 8,
       );
 
@@ -168,8 +162,7 @@ void main() {
       final result = useCase(
         events: events,
         now: now,
-        workOnSaturday: false,
-        workOnSunday: false,
+        workDays: {1, 2, 3, 4, 5},
         dailyGoal: 8,
       );
 
@@ -188,8 +181,7 @@ void main() {
       final result = useCase(
         events: events,
         now: now,
-        workOnSaturday: false,
-        workOnSunday: false,
+        workDays: {1, 2, 3, 4, 5},
         dailyGoal: 8,
       );
 
@@ -209,8 +201,7 @@ void main() {
       final result = useCase(
         events: events,
         now: now,
-        workOnSaturday: false,
-        workOnSunday: false,
+        workDays: {1, 2, 3, 4, 5},
         dailyGoal: 8,
       );
 
@@ -227,8 +218,7 @@ void main() {
       final result = useCase(
         events: events,
         now: now,
-        workOnSaturday: false,
-        workOnSunday: false,
+        workDays: {1, 2, 3, 4, 5},
         dailyGoal: 8,
       );
 
@@ -248,8 +238,7 @@ void main() {
       final result = useCase(
         events: events,
         now: now,
-        workOnSaturday: false,
-        workOnSunday: false,
+        workDays: {1, 2, 3, 4, 5},
         dailyGoal: 8,
       );
 
@@ -271,13 +260,52 @@ void main() {
       final result = useCase(
         events: events,
         now: now,
-        workOnSaturday: false,
-        workOnSunday: false,
+        workDays: {1, 2, 3, 4, 5},
         dailyGoal: 8,
       );
 
       expect(result.streak.currentStreak, 1);
       expect(result.streak.bestStreak, 4);
+    });
+
+    test('disabled weekday breaks streak across that day', () {
+      // Wednesday (3) is not a work day
+      final now = DateTime(2026, 3, 19, 14, 0); // Thursday
+      final events = [
+        makeEvent(timestamp: DateTime(2026, 3, 19, 10, 0)), // Thu (today)
+        // Wed is disabled, so it should be skipped
+        makeEvent(timestamp: DateTime(2026, 3, 17, 10, 0)), // Tue
+        makeEvent(timestamp: DateTime(2026, 3, 16, 10, 0)), // Mon
+      ];
+
+      final result = useCase(
+        events: events,
+        now: now,
+        workDays: {1, 2, 4, 5}, // Wed (3) disabled
+        dailyGoal: 8,
+      );
+
+      // Wed is skipped as non-work day, so Thu->Tue is consecutive
+      expect(result.streak.currentStreak, 3);
+    });
+
+    test('disabled weekday without event on adjacent day breaks streak', () {
+      // Wednesday (3) is a work day but has no events
+      final now = DateTime(2026, 3, 19, 14, 0); // Thursday
+      final events = [
+        makeEvent(timestamp: DateTime(2026, 3, 19, 10, 0)), // Thu (today)
+        // Wed is a work day but missing event - streak breaks
+        makeEvent(timestamp: DateTime(2026, 3, 17, 10, 0)), // Tue
+      ];
+
+      final result = useCase(
+        events: events,
+        now: now,
+        workDays: {1, 2, 3, 4, 5},
+        dailyGoal: 8,
+      );
+
+      expect(result.streak.currentStreak, 1);
     });
 
     test('both weekends enabled treats every day as work day', () {
@@ -292,8 +320,7 @@ void main() {
       final result = useCase(
         events: events,
         now: now,
-        workOnSaturday: true,
-        workOnSunday: true,
+        workDays: {1, 2, 3, 4, 5, 6, 7},
         dailyGoal: 8,
       );
 
@@ -319,8 +346,7 @@ void main() {
       final result = useCase(
         events: events,
         now: DateTime(2026, 3, 19, 14, 0),
-        workOnSaturday: false,
-        workOnSunday: false,
+        workDays: {1, 2, 3, 4, 5},
         dailyGoal: 8,
       );
 

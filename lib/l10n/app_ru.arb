@@ -30,7 +30,6 @@
   "timeChipStart": "Начало",
   "timeChipEnd": "Конец",
 
-  "settingsLabel": "НАСТРОЙКИ",
   "settingWorkDays": "Рабочие дни",
   "settingDailyGoal": "Дневная цель",
   "settingInterval": "Интервал напоминаний",
@@ -38,10 +37,6 @@
   "settingTestNotification": "Тест уведомления",
   "testNotificationSent": "Тестовое уведомление отправлено",
 
-  "workDaysMonFri": "Пн-Пт",
-  "workDaysMonSat": "Пн-Сб",
-  "workDaysMonSun": "Пн-Вс",
-  "workDaysMonFriSun": "Пн-Пт, Вс",
   "monday": "Понедельник",
   "tuesday": "Вторник",
   "wednesday": "Среда",

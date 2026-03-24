@@ -5,47 +5,26 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
-import android.os.Build
 import java.util.Calendar
 
 object ReminderScheduler {
-    private const val HOURLY_REQUEST_CODE = 100
-    private const val DEFAULT_INTERVAL_MINUTES = 60
 
     fun scheduleNextHourlyAlarm(context: Context) {
-        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val alarmManager = context.alarmManager
 
-        val prefs = context.getSharedPreferences(
-            "FlutterSharedPreferences", Context.MODE_PRIVATE
-        )
+        val prefs = context.flutterPrefs
         val intervalMinutes = prefs.getFlutterInt("flutter.reminder_interval_minutes", DEFAULT_INTERVAL_MINUTES)
-        val startHour = prefs.getFlutterInt("flutter.start_hour", 9)
-        val startMinute = prefs.getFlutterInt("flutter.start_minute", 0)
-        val endHour = prefs.getFlutterInt("flutter.end_hour", 18)
-        val endMinute = prefs.getFlutterInt("flutter.end_minute", 0)
-
-        val startMin = startHour * 60 + startMinute
-        val endMin = endHour * 60 + endMinute
+        val wh = prefs.readWorkHours()
 
         val next = nextValidAlarmTime(
-            prefs, intervalMinutes, startMin, endMin
+            prefs, intervalMinutes, wh.startMin, wh.endMin
         ) ?: return
 
-        val pendingIntent = buildHourlyPendingIntent(context)
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            alarmManager.setExactAndAllowWhileIdle(
-                AlarmManager.RTC_WAKEUP,
-                next.timeInMillis,
-                pendingIntent
-            )
-        } else {
-            alarmManager.setExact(
-                AlarmManager.RTC_WAKEUP,
-                next.timeInMillis,
-                pendingIntent
-            )
-        }
+        alarmManager.scheduleExact(
+            AlarmManager.RTC_WAKEUP,
+            next.timeInMillis,
+            buildHourlyPendingIntent(context)
+        )
     }
 
     private fun nextValidAlarmTime(
@@ -90,7 +69,7 @@ object ReminderScheduler {
     }
 
     fun cancel(context: Context) {
-        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val alarmManager = context.alarmManager
         alarmManager.cancel(buildHourlyPendingIntent(context))
     }
 
@@ -100,7 +79,7 @@ object ReminderScheduler {
         }
         return PendingIntent.getBroadcast(
             context,
-            HOURLY_REQUEST_CODE,
+            RequestCodes.HOURLY_ALARM,
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )

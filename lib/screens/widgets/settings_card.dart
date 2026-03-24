@@ -5,6 +5,31 @@ import '../../models/user_preferences.dart';
 import '../../l10n/app_localizations.dart';
 import '../../main.dart';
 
+Future<void> pickTime(
+  BuildContext context,
+  int currentHour,
+  int currentMinute,
+  ValueChanged<double> onChanged,
+) async {
+  final colors = AppColors.of(context);
+  final picked = await showTimePicker(
+    context: context,
+    initialTime: TimeOfDay(hour: currentHour, minute: currentMinute),
+    builder: (ctx, child) => Theme(
+      data: Theme.of(ctx).copyWith(
+        colorScheme: Theme.of(ctx).colorScheme.copyWith(
+              surface: colors.pickerBg,
+              onSurface: colors.pickerText,
+            ),
+      ),
+      child: child!,
+    ),
+  );
+  if (picked != null) {
+    onChanged(picked.hour + picked.minute / 60.0);
+  }
+}
+
 void showSheet(BuildContext context, WidgetBuilder builder) {
   final colors = AppColors.of(context);
   showModalBottomSheet(

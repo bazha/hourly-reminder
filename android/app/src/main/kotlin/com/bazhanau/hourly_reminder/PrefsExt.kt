@@ -1,8 +1,51 @@
 package com.bazhanau.hourly_reminder
 
+import android.app.AlarmManager
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.Context
 import android.content.SharedPreferences
+import android.os.Build
 import org.json.JSONArray
 import java.util.Calendar
+
+const val DEFAULT_INTERVAL_MINUTES = 60
+
+object RequestCodes {
+    const val HOURLY_ALARM = 100
+    const val SETTLING_ALARM = 150
+    const val SNOOZE_ALARM = 200
+}
+
+val Context.flutterPrefs: SharedPreferences
+    get() = getSharedPreferences("FlutterSharedPreferences", Context.MODE_PRIVATE)
+
+val Context.alarmManager: AlarmManager
+    get() = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+
+val Context.notificationManager: NotificationManager
+    get() = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+data class WorkHours(val startMin: Int, val endMin: Int)
+
+fun SharedPreferences.readWorkHours(): WorkHours {
+    val startHour = getFlutterInt("flutter.start_hour", 9)
+    val startMinute = getFlutterInt("flutter.start_minute", 0)
+    val endHour = getFlutterInt("flutter.end_hour", 18)
+    val endMinute = getFlutterInt("flutter.end_minute", 0)
+    return WorkHours(
+        startMin = startHour * 60 + startMinute,
+        endMin = endHour * 60 + endMinute,
+    )
+}
+
+fun AlarmManager.scheduleExact(type: Int, triggerAtMillis: Long, intent: PendingIntent) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        setExactAndAllowWhileIdle(type, triggerAtMillis, intent)
+    } else {
+        setExact(type, triggerAtMillis, intent)
+    }
+}
 
 /** Prefix used by Flutter's shared_preferences plugin for StringList values. */
 private const val FLUTTER_LIST_PREFIX = "VGhpcyBpcyB0aGUgcHJlZml4IGZvciBhIGxpc3Qu!"

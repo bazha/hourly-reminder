@@ -77,9 +77,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get timeChipEnd => 'End';
 
   @override
-  String get settingsLabel => 'SETTINGS';
-
-  @override
   String get settingWorkDays => 'Work days';
 
   @override
@@ -96,18 +93,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get testNotificationSent => 'Test notification sent';
-
-  @override
-  String get workDaysMonFri => 'Mon-Fri';
-
-  @override
-  String get workDaysMonSat => 'Mon-Sat';
-
-  @override
-  String get workDaysMonSun => 'Mon-Sun';
-
-  @override
-  String get workDaysMonFriSun => 'Mon-Fri, Sun';
 
   @override
   String get monday => 'Monday';

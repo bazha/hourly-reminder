@@ -18,9 +18,7 @@ object NotificationHelper {
      * Falls back to the system locale if no override is set.
      */
     fun localizedContext(context: Context): Context {
-        val prefs = context.getSharedPreferences(
-            "FlutterSharedPreferences", Context.MODE_PRIVATE
-        )
+        val prefs = context.flutterPrefs
         val appLocale = prefs.getString("flutter.app_locale", null) ?: return context
         val locale = Locale(appLocale)
         val config = android.content.res.Configuration(context.resources.configuration)
@@ -39,7 +37,7 @@ object NotificationHelper {
                 description = lc.getString(R.string.channel_description)
                 enableVibration(true)
             }
-            val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            val nm = context.notificationManager
             nm.createNotificationChannel(channel)
         }
     }
@@ -47,9 +45,7 @@ object NotificationHelper {
     fun showReminder(context: Context) {
         ensureChannel(context)
 
-        val prefs = context.getSharedPreferences(
-            "FlutterSharedPreferences", Context.MODE_PRIVATE
-        )
+        val prefs = context.flutterPrefs
         val lc = localizedContext(context)
 
         val isFirst = ExerciseRepository.isFirstNotificationToday(prefs)
@@ -145,12 +141,12 @@ object NotificationHelper {
         // (full sound, vibration, heads-up) instead of silently replacing it.
         cancel(context)
 
-        val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val nm = context.notificationManager
         nm.notify(NOTIFICATION_ID, builder.build())
     }
 
     fun cancel(context: Context) {
-        val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val nm = context.notificationManager
         nm.cancel(NOTIFICATION_ID)
     }
 }

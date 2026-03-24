@@ -26,7 +26,6 @@
   "timeChipStart": "Пачатак",
   "timeChipEnd": "Канец",
 
-  "settingsLabel": "НАЛАДЫ",
   "settingWorkDays": "Працоўныя дні",
   "settingDailyGoal": "Мэта на дзень",
   "settingInterval": "Iнтэрвал нагадванняў",
@@ -34,10 +33,6 @@
   "settingTestNotification": "Тэст апавяшчэння",
   "testNotificationSent": "Тэставае апавяшчэнне адпраўлена",
 
-  "workDaysMonFri": "Пн-Пт",
-  "workDaysMonSat": "Пн-Сб",
-  "workDaysMonSun": "Пн-Нд",
-  "workDaysMonFriSun": "Пн-Пт, Нд",
   "monday": "Панядзелак",
   "tuesday": "Аўторак",
   "wednesday": "Серада",

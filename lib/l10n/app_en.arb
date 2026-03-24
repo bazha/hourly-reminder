@@ -26,7 +26,6 @@
   "timeChipStart": "Start",
   "timeChipEnd": "End",
 
-  "settingsLabel": "SETTINGS",
   "settingWorkDays": "Work days",
   "settingDailyGoal": "Daily goal",
   "settingInterval": "Reminder interval",
@@ -34,10 +33,6 @@
   "settingTestNotification": "Test notification",
   "testNotificationSent": "Test notification sent",
 
-  "workDaysMonFri": "Mon-Fri",
-  "workDaysMonSat": "Mon-Sat",
-  "workDaysMonSun": "Mon-Sun",
-  "workDaysMonFriSun": "Mon-Fri, Sun",
   "monday": "Monday",
   "tuesday": "Tuesday",
   "wednesday": "Wednesday",

@@ -25,8 +25,7 @@ class MovementStatsRepositoryImpl implements MovementStatsRepository {
     return _useCase(
       events: events,
       now: DateTime.now(),
-      workOnSaturday: prefs.workOnSaturday,
-      workOnSunday: prefs.workOnSunday,
+      workDays: prefs.workDaySet,
       dailyGoal: prefs.dailyGoal,
     );
   }
