@@ -133,6 +133,9 @@
   "rateSend": "Отправить",
   "rateCancel": "Отмена",
 
+  "activityLabel": "активность",
+  "motivationalMessage": "Ваше тело скажет спасибо.",
+
   "settingLanguage": "Язык",
   "languageSystem": "Системный",
   "languageRu": "Русский",

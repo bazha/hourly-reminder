@@ -343,6 +343,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get rateCancel => 'Cancel';
 
   @override
+  String get activityLabel => 'activity';
+
+  @override
+  String get motivationalMessage => 'Your body will thank you.';
+
+  @override
   String get settingLanguage => 'Language';
 
   @override

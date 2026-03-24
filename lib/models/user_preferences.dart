@@ -91,6 +91,29 @@ class UserPreferences {
       if (isWorkDay(d)) d,
   };
 
+  /// Formats active work days as compact ranges (e.g. "Mon-Fri" or "Mon-Fri, Sun").
+  String formatWorkDays(List<String> dayNames) {
+    final active = workDaySet.toList()..sort();
+    if (active.isEmpty) return '';
+    final ranges = <(int, int)>[];
+    var start = active.first;
+    var end = start;
+    for (var i = 1; i < active.length; i++) {
+      if (active[i] == end + 1) {
+        end = active[i];
+      } else {
+        ranges.add((start, end));
+        start = active[i];
+        end = start;
+      }
+    }
+    ranges.add((start, end));
+    return ranges.map((r) {
+      if (r.$1 == r.$2) return dayNames[r.$1 - 1];
+      return '${dayNames[r.$1 - 1]}-${dayNames[r.$2 - 1]}';
+    }).join(', ');
+  }
+
   double get startTime => startHour + (startMinute / 60.0);
   double get endTime => endHour + (endMinute / 60.0);
 

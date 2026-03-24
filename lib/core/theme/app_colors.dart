@@ -53,6 +53,13 @@ class AppColors extends ThemeExtension<AppColors> {
   final Color primaryContainer;
   final Color accent;
 
+  // --- Progress ring ---
+  final Color ringTrack;
+
+  // --- Semantic accent colors ---
+  final Color streakColor;
+  final Color activityColor;
+
   const AppColors._({
     required this.bg,
     required this.cardBg,
@@ -85,76 +92,85 @@ class AppColors extends ThemeExtension<AppColors> {
     required this.navBarUnselected,
     required this.primaryContainer,
     required this.accent,
+    required this.ringTrack,
+    required this.streakColor,
+    required this.activityColor,
   });
 
-  /// Dark theme - near-black with blue undertone, Linear aesthetic.
+  /// Dark theme - warm charcoal brown, cosy premium feel.
   static const dark = AppColors._(
-    bg: Color(0xFF111318),
-    cardBg: Color(0xFF1A1D24),
-    cardBorder: Color(0xFF25282F),
-    textPrimary: Color(0xFFECEEF1),
-    textSecondary: Color(0xFF7D8590),
-    textMuted: Color(0xFF484F58),
-    switchInactiveTrack: Color(0xFF25282F),
-    switchInactiveThumb: Color(0xFF7D8590),
-    sliderInactiveTrack: Color(0xFF25282F),
-    sliderThumb: Color(0xFF4EAAA0),
-    divider: Color(0xFF25282F),
-    clockFaceInner: Color(0xFF1A1D24),
-    clockFaceOuter: Color(0xFF151820),
-    clockRing: Color(0xFF25282F),
-    clockBorder: Color(0xFF25282F),
-    clockTickKey: Color(0xA6ECEEF1),
-    clockTickHalf: Color(0x4DECEEF1),
-    clockTickMinor: Color(0x1FECEEF1),
-    clockLabelColor: Color(0x66ECEEF1),
-    clockCenterDot: Color(0xFFECEEF1),
-    clockCenterGlow: Color(0x33ECEEF1),
+    bg: Color(0xFF1B1714),
+    cardBg: Color(0xFF2C2825),
+    cardBorder: Color(0xFF3D3936),
+    textPrimary: Color(0xFFEBEAE8),
+    textSecondary: Color(0x99EBEAE8),
+    textMuted: Color(0x60EBEAE8),
+    switchInactiveTrack: Color(0xFF3D3936),
+    switchInactiveThumb: Color(0x99EBEAE8),
+    sliderInactiveTrack: Color(0xFF3D3936),
+    sliderThumb: Color(0xFFE09040),
+    divider: Color(0xFF3D3936),
+    clockFaceInner: Color(0xFF2C2825),
+    clockFaceOuter: Color(0xFF221F1C),
+    clockRing: Color(0xFF3D3936),
+    clockBorder: Color(0xFF3D3936),
+    clockTickKey: Color(0xA6EBEAE8),
+    clockTickHalf: Color(0x4DEBEAE8),
+    clockTickMinor: Color(0x1FEBEAE8),
+    clockLabelColor: Color(0x66EBEAE8),
+    clockCenterDot: Color(0xFFEBEAE8),
+    clockCenterGlow: Color(0x33EBEAE8),
     clockHandleRing: Color(0x2EFFFFFF),
-    pickerBg: Color(0xFF1A1D24),
-    pickerInputBg: Color(0x264EAAA0),
-    pickerText: Color(0xFFECEEF1),
+    pickerBg: Color(0xFF2C2825),
+    pickerInputBg: Color(0x26E09040),
+    pickerText: Color(0xFFEBEAE8),
     buttonTextColor: Colors.white,
-    navBarBg: Color(0xFF111318),
-    navBarSelected: Color(0xFF4EAAA0),
-    navBarUnselected: Color(0xFF484F58),
-    primaryContainer: Color(0xFF1A3A36),
-    accent: Color(0xFFF5A623),
+    navBarBg: Color(0xFF1B1714),
+    navBarSelected: Color(0xFFE09040),
+    navBarUnselected: Color(0x60EBEAE8),
+    primaryContainer: Color(0xFF3A2A1A),
+    accent: Color(0xFFE09040),
+    ringTrack: Color(0xFF3D3936),
+    streakColor: Color(0xFFE09040),
+    activityColor: Color(0xFF5C8C6B),
   );
 
-  /// Light theme - cool near-white, crisp borders.
+  /// Light theme - warm cream, cosy Scandinavian feel.
   static const light = AppColors._(
-    bg: Color(0xFFF8F9FA),
+    bg: Color(0xFFF5F0E8),
     cardBg: Color(0xFFFFFFFF),
-    cardBorder: Color(0xFFE2E5E9),
-    textPrimary: Color(0xFF1B1F23),
-    textSecondary: Color(0xFF656D76),
-    textMuted: Color(0xFF8B949E),
-    switchInactiveTrack: Color(0xFFD1D5DB),
-    switchInactiveThumb: Color(0xFF8B949E),
-    sliderInactiveTrack: Color(0xFFE2E5E9),
-    sliderThumb: Color(0xFF3D9A8F),
-    divider: Color(0xFFE2E5E9),
-    clockFaceInner: Color(0xFFF0F1F3),
-    clockFaceOuter: Color(0xFFE8EAED),
-    clockRing: Color(0xFFE2E5E9),
-    clockBorder: Color(0xFFE2E5E9),
-    clockTickKey: Color(0xA61B1F23),
-    clockTickHalf: Color(0x4D1B1F23),
-    clockTickMinor: Color(0x1F1B1F23),
-    clockLabelColor: Color(0x661B1F23),
-    clockCenterDot: Color(0xFF1B1F23),
-    clockCenterGlow: Color(0x331B1F23),
+    cardBorder: Color(0xFFE8E0D4),
+    textPrimary: Color(0xFF2C2620),
+    textSecondary: Color(0xFF6B6560),
+    textMuted: Color(0xFF8A8078),
+    switchInactiveTrack: Color(0xFFD8D2C8),
+    switchInactiveThumb: Color(0xFF8A8078),
+    sliderInactiveTrack: Color(0xFFE8E0D4),
+    sliderThumb: Color(0xFFCC7A2E),
+    divider: Color(0xFFE8E0D4),
+    clockFaceInner: Color(0xFFF0EBE3),
+    clockFaceOuter: Color(0xFFE8E0D4),
+    clockRing: Color(0xFFE8E0D4),
+    clockBorder: Color(0xFFE8E0D4),
+    clockTickKey: Color(0xA62C2620),
+    clockTickHalf: Color(0x4D2C2620),
+    clockTickMinor: Color(0x1F2C2620),
+    clockLabelColor: Color(0x662C2620),
+    clockCenterDot: Color(0xFF2C2620),
+    clockCenterGlow: Color(0x332C2620),
     clockHandleRing: Color(0x2E000000),
-    pickerBg: Color(0xFFF8F9FA),
-    pickerInputBg: Color(0x1A3D9A8F),
-    pickerText: Color(0xFF1B1F23),
+    pickerBg: Color(0xFFF5F0E8),
+    pickerInputBg: Color(0x1ACC7A2E),
+    pickerText: Color(0xFF2C2620),
     buttonTextColor: Colors.white,
     navBarBg: Color(0xFFFFFFFF),
-    navBarSelected: Color(0xFF3D9A8F),
-    navBarUnselected: Color(0xFF8B949E),
-    primaryContainer: Color(0xFFE6F5F3),
-    accent: Color(0xFFF5A623),
+    navBarSelected: Color(0xFFCC7A2E),
+    navBarUnselected: Color(0xFF8A8078),
+    primaryContainer: Color(0xFFFAEDD8),
+    accent: Color(0xFFCC7A2E),
+    ringTrack: Color(0xFFE8E0D4),
+    streakColor: Color(0xFFCC7A2E),
+    activityColor: Color(0xFF4D7A5A),
   );
 
   /// Resolves the correct palette for the current theme brightness.
@@ -165,9 +181,10 @@ class AppColors extends ThemeExtension<AppColors> {
   bool get isDark => identical(this, dark) || bg == dark.bg;
 
   // --- Shared accent colours (same in both themes) ---
-  static const primary = Color(0xFF4EAAA0); // Teal
-  static const endColor = Color(0xFFE57373); // Coral
-  static const nowColor = Color(0xFFF5A623); // Amber
+  static const primary = Color(0xFFE09040);   // Warm amber
+  static const startColor = Color(0xFFE09040); // Start time accent
+  static const endColor = Color(0xFFC74B4B);   // Muted red
+  static const nowColor = Color(0xFFF0D9B5);   // Warm cream
 
   // --- ThemeExtension overrides ---
 
@@ -204,6 +221,9 @@ class AppColors extends ThemeExtension<AppColors> {
     Color? navBarUnselected,
     Color? primaryContainer,
     Color? accent,
+    Color? ringTrack,
+    Color? streakColor,
+    Color? activityColor,
   }) {
     return AppColors._(
       bg: bg ?? this.bg,
@@ -237,6 +257,9 @@ class AppColors extends ThemeExtension<AppColors> {
       navBarUnselected: navBarUnselected ?? this.navBarUnselected,
       primaryContainer: primaryContainer ?? this.primaryContainer,
       accent: accent ?? this.accent,
+      ringTrack: ringTrack ?? this.ringTrack,
+      streakColor: streakColor ?? this.streakColor,
+      activityColor: activityColor ?? this.activityColor,
     );
   }
 
@@ -280,6 +303,9 @@ class AppColors extends ThemeExtension<AppColors> {
       primaryContainer:
           Color.lerp(primaryContainer, other.primaryContainer, t)!,
       accent: Color.lerp(accent, other.accent, t)!,
+      ringTrack: Color.lerp(ringTrack, other.ringTrack, t)!,
+      streakColor: Color.lerp(streakColor, other.streakColor, t)!,
+      activityColor: Color.lerp(activityColor, other.activityColor, t)!,
     );
   }
 

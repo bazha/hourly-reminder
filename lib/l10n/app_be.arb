@@ -122,6 +122,9 @@
   "rateSend": "Адправіць",
   "rateCancel": "Адмена",
 
+  "activityLabel": "актыўнасць",
+  "motivationalMessage": "Ваша цела скажа дзякуй.",
+
   "settingLanguage": "Мова",
   "languageSystem": "Сістэмная",
   "languageRu": "Русский",

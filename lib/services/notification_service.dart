@@ -29,7 +29,7 @@ class NotificationService {
     tz_data.initializeTimeZones();
 
     const androidSettings =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
+        AndroidInitializationSettings('@drawable/ic_stat_notification');
 
     final l10n = await _resolveLocalizations();
 
@@ -60,7 +60,7 @@ class NotificationService {
     );
 
     await _notifications.initialize(
-      initSettings,
+      settings: initSettings,
       onDidReceiveNotificationResponse: _onNotificationResponse,
     );
   }
@@ -88,14 +88,12 @@ class NotificationService {
     );
 
     await _notifications.zonedSchedule(
-      _snoozeNotificationId,
-      l10n.notificationTitle,
-      l10n.notificationBody,
-      tz.TZDateTime.now(tz.local).add(const Duration(minutes: 10)),
-      const NotificationDetails(iOS: iosDetails),
+      id: _snoozeNotificationId,
+      title: l10n.notificationTitle,
+      body: l10n.notificationBody,
+      scheduledDate: tz.TZDateTime.now(tz.local).add(const Duration(minutes: 10)),
+      notificationDetails: const NotificationDetails(iOS: iosDetails),
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      uiLocalNotificationDateInterpretation:
-          UILocalNotificationDateInterpretation.absoluteTime,
     );
   }
 
@@ -138,10 +136,10 @@ class NotificationService {
     const notificationDetails = NotificationDetails(iOS: iosDetails);
 
     await _notifications.show(
-      1,
-      l10n.notificationTitle,
-      l10n.notificationBody,
-      notificationDetails,
+      id: 1,
+      title: l10n.notificationTitle,
+      body: l10n.notificationBody,
+      notificationDetails: notificationDetails,
       payload: 'hourly_reminder',
     );
   }

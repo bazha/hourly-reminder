@@ -712,6 +712,18 @@ abstract class AppLocalizations {
   /// **'Отмена'**
   String get rateCancel;
 
+  /// No description provided for @activityLabel.
+  ///
+  /// In ru, this message translates to:
+  /// **'активность'**
+  String get activityLabel;
+
+  /// No description provided for @motivationalMessage.
+  ///
+  /// In ru, this message translates to:
+  /// **'Ваше тело скажет спасибо.'**
+  String get motivationalMessage;
+
   /// No description provided for @settingLanguage.
   ///
   /// In ru, this message translates to:
