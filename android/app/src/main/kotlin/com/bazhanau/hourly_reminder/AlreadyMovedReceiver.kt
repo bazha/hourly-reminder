@@ -6,6 +6,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import org.json.JSONObject
 
 class AlreadyMovedReceiver : BroadcastReceiver() {
     companion object {
@@ -47,6 +48,26 @@ class AlreadyMovedReceiver : BroadcastReceiver() {
             (baseIntervalMinutes * factor * 60 * 1000).toLong(),
             MINIMUM_INTERVAL_MS
         )
+
+        // Compute sedentary duration
+        val sedentaryStartMillis = prefs.getLong(
+            "flutter.movement_sedentary_start_millis", 0L
+        )
+        val sedentaryDurationMs = if (sedentaryStartMillis > 0) {
+            now - sedentaryStartMillis
+        } else {
+            0L
+        }
+
+        // Persist movement event (matches Dart MovementEventModel JSON format)
+        val event = JSONObject().apply {
+            put("id", now.toString())
+            put("timestampMillis", now)
+            put("sedentaryDurationMillis", sedentaryDurationMs)
+            put("reactionTimeMillis", reactionTimeMs)
+            put("source", "notification")
+        }
+        prefs.appendToFlutterStringList("flutter.movement_events", event.toString())
 
         // Record sedentary start time = now
         prefs.edit()

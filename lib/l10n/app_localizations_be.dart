@@ -55,11 +55,11 @@ class AppLocalizationsBe extends AppLocalizations {
 
   @override
   String goalProgressText(int goal) {
-    return 'з $goal разминак';
+    return 'з $goal размiнак';
   }
 
   @override
-  String get recordMovement => 'Запiсаць разминку';
+  String get recordMovement => 'Запiсаць размiнку';
 
   @override
   String get movementRecorded => 'Запiсана! Таймер скiнуты';
