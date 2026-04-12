@@ -55,7 +55,8 @@ class WeeklyChart extends StatelessWidget {
                         style: TextStyle(color: colors.textMuted),
                       ),
                     )
-                  : _buildChart(colors, l10n),
+                  : _WeeklyBarChart(
+                      weeklyStats: weeklyStats, dailyGoal: dailyGoal),
             ),
           ],
         ),
@@ -67,11 +68,21 @@ class WeeklyChart extends StatelessWidget {
     if (weeklyStats.isEmpty) return '';
     final first = weeklyStats.first.date;
     final last = weeklyStats.last.date;
-    return '${first.day}.${first.month.toString().padLeft(2, '0')} - '
-        '${last.day}.${last.month.toString().padLeft(2, '0')}';
+    return '${first.day.toString().padLeft(2, '0')}.${first.month.toString().padLeft(2, '0')} - '
+        '${last.day.toString().padLeft(2, '0')}.${last.month.toString().padLeft(2, '0')}';
   }
+}
 
-  Widget _buildChart(AppColors colors, AppLocalizations l10n) {
+class _WeeklyBarChart extends StatelessWidget {
+  final List<DailyStats> weeklyStats;
+  final int dailyGoal;
+
+  const _WeeklyBarChart({required this.weeklyStats, required this.dailyGoal});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final maxCount = weeklyStats
         .map((s) => s.movementCount)
         .fold(0, (a, b) => a > b ? a : b);

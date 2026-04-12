@@ -1,4 +1,5 @@
 import '../../l10n/app_localizations.dart';
+import '../../models/user_preferences.dart';
 
 /// Utility helpers for converting between double time values and display strings.
 ///
@@ -49,6 +50,29 @@ class TimeUtils {
   static String formatDate(DateTime date) =>
       '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
 
+  /// Formats active work days from preferences as a localized label.
+  static String formatWorkDaysLabel(
+    UserPreferences prefs,
+    AppLocalizations l10n,
+  ) {
+    return prefs.formatWorkDays([
+      l10n.dayMon,
+      l10n.dayTue,
+      l10n.dayWed,
+      l10n.dayThu,
+      l10n.dayFri,
+      l10n.daySat,
+      l10n.daySun,
+    ]);
+  }
+
+  /// Converts a double time value (e.g. 9.5) to hour and minute components.
+  static ({int hour, int minute}) doubleToHourMinute(double time) {
+    final hour = time.floor();
+    final minute = ((time - hour) * 60).round();
+    return (hour: hour, minute: minute);
+  }
+
   /// Formats a [Duration] as a compact localized string.
   static String formatDuration(Duration d, AppLocalizations l10n) {
     if (d.inMinutes < 1) return l10n.durationSeconds(d.inSeconds);
@@ -59,5 +83,4 @@ class TimeUtils {
         ? l10n.durationHoursMinutes(hours, minutes)
         : l10n.durationHours(hours);
   }
-
 }

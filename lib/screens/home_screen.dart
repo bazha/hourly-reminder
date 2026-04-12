@@ -72,7 +72,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   Future<void> _loadData() async {
     final oldPrefs = _prefs;
-    final prefs = await widget.storageService.loadPreferences();
+    final prefs = widget.storageService.loadPreferences();
     final count = await _getTodayMovementCount();
     var dayOff = widget.storageService.isDayOff;
 
@@ -125,10 +125,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   Future<void> _toggleReminders(bool value) async {
     if (_togglingReminders) return;
-    _togglingReminders = true;
-
-    // Update UI immediately so the toggle feels responsive.
     setState(() {
+      _togglingReminders = true;
       _prefs = _prefs.copyWith(isEnabled: value);
     });
 
@@ -155,7 +153,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
       await widget.storageService.savePreferences(_prefs);
     } finally {
-      _togglingReminders = false;
+      if (mounted) setState(() => _togglingReminders = false);
     }
   }
 
@@ -174,8 +172,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   }
 
   Future<void> _updateTime(double time, {required bool isStart}) async {
-    final hour = time.floor();
-    final minute = ((time - hour) * 60).round();
+    final (:hour, :minute) = TimeUtils.doubleToHourMinute(time);
 
     final updated = isStart
         ? _prefs.copyWith(startHour: hour, startMinute: minute)
@@ -196,8 +193,14 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     _activityPercent = goal > 0 ? _todayMovementCount * 100 ~/ goal : 0;
   }
 
+  bool _recordingMovement = false;
+
   Future<void> _recordManualMovement() async {
+    if (_recordingMovement) return;
+    _recordingMovement = true;
+
     // Optimistic update: show +1 and recalculate activity immediately.
+    final prevCount = _todayMovementCount;
     setState(() {
       _todayMovementCount++;
       _recalcActivity();
@@ -208,17 +211,20 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       scheduleNext: (_) => widget.alarmService.scheduleHourlyAlarm(),
     );
 
-    await useCase.execute(source: MovementSource.manual);
+    try {
+      await useCase.execute(
+        source: MovementSource.manual,
+        baseIntervalMinutes: _prefs.reminderIntervalMinutes,
+      );
 
-    // Re-read actual count from storage to stay in sync.
-    final count = await _getTodayMovementCount();
-    if (!mounted) return;
-    setState(() {
-      _todayMovementCount = count;
-      _recalcActivity();
-    });
+      // Re-read actual count from storage to stay in sync.
+      final count = await _getTodayMovementCount();
+      if (!mounted) return;
+      setState(() {
+        _todayMovementCount = count;
+        _recalcActivity();
+      });
 
-    if (mounted) {
       final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -227,15 +233,21 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           backgroundColor: AppColors.primary,
         ),
       );
+    } catch (e, stack) {
+      debugPrint('Failed to record movement: $e\n$stack');
+      if (mounted) {
+        setState(() {
+          _todayMovementCount = prevCount;
+          _recalcActivity();
+        });
+      }
+    } finally {
+      _recordingMovement = false;
     }
   }
 
-  String _workDaysLabel(AppLocalizations l10n) {
-    return _prefs.formatWorkDays([
-      l10n.dayMon, l10n.dayTue, l10n.dayWed, l10n.dayThu,
-      l10n.dayFri, l10n.daySat, l10n.daySun,
-    ]);
-  }
+  String _workDaysLabel(AppLocalizations l10n) =>
+      TimeUtils.formatWorkDaysLabel(_prefs, l10n);
 
   @override
   Widget build(BuildContext context) {
@@ -276,15 +288,13 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               ),
             ],
             const SizedBox(height: 8),
-            _NextReminderBanner(
-                prefs: _prefs, colors: colors, isDayOff: _isDayOff),
+            _NextReminderBanner(prefs: _prefs, isDayOff: _isDayOff),
 
             // Hero ring
             const SizedBox(height: 28),
             _GoalRing(
               current: _todayMovementCount,
               goal: _prefs.dailyGoal,
-              colors: colors,
             ),
 
             // Action button
@@ -304,7 +314,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             _QuickStats(
               streakDays: _streakDays,
               activityPercent: _activityPercent,
-              colors: colors,
             ),
 
             // Settings rows
@@ -312,12 +321,11 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             _SettingsCard(
               workDays: _workDaysLabel(l10n),
               dailyGoal: l10n.nMovements(_prefs.dailyGoal),
-              colors: colors,
             ),
 
             // Motivational footer
             const SizedBox(height: 12),
-            _MotivationalCard(colors: colors),
+            const _MotivationalCard(),
           ],
         ),
       ),
@@ -342,7 +350,7 @@ class _EnableToggle extends StatelessWidget {
         onTap: () => onToggle(!isEnabled),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
             color: isEnabled ? AppColors.primary : colors.sliderInactiveTrack,
             borderRadius: BorderRadius.circular(20),
@@ -377,7 +385,7 @@ class _DayOffChip extends StatelessWidget {
       onTap: onToggle,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
           color: isDayOff
               ? AppColors.endColor.withValues(alpha: 0.15)
@@ -414,17 +422,16 @@ class _DayOffChip extends StatelessWidget {
 
 class _NextReminderBanner extends StatelessWidget {
   final UserPreferences prefs;
-  final AppColors colors;
   final bool isDayOff;
 
   const _NextReminderBanner({
     required this.prefs,
-    required this.colors,
     this.isDayOff = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
     final l10n = AppLocalizations.of(context)!;
 
     if (isDayOff) {
@@ -469,16 +476,15 @@ class _NextReminderBanner extends StatelessWidget {
 class _GoalRing extends StatelessWidget {
   final int current;
   final int goal;
-  final AppColors colors;
 
   const _GoalRing({
     required this.current,
     required this.goal,
-    required this.colors,
   });
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
     final l10n = AppLocalizations.of(context)!;
     final progress = goal > 0 ? (current / goal).clamp(0.0, 1.0) : 0.0;
 
@@ -528,16 +534,15 @@ class _GoalRing extends StatelessWidget {
 class _QuickStats extends StatelessWidget {
   final int streakDays;
   final int activityPercent;
-  final AppColors colors;
 
   const _QuickStats({
     required this.streakDays,
     required this.activityPercent,
-    required this.colors,
   });
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
     final l10n = AppLocalizations.of(context)!;
     return Row(
       children: [
@@ -600,12 +605,10 @@ class _QuickStats extends StatelessWidget {
 class _SettingsCard extends StatelessWidget {
   final String workDays;
   final String dailyGoal;
-  final AppColors colors;
 
   const _SettingsCard({
     required this.workDays,
     required this.dailyGoal,
-    required this.colors,
   });
 
   @override
@@ -617,14 +620,12 @@ class _SettingsCard extends StatelessWidget {
           icon: Icons.date_range_outlined,
           label: l10n.settingWorkDays,
           value: workDays,
-          colors: colors,
         ),
         const SizedBox(height: 8),
         _SettingsRow(
           icon: Icons.adjust,
           label: l10n.settingDailyGoal,
           value: dailyGoal,
-          colors: colors,
         ),
       ],
     );
@@ -666,17 +667,16 @@ class _SettingsRow extends StatelessWidget {
   final IconData icon;
   final String label;
   final String value;
-  final AppColors colors;
 
   const _SettingsRow({
     required this.icon,
     required this.label,
     required this.value,
-    required this.colors,
   });
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
     return Card(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -702,15 +702,15 @@ class _SettingsRow extends StatelessWidget {
 }
 
 class _MotivationalCard extends StatelessWidget {
-  final AppColors colors;
-
-  const _MotivationalCard({required this.colors});
+  const _MotivationalCard();
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
     final l10n = AppLocalizations.of(context)!;
     // Slightly lighter than page background, not as bright as cardBg
-    final surface = Color.lerp(colors.bg, colors.cardBg, colors.isDark ? 0.7 : 0.05)!;
+    final surface =
+        Color.lerp(colors.bg, colors.cardBg, colors.isDark ? 0.7 : 0.05)!;
     return Card(
       clipBehavior: Clip.antiAlias,
       color: surface,
@@ -725,12 +725,14 @@ class _MotivationalCard extends StatelessWidget {
               left: 0,
               right: 0,
               bottom: 0,
-              child: Opacity(
-                opacity: colors.isDark ? 0.35 : 0.12,
-                child: Image.asset(
-                  'assets/motivation.png',
-                  fit: BoxFit.cover,
-                  alignment: Alignment.topCenter,
+              child: RepaintBoundary(
+                child: Opacity(
+                  opacity: colors.isDark ? 0.35 : 0.12,
+                  child: Image.asset(
+                    'assets/motivation.png',
+                    fit: BoxFit.cover,
+                    alignment: Alignment.topCenter,
+                  ),
                 ),
               ),
             ),

@@ -140,5 +140,9 @@ void main() {
         DateTime(2026, 2, 17, 11, 0),
       );
     });
+
+    test('returns null when no work days are configured', () {
+      expect(nextNotif(now: mon10am, workDays: {}), isNull);
+    });
   });
 }

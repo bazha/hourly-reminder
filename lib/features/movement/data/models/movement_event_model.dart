@@ -50,11 +50,12 @@ class MovementEventModel {
 
   factory MovementEventModel.fromJson(Map<String, dynamic> json) {
     return MovementEventModel(
-      id: json['id'] as String,
-      timestampMillis: json['timestampMillis'] as int,
-      sedentaryDurationMillis: json['sedentaryDurationMillis'] as int,
-      reactionTimeMillis: json['reactionTimeMillis'] as int,
-      source: json['source'] as String,
+      id: json['id'] as String? ?? '',
+      timestampMillis: (json['timestampMillis'] as num?)?.toInt() ?? 0,
+      sedentaryDurationMillis:
+          (json['sedentaryDurationMillis'] as num?)?.toInt() ?? 0,
+      reactionTimeMillis: (json['reactionTimeMillis'] as num?)?.toInt() ?? 0,
+      source: json['source'] as String? ?? 'manual',
     );
   }
 }

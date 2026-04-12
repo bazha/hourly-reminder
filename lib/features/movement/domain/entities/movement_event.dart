@@ -36,8 +36,7 @@ class MovementEvent {
       );
 
   @override
-  String toString() =>
-      'MovementEvent(id: $id, timestamp: $timestamp, '
+  String toString() => 'MovementEvent(id: $id, timestamp: $timestamp, '
       'sedentaryDuration: $sedentaryDuration, '
       'reactionTime: $reactionTime, source: $source)';
 }

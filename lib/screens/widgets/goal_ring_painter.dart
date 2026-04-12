@@ -44,5 +44,6 @@ class GoalRingPainter extends CustomPainter {
   bool shouldRepaint(GoalRingPainter oldDelegate) =>
       oldDelegate.progress != progress ||
       oldDelegate.trackColor != trackColor ||
-      oldDelegate.fillColor != fillColor;
+      oldDelegate.fillColor != fillColor ||
+      oldDelegate.strokeWidth != strokeWidth;
 }

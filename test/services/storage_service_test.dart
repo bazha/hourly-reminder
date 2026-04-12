@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:hourly_reminder/core/utils/time_utils.dart';
 import 'package:hourly_reminder/services/storage_service.dart';
 import 'package:hourly_reminder/models/user_preferences.dart';
 
@@ -16,7 +17,7 @@ void main() {
 
   group('StorageService', () {
     test('returns defaults when storage is empty', () async {
-      final prefs = await service.loadPreferences();
+      final prefs = service.loadPreferences();
       expect(prefs, equals(UserPreferences()));
     });
 
@@ -33,7 +34,7 @@ void main() {
         dailyGoal: 12,
       );
       await service.savePreferences(expected);
-      final loaded = await service.loadPreferences();
+      final loaded = service.loadPreferences();
       expect(loaded, equals(expected));
     });
 
@@ -44,7 +45,7 @@ void main() {
       await service.savePreferences(
         UserPreferences(isEnabled: false, startHour: 10),
       );
-      final loaded = await service.loadPreferences();
+      final loaded = service.loadPreferences();
       expect(loaded.isEnabled, isFalse);
       expect(loaded.startHour, 10);
     });
@@ -54,7 +55,7 @@ void main() {
         await service.savePreferences(
           UserPreferences(notificationGender: gender),
         );
-        final loaded = await service.loadPreferences();
+        final loaded = service.loadPreferences();
         expect(loaded.notificationGender, gender, reason: gender.name);
       }
     });
@@ -72,9 +73,7 @@ void main() {
     });
 
     test('isDayOff returns true only when stored date matches today', () async {
-      final today = DateTime.now();
-      final todayStr =
-          '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+      final todayStr = TimeUtils.formatDate(DateTime.now());
 
       await service.setDayOff(todayStr);
       expect(service.isDayOff, isTrue);
@@ -89,9 +88,8 @@ void main() {
       });
       final prefs = await SharedPreferences.getInstance();
       final freshService = StorageService(prefs);
-      final loaded = await freshService.loadPreferences();
+      final loaded = freshService.loadPreferences();
       expect(loaded.notificationGender, NotificationGender.neutral);
     });
-
   });
 }
