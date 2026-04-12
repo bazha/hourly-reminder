@@ -9,7 +9,7 @@ class BootReceiver : BroadcastReceiver() {
         if (intent.action != Intent.ACTION_BOOT_COMPLETED) return
 
         val prefs = context.flutterPrefs
-        val isEnabled = prefs.getBoolean("flutter.is_enabled", false)
+        val isEnabled = prefs.getBoolean(PrefsKeys.IS_ENABLED, false)
         if (isEnabled) {
             ReminderScheduler.scheduleNextHourlyAlarm(context)
         }

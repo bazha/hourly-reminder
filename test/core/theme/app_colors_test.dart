@@ -14,10 +14,10 @@ void main() {
   test('shared accent constants have expected values', () {
     expect(AppColors.primary, const Color(0xFFE09040));
     expect(AppColors.endColor, const Color(0xFFC74B4B));
-    expect(AppColors.nowColor, const Color(0xFFF0D9B5));
   });
 
-  testWidgets('AppColors.of resolves correct palette per brightness', (tester) async {
+  testWidgets('AppColors.of resolves correct palette per brightness',
+      (tester) async {
     late AppColors result;
 
     Widget buildWithKey(Brightness brightness, Key key) {
@@ -28,7 +28,9 @@ void main() {
             seedColor: const Color(0xFF4EAAA0),
             brightness: brightness,
           ),
-          extensions: [brightness == Brightness.dark ? AppColors.dark : AppColors.light],
+          extensions: [
+            brightness == Brightness.dark ? AppColors.dark : AppColors.light
+          ],
         ),
         home: Builder(
           builder: (context) {

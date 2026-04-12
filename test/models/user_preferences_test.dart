@@ -167,5 +167,51 @@ void main() {
         expect(prefs.dailyNotificationCount, 5);
       });
     });
+
+    group('formatWorkDays', () {
+      const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+      test('default Mon-Fri formats as range', () {
+        expect(UserPreferences().formatWorkDays(days), 'Mon-Fri');
+      });
+
+      test('all days formats as single range', () {
+        final prefs = UserPreferences(workOnSaturday: true, workOnSunday: true);
+        expect(prefs.formatWorkDays(days), 'Mon-Sun');
+      });
+
+      test('no work days returns empty string', () {
+        final prefs = UserPreferences(
+          workOnMonday: false,
+          workOnTuesday: false,
+          workOnWednesday: false,
+          workOnThursday: false,
+          workOnFriday: false,
+        );
+        expect(prefs.formatWorkDays(days), '');
+      });
+
+      test('non-contiguous days show comma-separated', () {
+        final prefs = UserPreferences(
+          workOnTuesday: false,
+          workOnWednesday: false,
+          workOnThursday: false,
+          workOnFriday: false,
+          workOnSaturday: true,
+        );
+        expect(prefs.formatWorkDays(days), 'Mon, Sat');
+      });
+
+      test('single day formats without dash', () {
+        final prefs = UserPreferences(
+          workOnMonday: false,
+          workOnTuesday: false,
+          workOnWednesday: true,
+          workOnThursday: false,
+          workOnFriday: false,
+        );
+        expect(prefs.formatWorkDays(days), 'Wed');
+      });
+    });
   });
 }

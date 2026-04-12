@@ -64,4 +64,34 @@ class MovementStats {
     required this.dailyGoal,
   });
 
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is MovementStats &&
+          today == other.today &&
+          _weeklyStatsEqual(other.weeklyStats) &&
+          streak == other.streak &&
+          totalMovements == other.totalMovements &&
+          allTimeAverageReaction == other.allTimeAverageReaction &&
+          allTimeAverageSedentary == other.allTimeAverageSedentary &&
+          dailyGoal == other.dailyGoal;
+
+  bool _weeklyStatsEqual(List<DailyStats> other) {
+    if (weeklyStats.length != other.length) return false;
+    for (var i = 0; i < weeklyStats.length; i++) {
+      if (weeklyStats[i] != other[i]) return false;
+    }
+    return true;
+  }
+
+  @override
+  int get hashCode => Object.hashAll([
+        today,
+        ...weeklyStats,
+        streak,
+        totalMovements,
+        allTimeAverageReaction,
+        allTimeAverageSedentary,
+        dailyGoal,
+      ]);
 }

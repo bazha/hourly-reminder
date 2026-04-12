@@ -35,26 +35,43 @@ void main() async {
     storageService: storageService,
   );
 
+  // Read locale/theme before runApp to avoid a first-frame flash.
+  final savedLocaleCode = prefs.getString('app_locale');
+  final savedTheme = prefs.getString('app_theme_mode');
+
   runApp(HourlyReminderApp(
+    prefs: prefs,
     storageService: storageService,
     alarmService: alarmService,
     statsRepository: statsRepository,
     movementRepository: movementRepository,
+    initialLocale: savedLocaleCode != null ? Locale(savedLocaleCode) : null,
+    initialThemeMode: switch (savedTheme) {
+      'dark' => ThemeMode.dark,
+      'light' => ThemeMode.light,
+      _ => ThemeMode.system,
+    },
   ));
 }
 
 class HourlyReminderApp extends StatefulWidget {
+  final SharedPreferences prefs;
   final StorageService storageService;
   final AlarmService alarmService;
   final MovementStatsRepository statsRepository;
   final MovementRepository movementRepository;
+  final Locale? initialLocale;
+  final ThemeMode initialThemeMode;
 
   const HourlyReminderApp({
     super.key,
+    required this.prefs,
     required this.storageService,
     required this.alarmService,
     required this.statsRepository,
     required this.movementRepository,
+    this.initialLocale,
+    this.initialThemeMode = ThemeMode.system,
   });
 
   static void setLocale(BuildContext context, Locale? locale) {
@@ -77,50 +94,33 @@ class HourlyReminderApp extends StatefulWidget {
 }
 
 class _HourlyReminderAppState extends State<HourlyReminderApp> {
-  Locale? _locale;
-  ThemeMode _themeMode = ThemeMode.system;
+  late Locale? _locale = widget.initialLocale;
+  late ThemeMode _themeMode = widget.initialThemeMode;
 
-  @override
-  void initState() {
-    super.initState();
-    _loadSettings();
-  }
-
-  Future<void> _loadSettings() async {
-    final prefs = await SharedPreferences.getInstance();
-    if (!mounted) return;
-    final code = prefs.getString('app_locale');
-    final theme = prefs.getString('app_theme_mode');
-    setState(() {
-      if (code != null) _locale = Locale(code);
-      _themeMode = switch (theme) {
-        'dark' => ThemeMode.dark,
-        'light' => ThemeMode.light,
-        _ => ThemeMode.system,
-      };
-    });
-  }
-
-  void _setLocale(Locale? locale) {
+  Future<void> _setLocale(Locale? locale) async {
     setState(() => _locale = locale);
-    SharedPreferences.getInstance().then((prefs) {
+    try {
       if (locale == null) {
-        prefs.remove('app_locale');
+        await widget.prefs.remove('app_locale');
       } else {
-        prefs.setString('app_locale', locale.languageCode);
+        await widget.prefs.setString('app_locale', locale.languageCode);
       }
-    });
+    } catch (e, stack) {
+      debugPrint('Failed to persist locale: $e\n$stack');
+    }
   }
 
-  void _setThemeMode(ThemeMode mode) {
+  Future<void> _setThemeMode(ThemeMode mode) async {
     setState(() => _themeMode = mode);
-    SharedPreferences.getInstance().then((prefs) {
+    try {
       if (mode == ThemeMode.system) {
-        prefs.remove('app_theme_mode');
+        await widget.prefs.remove('app_theme_mode');
       } else {
-        prefs.setString('app_theme_mode', mode.name);
+        await widget.prefs.setString('app_theme_mode', mode.name);
       }
-    });
+    } catch (e, stack) {
+      debugPrint('Failed to persist theme mode: $e\n$stack');
+    }
   }
 
   static ThemeData _buildTheme(Brightness brightness, AppColors colors) {

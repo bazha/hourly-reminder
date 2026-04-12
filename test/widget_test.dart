@@ -22,6 +22,7 @@ void main() {
     );
 
     await tester.pumpWidget(HourlyReminderApp(
+      prefs: prefs,
       storageService: storageService,
       alarmService: AlarmService(),
       statsRepository: statsRepo,

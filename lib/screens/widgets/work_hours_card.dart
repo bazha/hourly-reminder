@@ -25,8 +25,7 @@ class WorkHoursCard extends StatelessWidget {
 
     final startTime =
         TimeUtils.formatHourMinute(prefs.startHour, prefs.startMinute);
-    final endTime =
-        TimeUtils.formatHourMinute(prefs.endHour, prefs.endMinute);
+    final endTime = TimeUtils.formatHourMinute(prefs.endHour, prefs.endMinute);
 
     return Card(
       child: Padding(
@@ -56,7 +55,6 @@ class WorkHoursCard extends StatelessWidget {
                     prefs.startMinute,
                     onStartChanged,
                   ),
-                  colors: colors,
                 ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -77,7 +75,6 @@ class WorkHoursCard extends StatelessWidget {
                     prefs.endMinute,
                     onEndChanged,
                   ),
-                  colors: colors,
                 ),
               ],
             ),
@@ -93,52 +90,51 @@ class _TimeTap extends StatelessWidget {
   final String label;
   final String time;
   final VoidCallback onTap;
-  final AppColors colors;
 
   const _TimeTap({
     required this.dotColor,
     required this.label,
     required this.time,
     required this.onTap,
-    required this.colors,
   });
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
     return Semantics(
       button: true,
       label: '$label $time',
       child: GestureDetector(
         onTap: onTap,
-        child: Column(
-          children: [
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 8,
-                  height: 8,
-                  decoration: BoxDecoration(
-                    color: dotColor,
-                    shape: BoxShape.circle,
-                  ),
+        behavior: HitTestBehavior.opaque,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 8,
+                height: 8,
+                decoration: BoxDecoration(
+                  color: dotColor,
+                  shape: BoxShape.circle,
                 ),
-                const SizedBox(width: 6),
-                Icon(
-                  Icons.arrow_forward,
-                  size: 12,
-                  color: colors.textMuted,
+              ),
+              const SizedBox(width: 6),
+              Icon(
+                Icons.arrow_forward,
+                size: 12,
+                color: colors.textMuted,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                time,
+                style: AppTypography.statMedium.copyWith(
+                  color: colors.textPrimary,
                 ),
-                const SizedBox(width: 6),
-                Text(
-                  time,
-                  style: AppTypography.statMedium.copyWith(
-                    color: colors.textPrimary,
-                  ),
-                ),
-              ],
-            ),
-          ],
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -95,6 +95,20 @@ void main() {
     });
   });
 
+  group('TimeUtils.doubleToHourMinute', () {
+    test('converts whole hours', () {
+      expect(TimeUtils.doubleToHourMinute(9.0), (hour: 9, minute: 0));
+      expect(TimeUtils.doubleToHourMinute(18.0), (hour: 18, minute: 0));
+      expect(TimeUtils.doubleToHourMinute(0.0), (hour: 0, minute: 0));
+    });
+
+    test('converts fractional hours', () {
+      expect(TimeUtils.doubleToHourMinute(9.5), (hour: 9, minute: 30));
+      expect(TimeUtils.doubleToHourMinute(17.75), (hour: 17, minute: 45));
+      expect(TimeUtils.doubleToHourMinute(9.25), (hour: 9, minute: 15));
+    });
+  });
+
   group('TimeUtils.formatHourMinute', () {
     test('formats with default minute', () {
       expect(TimeUtils.formatHourMinute(9), '9:00');

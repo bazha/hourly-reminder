@@ -47,7 +47,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Future<void> _loadPrefs() async {
-    final prefs = await widget.storageService.loadPreferences();
+    final prefs = widget.storageService.loadPreferences();
     final dayOff = widget.storageService.isDayOff;
     if (!mounted) return;
     setState(() {
@@ -79,8 +79,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Future<void> _updateTime(double time, {required bool isStart}) async {
-    final hour = time.floor();
-    final minute = ((time - hour) * 60).round();
+    final (:hour, :minute) = TimeUtils.doubleToHourMinute(time);
     final updated = isStart
         ? _prefs.copyWith(startHour: hour, startMinute: minute)
         : _prefs.copyWith(endHour: hour, endMinute: minute);
@@ -101,9 +100,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
     await _saveAndReschedule(updated);
 
     // If today's weekday was toggled on, clear day off since the user
-    // explicitly wants to work today.
+    // explicitly wants to work today, and reschedule the alarm.
     if (value && weekday == DateTime.now().weekday) {
       await widget.storageService.setDayOff(null);
+      if (mounted) setState(() => _isDayOff = false);
+      if (updated.isEnabled) {
+        await widget.alarmService.scheduleHourlyAlarm();
+      }
     }
   }
 
@@ -137,14 +140,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   void _showRateDialog(BuildContext context) {
-    final colors = AppColors.of(context);
-    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
-      builder: (_) => _RateDialog(colors: colors, l10n: l10n),
+      builder: (_) => const _RateDialog(),
     );
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -170,21 +170,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
             const SizedBox(height: 24),
 
             // --- SCHEDULE ---
-            _SectionHeader(label: l10n.sectionSchedule, colors: colors),
+            _SectionHeader(label: l10n.sectionSchedule),
             _SectionCard(
-              colors: colors,
               children: [
                 _DayOffRow(
                   isDayOff: _isDayOff,
                   onToggle: _toggleDayOff,
-                  colors: colors,
                 ),
                 Divider(height: 1, color: colors.divider),
                 SettingsRow(
                   icon: Icons.date_range_outlined,
                   label: l10n.settingWorkDays,
                   value: _workDaysLabel(l10n),
-                  colors: colors,
                   onTap: () => showWorkDaysSheet(
                     context,
                     prefs: _prefs,
@@ -197,7 +194,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   label: l10n.settingWorkHours,
                   value:
                       '${TimeUtils.formatHourMinute(_prefs.startHour, _prefs.startMinute)} - ${TimeUtils.formatHourMinute(_prefs.endHour, _prefs.endMinute)}',
-                  colors: colors,
                   onTap: () => _showWorkHoursSheet(context),
                 ),
                 Divider(height: 1, color: colors.divider),
@@ -205,7 +201,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   icon: Icons.timer_outlined,
                   label: l10n.settingInterval,
                   value: l10n.nMinutes(_prefs.reminderIntervalMinutes),
-                  colors: colors,
                   onTap: () => showIntervalSheet(
                     context,
                     prefs: _prefs,
@@ -217,15 +212,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
             const SizedBox(height: 24),
 
             // --- NOTIFICATIONS ---
-            _SectionHeader(label: l10n.sectionNotifications, colors: colors),
+            _SectionHeader(label: l10n.sectionNotifications),
             _SectionCard(
-              colors: colors,
               children: [
                 SettingsRow(
                   icon: Icons.adjust,
                   label: l10n.settingDailyGoal,
                   value: l10n.nMovements(_prefs.dailyGoal),
-                  colors: colors,
                   onTap: () => showGoalSheet(
                     context,
                     prefs: _prefs,
@@ -237,7 +230,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   icon: Icons.notifications_outlined,
                   label: l10n.settingNotificationStyle,
                   value: _genderLabel(l10n),
-                  colors: colors,
                   onTap: () => showGenderSheet(
                     context,
                     prefs: _prefs,
@@ -248,7 +240,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 SettingsRow(
                   icon: Icons.send_outlined,
                   label: l10n.settingTestNotification,
-                  colors: colors,
                   onTap: () async {
                     await NotificationService.showHourlyNotification();
                     if (context.mounted) {
@@ -267,47 +258,41 @@ class _SettingsScreenState extends State<SettingsScreen> {
             const SizedBox(height: 24),
 
             // --- GENERAL ---
-            _SectionHeader(label: l10n.sectionGeneral, colors: colors),
+            _SectionHeader(label: l10n.sectionGeneral),
             _SectionCard(
-              colors: colors,
               children: [
                 SettingsRow(
                   icon: Icons.language_outlined,
                   label: l10n.settingLanguage,
                   value: _currentLanguageLabel(l10n),
-                  colors: colors,
                   onTap: () => showLanguageSheet(context),
                 ),
                 Divider(height: 1, color: colors.divider),
-                _ThemeRow(colors: colors),
+                const _ThemeRow(),
               ],
             ),
             const SizedBox(height: 24),
 
             // --- ABOUT ---
-            _SectionHeader(label: l10n.sectionAbout, colors: colors),
+            _SectionHeader(label: l10n.sectionAbout),
             _SectionCard(
-              colors: colors,
               children: [
                 SettingsRow(
                   icon: Icons.info_outline,
                   label: l10n.aboutVersion,
                   value: appVersion,
-                  colors: colors,
                   showChevron: false,
                 ),
                 Divider(height: 1, color: colors.divider),
                 SettingsRow(
                   icon: Icons.star_outline,
                   label: l10n.aboutRateApp,
-                  colors: colors,
                   onTap: () => _showRateDialog(context),
                 ),
                 Divider(height: 1, color: colors.divider),
                 SettingsRow(
                   icon: Icons.mail_outline,
                   label: l10n.aboutFeedback,
-                  colors: colors,
                   trailingIcon: Icons.open_in_new,
                   onTap: () => _sendFeedback(),
                 ),
@@ -320,12 +305,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  String _workDaysLabel(AppLocalizations l10n) {
-    return _prefs.formatWorkDays([
-      l10n.dayMon, l10n.dayTue, l10n.dayWed, l10n.dayThu,
-      l10n.dayFri, l10n.daySat, l10n.daySun,
-    ]);
-  }
+  String _workDaysLabel(AppLocalizations l10n) =>
+      TimeUtils.formatWorkDaysLabel(_prefs, l10n);
 
   String _genderLabel(AppLocalizations l10n) {
     return switch (_prefs.notificationGender) {
@@ -370,7 +351,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     time: TimeUtils.formatHourMinute(
                         _prefs.startHour, _prefs.startMinute),
                     color: AppColors.primary,
-                    colors: colors,
                     onTap: () {
                       Navigator.pop(ctx);
                       pickTime(
@@ -389,7 +369,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     time: TimeUtils.formatHourMinute(
                         _prefs.endHour, _prefs.endMinute),
                     color: AppColors.endColor,
-                    colors: colors,
                     onTap: () {
                       Navigator.pop(ctx);
                       pickTime(
@@ -412,12 +391,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
 class _SectionHeader extends StatelessWidget {
   final String label;
-  final AppColors colors;
 
-  const _SectionHeader({required this.label, required this.colors});
+  const _SectionHeader({required this.label});
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
     return Padding(
       padding: const EdgeInsets.only(left: 4, bottom: 8),
       child: Text(
@@ -429,13 +408,13 @@ class _SectionHeader extends StatelessWidget {
 }
 
 class _SectionCard extends StatelessWidget {
-  final AppColors colors;
   final List<Widget> children;
 
-  const _SectionCard({required this.colors, required this.children});
+  const _SectionCard({required this.children});
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
     return Container(
       decoration: BoxDecoration(
         color: colors.cardBg,
@@ -452,12 +431,11 @@ class _SectionCard extends StatelessWidget {
 }
 
 class _ThemeRow extends StatelessWidget {
-  final AppColors colors;
-
-  const _ThemeRow({required this.colors});
+  const _ThemeRow();
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
     final l10n = AppLocalizations.of(context)!;
     return SizedBox(
       height: 56,
@@ -471,7 +449,7 @@ class _ThemeRow extends StatelessWidget {
               style: AppTypography.body.copyWith(color: colors.textPrimary),
             ),
           ),
-          _ThemeSegment(colors: colors),
+          const _ThemeSegment(),
         ],
       ),
     );
@@ -479,14 +457,13 @@ class _ThemeRow extends StatelessWidget {
 }
 
 class _ThemeSegment extends StatelessWidget {
-  final AppColors colors;
-
-  const _ThemeSegment({required this.colors});
+  const _ThemeSegment();
 
   static const _modes = [ThemeMode.system, ThemeMode.dark, ThemeMode.light];
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
     final l10n = AppLocalizations.of(context)!;
     final labels = [l10n.themeSystem, l10n.themeDark, l10n.themeLight];
     final currentMode = HourlyReminderApp.getThemeMode(context);
@@ -502,25 +479,32 @@ class _ThemeSegment extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           for (int i = 0; i < labels.length; i++)
-            GestureDetector(
-              onTap: () => HourlyReminderApp.setThemeMode(context, _modes[i]),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(
-                  color:
-                      i == activeIndex ? AppColors.primary : Colors.transparent,
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text(
-                  labels[i],
-                  style: AppTypography.label.copyWith(
-                    fontSize: 11,
-                    color:
-                        i == activeIndex ? Colors.white : colors.textSecondary,
-                    fontWeight:
-                        i == activeIndex ? FontWeight.w600 : FontWeight.w400,
+            Semantics(
+              button: true,
+              selected: i == activeIndex,
+              label: labels[i],
+              child: GestureDetector(
+                onTap: () => HourlyReminderApp.setThemeMode(context, _modes[i]),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: i == activeIndex
+                        ? AppColors.primary
+                        : Colors.transparent,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    labels[i],
+                    style: AppTypography.label.copyWith(
+                      fontSize: 11,
+                      color: i == activeIndex
+                          ? Colors.white
+                          : colors.textSecondary,
+                      fontWeight:
+                          i == activeIndex ? FontWeight.w600 : FontWeight.w400,
+                    ),
                   ),
                 ),
               ),
@@ -535,19 +519,18 @@ class _WorkHoursButton extends StatelessWidget {
   final String label;
   final String time;
   final Color color;
-  final AppColors colors;
   final VoidCallback onTap;
 
   const _WorkHoursButton({
     required this.label,
     required this.time,
     required this.color,
-    required this.colors,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -577,16 +560,15 @@ class _WorkHoursButton extends StatelessWidget {
 class _DayOffRow extends StatelessWidget {
   final bool isDayOff;
   final VoidCallback onToggle;
-  final AppColors colors;
 
   const _DayOffRow({
     required this.isDayOff,
     required this.onToggle,
-    required this.colors,
   });
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
     final l10n = AppLocalizations.of(context)!;
     return SizedBox(
       height: 56,
@@ -617,10 +599,7 @@ class _DayOffRow extends StatelessWidget {
 }
 
 class _RateDialog extends StatefulWidget {
-  final AppColors colors;
-  final AppLocalizations l10n;
-
-  const _RateDialog({required this.colors, required this.l10n});
+  const _RateDialog();
 
   @override
   State<_RateDialog> createState() => _RateDialogState();
@@ -632,8 +611,8 @@ class _RateDialogState extends State<_RateDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = widget.colors;
-    final l10n = widget.l10n;
+    final colors = AppColors.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return Dialog(
       backgroundColor: colors.cardBg,
@@ -679,8 +658,7 @@ class _RateDialogState extends State<_RateDialog> {
                             : Icons.star_outline_rounded,
                         key: ValueKey('$starIndex-$filled'),
                         size: 40,
-                        color:
-                            filled ? const Color(0xFFF5A623) : colors.textMuted,
+                        color: filled ? AppColors.primary : colors.textMuted,
                       ),
                     ),
                   ),
@@ -708,12 +686,14 @@ class _RateDialogState extends State<_RateDialog> {
                       onPressed: _rating == 0
                           ? null
                           : () {
+                              // UX-only - no backend submission in this version.
                               setState(() => _submitted = true);
-                              final nav = Navigator.of(context);
                               Future.delayed(
                                 const Duration(milliseconds: 800),
                                 () {
-                                  if (mounted) nav.pop();
+                                  if (context.mounted) {
+                                    Navigator.of(context).pop();
+                                  }
                                 },
                               );
                             },

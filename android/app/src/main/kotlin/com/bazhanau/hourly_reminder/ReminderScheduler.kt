@@ -13,7 +13,7 @@ object ReminderScheduler {
         val alarmManager = context.alarmManager
 
         val prefs = context.flutterPrefs
-        val intervalMinutes = prefs.getFlutterInt("flutter.reminder_interval_minutes", DEFAULT_INTERVAL_MINUTES)
+        val intervalMinutes = prefs.getFlutterInt(PrefsKeys.REMINDER_INTERVAL, DEFAULT_INTERVAL_MINUTES)
         val wh = prefs.readWorkHours()
 
         val next = nextValidAlarmTime(
@@ -37,13 +37,17 @@ object ReminderScheduler {
         val nowMin = now.get(Calendar.HOUR_OF_DAY) * 60 + now.get(Calendar.MINUTE)
 
         if (isDayEnabled(prefs, now)) {
-            val candidateMin = nowMin + intervalMinutes
-            if (candidateMin <= endMin && nowMin >= startMin) {
-                return Calendar.getInstance().apply {
-                    set(Calendar.HOUR_OF_DAY, candidateMin / 60)
-                    set(Calendar.MINUTE, candidateMin % 60)
-                    set(Calendar.SECOND, 0)
-                    set(Calendar.MILLISECOND, 0)
+            val firstMin = startMin + intervalMinutes
+            if (nowMin < startMin) {
+                if (firstMin <= endMin) {
+                    return Calendar.getInstance().apply { setTimeFromMinutes(firstMin) }
+                }
+            } else if (nowMin < firstMin && firstMin <= endMin) {
+                return Calendar.getInstance().apply { setTimeFromMinutes(firstMin) }
+            } else if (nowMin <= endMin) {
+                val candidateMin = nowMin + intervalMinutes
+                if (candidateMin <= endMin) {
+                    return Calendar.getInstance().apply { setTimeFromMinutes(candidateMin) }
                 }
             }
         }
@@ -51,15 +55,11 @@ object ReminderScheduler {
         val candidate = Calendar.getInstance().apply {
             add(Calendar.DAY_OF_YEAR, 1)
         }
-        for (i in 0 until 8) {
+        repeat(8) {
             if (isDayEnabled(prefs, candidate)) {
                 val firstMin = startMin + intervalMinutes
-                val targetMin = if (firstMin <= endMin) firstMin else startMin
-                return candidate.apply {
-                    set(Calendar.HOUR_OF_DAY, targetMin / 60)
-                    set(Calendar.MINUTE, targetMin % 60)
-                    set(Calendar.SECOND, 0)
-                    set(Calendar.MILLISECOND, 0)
+                if (firstMin <= endMin) {
+                    return candidate.apply { setTimeFromMinutes(firstMin) }
                 }
             }
             candidate.add(Calendar.DAY_OF_YEAR, 1)

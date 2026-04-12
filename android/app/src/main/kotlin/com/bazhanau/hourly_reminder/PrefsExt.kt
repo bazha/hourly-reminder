@@ -11,10 +11,49 @@ import java.util.Calendar
 
 const val DEFAULT_INTERVAL_MINUTES = 60
 
+/** SharedPreferences key constants shared between Dart and native code. */
+object PrefsKeys {
+    // User preferences
+    const val IS_ENABLED = "flutter.is_enabled"
+    const val START_HOUR = "flutter.start_hour"
+    const val START_MINUTE = "flutter.start_minute"
+    const val END_HOUR = "flutter.end_hour"
+    const val END_MINUTE = "flutter.end_minute"
+    const val REMINDER_INTERVAL = "flutter.reminder_interval_minutes"
+    const val NOTIFICATION_GENDER = "flutter.notification_gender"
+    const val DAY_OFF_DATE = "flutter.day_off_date"
+    const val APP_LOCALE = "flutter.app_locale"
+
+    // Work day toggles
+    const val WORK_ON_MONDAY = "flutter.work_on_monday"
+    const val WORK_ON_TUESDAY = "flutter.work_on_tuesday"
+    const val WORK_ON_WEDNESDAY = "flutter.work_on_wednesday"
+    const val WORK_ON_THURSDAY = "flutter.work_on_thursday"
+    const val WORK_ON_FRIDAY = "flutter.work_on_friday"
+    const val WORK_ON_SATURDAY = "flutter.work_on_saturday"
+    const val WORK_ON_SUNDAY = "flutter.work_on_sunday"
+
+    // Movement tracking
+    const val SEDENTARY_START_MILLIS = "flutter.movement_sedentary_start_millis"
+    const val LAST_NOTIFICATION_SENT_MILLIS = "flutter.movement_last_notification_sent_millis"
+    const val MOVEMENT_EVENTS = "flutter.movement_events"
+    const val LAST_NOTIFIED_MILLIS = "flutter.last_notified_millis"
+
+    // Exercise notifications
+    const val NOTIFICATIONS_SHOWN_DATE = "flutter.notifications_shown_date"
+    const val NOTIFICATIONS_SHOWN_COUNT = "flutter.notifications_shown_count"
+    const val EXERCISE_INDEX = "flutter.exercise_index"
+}
+
 object RequestCodes {
     const val HOURLY_ALARM = 100
     const val SETTLING_ALARM = 150
     const val SNOOZE_ALARM = 200
+    // Notification action PendingIntents
+    const val NOTIF_SNOOZE = 0
+    const val NOTIF_ALREADY_MOVED = 1
+    const val NOTIF_OPEN_APP = 2
+    const val NOTIF_DISMISS = 3
 }
 
 val Context.flutterPrefs: SharedPreferences
@@ -29,10 +68,10 @@ val Context.notificationManager: NotificationManager
 data class WorkHours(val startMin: Int, val endMin: Int)
 
 fun SharedPreferences.readWorkHours(): WorkHours {
-    val startHour = getFlutterInt("flutter.start_hour", 9)
-    val startMinute = getFlutterInt("flutter.start_minute", 0)
-    val endHour = getFlutterInt("flutter.end_hour", 18)
-    val endMinute = getFlutterInt("flutter.end_minute", 0)
+    val startHour = getFlutterInt(PrefsKeys.START_HOUR, 9)
+    val startMinute = getFlutterInt(PrefsKeys.START_MINUTE, 0)
+    val endHour = getFlutterInt(PrefsKeys.END_HOUR, 18)
+    val endMinute = getFlutterInt(PrefsKeys.END_MINUTE, 0)
     return WorkHours(
         startMin = startHour * 60 + startMinute,
         endMin = endHour * 60 + endMinute,
@@ -82,6 +121,20 @@ fun SharedPreferences.getFlutterInt(key: String, defValue: Int): Int {
     }
 }
 
+/** Sets this Calendar's time-of-day fields from a total-minutes value (e.g. 600 = 10:00). */
+fun Calendar.setTimeFromMinutes(totalMinutes: Int) {
+    set(Calendar.HOUR_OF_DAY, totalMinutes / 60)
+    set(Calendar.MINUTE, totalMinutes % 60)
+    set(Calendar.SECOND, 0)
+    set(Calendar.MILLISECOND, 0)
+}
+
+/** Returns true if both Calendars represent the same date (year, month, day). */
+fun Calendar.isSameDay(other: Calendar): Boolean =
+    get(Calendar.YEAR) == other.get(Calendar.YEAR) &&
+    get(Calendar.MONTH) == other.get(Calendar.MONTH) &&
+    get(Calendar.DAY_OF_MONTH) == other.get(Calendar.DAY_OF_MONTH)
+
 /**
  * Checks whether the given calendar day is an enabled work day.
  * Reads per-day booleans from SharedPreferences (Mon-Fri default true, Sat-Sun default false).
@@ -90,13 +143,13 @@ fun SharedPreferences.getFlutterInt(key: String, defValue: Int): Int {
 fun isDayEnabled(prefs: SharedPreferences, cal: Calendar): Boolean {
     val dow = cal.get(Calendar.DAY_OF_WEEK)
     return when (dow) {
-        Calendar.MONDAY    -> prefs.getBoolean("flutter.work_on_monday", true)
-        Calendar.TUESDAY   -> prefs.getBoolean("flutter.work_on_tuesday", true)
-        Calendar.WEDNESDAY -> prefs.getBoolean("flutter.work_on_wednesday", true)
-        Calendar.THURSDAY  -> prefs.getBoolean("flutter.work_on_thursday", true)
-        Calendar.FRIDAY    -> prefs.getBoolean("flutter.work_on_friday", true)
-        Calendar.SATURDAY  -> prefs.getBoolean("flutter.work_on_saturday", false)
-        Calendar.SUNDAY    -> prefs.getBoolean("flutter.work_on_sunday", false)
+        Calendar.MONDAY    -> prefs.getBoolean(PrefsKeys.WORK_ON_MONDAY, true)
+        Calendar.TUESDAY   -> prefs.getBoolean(PrefsKeys.WORK_ON_TUESDAY, true)
+        Calendar.WEDNESDAY -> prefs.getBoolean(PrefsKeys.WORK_ON_WEDNESDAY, true)
+        Calendar.THURSDAY  -> prefs.getBoolean(PrefsKeys.WORK_ON_THURSDAY, true)
+        Calendar.FRIDAY    -> prefs.getBoolean(PrefsKeys.WORK_ON_FRIDAY, true)
+        Calendar.SATURDAY  -> prefs.getBoolean(PrefsKeys.WORK_ON_SATURDAY, false)
+        Calendar.SUNDAY    -> prefs.getBoolean(PrefsKeys.WORK_ON_SUNDAY, false)
         else -> false
     }
 }

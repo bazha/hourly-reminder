@@ -13,9 +13,14 @@ class MovementActionHandler {
 
     final useCase = ConfirmMovementUseCase(
       repository: repository,
-      scheduleNext: (nextInterval) => alarmService.scheduleHourlyAlarm(),
+      // iOS limitation: flutter_local_notifications doesn't support replacing
+      // the scheduled alarm with an adaptive interval. The computed nextInterval
+      // is not applied; the standard hourly alarm is rescheduled instead.
+      // On Android, AlreadyMovedReceiver handles adaptive intervals natively.
+      scheduleNext: (_) => alarmService.scheduleHourlyAlarm(),
     );
 
-    await useCase.execute();
+    final intervalMinutes = prefs.getInt('reminder_interval_minutes') ?? 60;
+    await useCase.execute(baseIntervalMinutes: intervalMinutes);
   }
 }
