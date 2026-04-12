@@ -14,25 +14,6 @@ class AlarmService {
     await _channel.invokeMethod('cancelAlarm');
   }
 
-  /// Pure function: given a moment in time and user settings, returns true if
-  /// a notification should be sent. No side-effects.
-  static bool shouldSendReminder({
-    required DateTime now,
-    required bool isEnabled,
-    required int startHour,
-    required int startMinute,
-    required int endHour,
-    required int endMinute,
-    required Set<int> workDays,
-  }) {
-    if (!isEnabled) return false;
-    if (!workDays.contains(now.weekday)) return false;
-    final nowMin = now.hour * 60 + now.minute;
-    final startMin = startHour * 60 + startMinute;
-    final endMin = endHour * 60 + endMinute;
-    return nowMin >= startMin && nowMin <= endMin;
-  }
-
   /// Returns the DateTime of the next notification, or null when disabled.
   /// Pure calculation - does not schedule anything.
   static DateTime? nextNotificationTime({

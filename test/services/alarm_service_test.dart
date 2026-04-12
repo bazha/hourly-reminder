@@ -3,127 +3,12 @@ import 'package:hourly_reminder/services/alarm_service.dart';
 
 const _defaultWorkDays = {1, 2, 3, 4, 5};
 
-bool shouldSend({
-  required DateTime now,
-  bool isEnabled = true,
-  int startHour = 9,
-  int startMinute = 0,
-  int endHour = 18,
-  int endMinute = 0,
-  Set<int> workDays = _defaultWorkDays,
-}) =>
-    AlarmService.shouldSendReminder(
-      now: now,
-      isEnabled: isEnabled,
-      startHour: startHour,
-      startMinute: startMinute,
-      endHour: endHour,
-      endMinute: endMinute,
-      workDays: workDays,
-    );
-
 // Monday 2026-02-16
 final DateTime mon06am = DateTime(2026, 2, 16, 6, 0);
-final DateTime mon09am = DateTime(2026, 2, 16, 9, 0);
 final DateTime mon10am = DateTime(2026, 2, 16, 10, 0);
-final DateTime mon18pm = DateTime(2026, 2, 16, 18, 0);
 final DateTime mon19pm = DateTime(2026, 2, 16, 19, 0);
-// Saturday 2026-02-21, Sunday 2026-02-22
-final DateTime sat10am = DateTime(2026, 2, 21, 10, 0);
-final DateTime sun10am = DateTime(2026, 2, 22, 10, 0);
 
 void main() {
-  group('shouldSendReminder', () {
-    test('returns false when disabled', () {
-      expect(shouldSend(now: mon10am, isEnabled: false), isFalse);
-    });
-
-    test('returns true inside work window, false outside', () {
-      expect(shouldSend(now: mon06am), isFalse);
-      expect(shouldSend(now: mon09am), isTrue);
-      expect(shouldSend(now: mon10am), isTrue);
-      expect(shouldSend(now: mon18pm), isTrue);
-      expect(shouldSend(now: mon19pm), isFalse);
-    });
-
-    test('respects custom work hours', () {
-      expect(
-          shouldSend(
-              now: DateTime(2026, 2, 16, 12, 0), startHour: 12, endHour: 13),
-          isTrue);
-      expect(
-          shouldSend(
-              now: DateTime(2026, 2, 16, 14, 0), startHour: 12, endHour: 13),
-          isFalse);
-    });
-
-    test('weekend day configuration', () {
-      // Both off by default (Mon-Fri only)
-      expect(shouldSend(now: sat10am), isFalse);
-      expect(shouldSend(now: sun10am), isFalse);
-      // Enable individually
-      expect(shouldSend(now: sat10am, workDays: {1, 2, 3, 4, 5, 6}), isTrue);
-      expect(shouldSend(now: sun10am, workDays: {1, 2, 3, 4, 5, 7}), isTrue);
-      // One on doesn't affect the other
-      expect(shouldSend(now: sun10am, workDays: {1, 2, 3, 4, 5, 6}), isFalse);
-      expect(shouldSend(now: sat10am, workDays: {1, 2, 3, 4, 5, 7}), isFalse);
-      // Weekdays always fire
-      expect(shouldSend(now: mon10am), isTrue);
-    });
-
-    test('individual weekdays can be disabled', () {
-      // Disable Monday (weekday 1)
-      expect(shouldSend(now: mon10am, workDays: {2, 3, 4, 5}), isFalse);
-      // All days enabled
-      expect(shouldSend(now: mon10am, workDays: {1, 2, 3, 4, 5, 6, 7}), isTrue);
-    });
-
-    test('minute-precision boundaries', () {
-      // Exactly at start minute
-      expect(
-          shouldSend(
-              now: DateTime(2026, 2, 16, 9, 30),
-              startHour: 9,
-              startMinute: 30,
-              endHour: 18),
-          isTrue);
-      // 1 minute before start
-      expect(
-          shouldSend(
-              now: DateTime(2026, 2, 16, 9, 29),
-              startHour: 9,
-              startMinute: 30,
-              endHour: 18),
-          isFalse);
-      // Exactly at end minute
-      expect(
-          shouldSend(
-              now: DateTime(2026, 2, 16, 17, 45),
-              startHour: 9,
-              endHour: 17,
-              endMinute: 45),
-          isTrue);
-      // 1 minute after end
-      expect(
-          shouldSend(
-              now: DateTime(2026, 2, 16, 17, 46),
-              startHour: 9,
-              endHour: 17,
-              endMinute: 45),
-          isFalse);
-    });
-
-    test('does not throw at 23:30', () {
-      expect(
-        () => shouldSend(
-            now: DateTime(2026, 2, 16, 23, 30), startHour: 9, endHour: 23),
-        returnsNormally,
-      );
-    });
-  });
-
-  // --- nextNotificationTime ---
-
   DateTime? nextNotif({
     required DateTime now,
     bool isEnabled = true,

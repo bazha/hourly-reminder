@@ -77,9 +77,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get timeChipEnd => 'Конец';
 
   @override
-  String get settingsLabel => 'НАСТРОЙКИ';
-
-  @override
   String get settingWorkDays => 'Рабочие дни';
 
   @override
@@ -96,18 +93,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get testNotificationSent => 'Тестовое уведомление отправлено';
-
-  @override
-  String get workDaysMonFri => 'Пн-Пт';
-
-  @override
-  String get workDaysMonSat => 'Пн-Сб';
-
-  @override
-  String get workDaysMonSun => 'Пн-Вс';
-
-  @override
-  String get workDaysMonFriSun => 'Пн-Пт, Вс';
 
   @override
   String get monday => 'Понедельник';

@@ -1,8 +1,9 @@
 # Code Quality Analysis — Hourly Reminder
 
-> Generated: 2026-02-19  
-> Scope: all files under `lib/` and `test/`  
+> Generated: 2026-02-19
+> Scope: all files under `lib/` and `test/`
 > Baseline: `flutter analyze` → 0 issues, `flutter test` → 56 tests passing
+> **Status update 2026-03-24:** 13 of 16 items fixed by home screen redesign (PR #26) and subsequent work. Only R5 remains open (low priority). See details below.
 
 ---
 
@@ -392,20 +393,20 @@ logic is non-obvious.
 
 ## Proposed Fix Order
 
-| Priority | ID | Effort | Impact |
-|---|---|---|---|
-| 🔴 High | M1 — `AppColors` | Medium | Eliminates 17 duplicated literals; enables global theme changes |
-| 🔴 High | R1 — `_ClockHand` enum | Small | Removes typo-prone magic strings |
-| 🔴 High | Dup1 — `_saveAndReschedule()` | Small | Removes duplicated async block |
-| 🟡 Medium | D1 — remove `_buildAppBar()` | Tiny | Cleanup |
-| 🟡 Medium | D2 — fix dead `cardTheme` | Small | Resolve theme vs inline conflict |
-| 🟡 Medium | D3 — remove `formatHour` | Small | Single formatting function |
-| 🟡 Medium | Dup3 + M3 — slider constants | Tiny | Self-documenting slider config |
-| 🟡 Medium | M2 — painter geometry constants | Small | Self-documenting painter |
-| 🟡 Medium | R2 — `const` painter constructor | Tiny | Performance |
-| 🟢 Low | R4 — extract card widgets | Medium | Cleaner `build()`, reusability |
-| 🟢 Low | Dup2 — notification channel comment | Tiny | Clarity |
-| 🟢 Low | Dup4 — text style constants | Small | Reduce repetition |
-| 🟢 Low | R3 — GestureDetector tear-offs | Small | Cleaner callbacks |
-| 🟢 Low | R5 — `shouldSendReminderForPrefs` | Small | Convenience overload |
-| 🟢 Low | R6 — remove Russian dividers | Tiny | Style consistency |
+| Priority | ID | Effort | Impact | Status |
+|---|---|---|---|---|
+| 🔴 High | M1 — `AppColors` | Medium | Eliminates 17 duplicated literals; enables global theme changes | DONE (PR #26) |
+| 🔴 High | R1 — `_ClockHand` enum | Small | Removes typo-prone magic strings | DONE (widget removed) |
+| 🔴 High | Dup1 — `_saveAndReschedule()` | Small | Removes duplicated async block | DONE |
+| 🟡 Medium | D1 — remove `_buildAppBar()` | Tiny | Cleanup | DONE (PR #26) |
+| 🟡 Medium | D2 — fix dead `cardTheme` | Small | Resolve theme vs inline conflict | DONE (PR #26) |
+| 🟡 Medium | D3 — remove `formatHour` | Small | Single formatting function | DONE |
+| 🟡 Medium | Dup3 + M3 — slider constants | Tiny | Self-documenting slider config | DONE (sliders removed) |
+| 🟡 Medium | M2 — painter geometry constants | Small | Self-documenting painter | DONE (widget removed) |
+| 🟡 Medium | R2 — `const` painter constructor | Tiny | Performance | DONE (widget removed) |
+| 🟢 Low | R4 — extract card widgets | Medium | Cleaner `build()`, reusability | DONE (PR #26) |
+| 🟢 Low | Dup2 — notification channel comment | Tiny | Clarity | DONE (native pipeline) |
+| 🟢 Low | Dup4 — text style constants | Small | Reduce repetition | DONE (AppTypography) |
+| 🟢 Low | R3 — GestureDetector tear-offs | Small | Cleaner callbacks | DONE (widget removed) |
+| 🟢 Low | R5 — `shouldSendReminderForPrefs` | Small | Convenience overload | OPEN |
+| 🟢 Low | R6 — remove Russian dividers | Tiny | Style consistency | DONE (widget removed) |

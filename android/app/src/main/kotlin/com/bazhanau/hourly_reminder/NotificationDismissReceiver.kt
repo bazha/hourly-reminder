@@ -12,9 +12,7 @@ class NotificationDismissReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action != ACTION_DISMISS) return
 
-        val prefs = context.getSharedPreferences(
-            "FlutterSharedPreferences", Context.MODE_PRIVATE
-        )
+        val prefs = context.flutterPrefs
         prefs.edit()
             .putLong("flutter.movement_sedentary_start_millis", System.currentTimeMillis())
             .apply()

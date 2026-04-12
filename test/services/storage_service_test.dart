@@ -59,6 +59,30 @@ void main() {
       }
     });
 
+    test('setDayOff stores and clears date string', () async {
+      expect(service.dayOffDate, isNull);
+      expect(service.isDayOff, isFalse);
+
+      await service.setDayOff('2026-03-24');
+      expect(service.dayOffDate, '2026-03-24');
+
+      await service.setDayOff(null);
+      expect(service.dayOffDate, isNull);
+      expect(service.isDayOff, isFalse);
+    });
+
+    test('isDayOff returns true only when stored date matches today', () async {
+      final today = DateTime.now();
+      final todayStr =
+          '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+
+      await service.setDayOff(todayStr);
+      expect(service.isDayOff, isTrue);
+
+      await service.setDayOff('2000-01-01');
+      expect(service.isDayOff, isFalse);
+    });
+
     test('unknown gender string falls back to neutral', () async {
       SharedPreferences.setMockInitialValues({
         'notification_gender': 'unknown_value',

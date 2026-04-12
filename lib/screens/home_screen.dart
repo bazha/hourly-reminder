@@ -177,13 +177,16 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     final hour = time.floor();
     final minute = ((time - hour) * 60).round();
 
-    setState(() {
-      _prefs = isStart
-          ? _prefs.copyWith(startHour: hour, startMinute: minute)
-          : _prefs.copyWith(endHour: hour, endMinute: minute);
-    });
-    await widget.storageService.savePreferences(_prefs);
-    if (_prefs.isEnabled) {
+    final updated = isStart
+        ? _prefs.copyWith(startHour: hour, startMinute: minute)
+        : _prefs.copyWith(endHour: hour, endMinute: minute);
+    await _saveAndReschedule(updated);
+  }
+
+  Future<void> _saveAndReschedule(UserPreferences updated) async {
+    setState(() => _prefs = updated);
+    await widget.storageService.savePreferences(updated);
+    if (updated.isEnabled && mounted) {
       await widget.alarmService.scheduleHourlyAlarm();
     }
   }

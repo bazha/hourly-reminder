@@ -5,14 +5,11 @@ import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import java.util.Calendar
 
 class ReminderReceiver : BroadcastReceiver() {
     companion object {
         const val ACTION_HOURLY_REMINDER = "com.bazhanau.hourly_reminder.ACTION_HOURLY_REMINDER"
-        private const val DEFAULT_INTERVAL_MINUTES = 60
-        private const val SETTLING_REQUEST_CODE = 150
     }
 
     override fun onReceive(context: Context, intent: Intent) {
@@ -22,9 +19,7 @@ class ReminderReceiver : BroadcastReceiver() {
         ReminderScheduler.scheduleNextHourlyAlarm(context)
 
         // Check conditions from SharedPreferences
-        val prefs = context.getSharedPreferences(
-            "FlutterSharedPreferences", Context.MODE_PRIVATE
-        )
+        val prefs = context.flutterPrefs
 
         val isEnabled = prefs.getBoolean("flutter.is_enabled", false)
         if (!isEnabled) return
@@ -45,14 +40,10 @@ class ReminderReceiver : BroadcastReceiver() {
         val now = Calendar.getInstance()
         if (!isDayEnabled(prefs, now)) return
 
-        val startHour = prefs.getFlutterInt("flutter.start_hour", 9)
-        val startMinute = prefs.getFlutterInt("flutter.start_minute", 0)
-        val endHour = prefs.getFlutterInt("flutter.end_hour", 18)
-        val endMinute = prefs.getFlutterInt("flutter.end_minute", 0)
-
+        val wh = prefs.readWorkHours()
         val nowMin = now.get(Calendar.HOUR_OF_DAY) * 60 + now.get(Calendar.MINUTE)
-        val startMin = startHour * 60 + startMinute
-        val endMin = endHour * 60 + endMinute
+        val startMin = wh.startMin
+        val endMin = wh.endMin
 
         if (nowMin < startMin || nowMin > endMin) return
 
@@ -93,7 +84,7 @@ class ReminderReceiver : BroadcastReceiver() {
     }
 
     private fun scheduleSettlingAlarm(context: Context, now: Calendar, targetMin: Int) {
-        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val alarmManager = context.alarmManager
         val triggerAt = Calendar.getInstance().apply {
             set(Calendar.YEAR, now.get(Calendar.YEAR))
             set(Calendar.MONTH, now.get(Calendar.MONTH))
@@ -109,23 +100,15 @@ class ReminderReceiver : BroadcastReceiver() {
         }
         val pendingIntent = PendingIntent.getBroadcast(
             context,
-            SETTLING_REQUEST_CODE,
+            RequestCodes.SETTLING_ALARM,
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            alarmManager.setExactAndAllowWhileIdle(
-                AlarmManager.RTC_WAKEUP,
-                triggerAt.timeInMillis,
-                pendingIntent
-            )
-        } else {
-            alarmManager.setExact(
-                AlarmManager.RTC_WAKEUP,
-                triggerAt.timeInMillis,
-                pendingIntent
-            )
-        }
+        alarmManager.scheduleExact(
+            AlarmManager.RTC_WAKEUP,
+            triggerAt.timeInMillis,
+            pendingIntent
+        )
     }
 }

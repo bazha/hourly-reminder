@@ -312,11 +312,8 @@ class AppColors extends ThemeExtension<AppColors> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is AppColors &&
-          other.bg == bg &&
-          other.cardBg == cardBg &&
-          other.textPrimary == textPrimary);
+      (other is AppColors && other.isDark == isDark);
 
   @override
-  int get hashCode => Object.hash(bg, cardBg, textPrimary);
+  int get hashCode => isDark.hashCode;
 }

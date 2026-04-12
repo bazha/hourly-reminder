@@ -12,6 +12,8 @@ import 'features/movement/domain/repositories/movement_repository.dart';
 import 'features/movement_stats/data/repositories/movement_stats_repository_impl.dart';
 import 'features/movement_stats/domain/repositories/movement_stats_repository.dart';
 
+const appVersion = '1.0.0';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 

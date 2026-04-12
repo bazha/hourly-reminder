@@ -5,8 +5,7 @@ class GetMovementStatsUseCase {
   MovementStats call({
     required List<MovementEvent> events,
     required DateTime now,
-    required bool workOnSaturday,
-    required bool workOnSunday,
+    required Set<int> workDays,
     required int dailyGoal,
   }) {
     final today = DateTime(now.year, now.month, now.day);
@@ -23,13 +22,12 @@ class GetMovementStatsUseCase {
     final todayStats = _buildDailyStats(today, todayEvents);
 
     // Last 7 work days (excluding today, going backward)
-    final workDays = _lastWorkDays(
+    final recentWorkDays = _lastWorkDays(
       today,
       count: 7,
-      workOnSaturday: workOnSaturday,
-      workOnSunday: workOnSunday,
+      workDays: workDays,
     );
-    final weeklyStats = workDays.map((date) {
+    final weeklyStats = recentWorkDays.map((date) {
       final dayEvents = byDate[date] ?? [];
       return _buildDailyStats(date, dayEvents);
     }).toList();
@@ -38,8 +36,7 @@ class GetMovementStatsUseCase {
     final streak = _computeStreak(
       byDate: byDate,
       today: today,
-      workOnSaturday: workOnSaturday,
-      workOnSunday: workOnSunday,
+      workDays: workDays,
     );
 
     // All-time averages
@@ -99,13 +96,12 @@ class GetMovementStatsUseCase {
   List<DateTime> _lastWorkDays(
     DateTime today, {
     required int count,
-    required bool workOnSaturday,
-    required bool workOnSunday,
+    required Set<int> workDays,
   }) {
     final result = <DateTime>[];
     var date = today.subtract(const Duration(days: 1));
     while (result.length < count) {
-      if (_isWorkDay(date, workOnSaturday, workOnSunday)) {
+      if (workDays.contains(date.weekday)) {
         result.add(date);
       }
       date = date.subtract(const Duration(days: 1));
@@ -113,17 +109,10 @@ class GetMovementStatsUseCase {
     return result.reversed.toList();
   }
 
-  bool _isWorkDay(DateTime date, bool workOnSaturday, bool workOnSunday) {
-    if (date.weekday == DateTime.saturday) return workOnSaturday;
-    if (date.weekday == DateTime.sunday) return workOnSunday;
-    return true;
-  }
-
   StreakInfo _computeStreak({
     required Map<DateTime, List<MovementEvent>> byDate,
     required DateTime today,
-    required bool workOnSaturday,
-    required bool workOnSunday,
+    required Set<int> workDays,
   }) {
     var current = 0;
     var best = 0;
@@ -137,7 +126,7 @@ class GetMovementStatsUseCase {
       // that hasn't ended. Start checking from yesterday.
       date = today.subtract(const Duration(days: 1));
       // Skip non-work days
-      while (!_isWorkDay(date, workOnSaturday, workOnSunday)) {
+      while (!workDays.contains(date.weekday)) {
         date = date.subtract(const Duration(days: 1));
       }
       if (byDate.containsKey(date) && (byDate[date]?.isNotEmpty ?? false)) {
@@ -147,8 +136,7 @@ class GetMovementStatsUseCase {
         // No streak at all
         return StreakInfo(currentStreak: 0, bestStreak: _findBestStreak(
           byDate: byDate,
-          workOnSaturday: workOnSaturday,
-          workOnSunday: workOnSunday,
+          workDays: workDays,
         ));
       }
     }
@@ -159,7 +147,7 @@ class GetMovementStatsUseCase {
     }
     while (true) {
       // Skip non-work days
-      while (!_isWorkDay(date, workOnSaturday, workOnSunday)) {
+      while (!workDays.contains(date.weekday)) {
         date = date.subtract(const Duration(days: 1));
       }
       if (byDate.containsKey(date) && (byDate[date]?.isNotEmpty ?? false)) {
@@ -172,8 +160,7 @@ class GetMovementStatsUseCase {
 
     best = _findBestStreak(
       byDate: byDate,
-      workOnSaturday: workOnSaturday,
-      workOnSunday: workOnSunday,
+      workDays: workDays,
     );
     if (current > best) best = current;
 
@@ -182,8 +169,7 @@ class GetMovementStatsUseCase {
 
   int _findBestStreak({
     required Map<DateTime, List<MovementEvent>> byDate,
-    required bool workOnSaturday,
-    required bool workOnSunday,
+    required Set<int> workDays,
   }) {
     if (byDate.isEmpty) return 0;
 
@@ -194,14 +180,14 @@ class GetMovementStatsUseCase {
     DateTime? prevWorkDay;
     for (final date in sortedDates) {
       if (byDate[date]?.isEmpty ?? true) continue;
-      if (!_isWorkDay(date, workOnSaturday, workOnSunday)) continue;
+      if (!workDays.contains(date.weekday)) continue;
 
       if (prevWorkDay == null) {
         current = 1;
       } else {
         // Check if this date is the next work day after prevWorkDay
         var expected = prevWorkDay.add(const Duration(days: 1));
-        while (!_isWorkDay(expected, workOnSaturday, workOnSunday)) {
+        while (!workDays.contains(expected.weekday)) {
           expected = expected.add(const Duration(days: 1));
         }
         if (date == expected) {

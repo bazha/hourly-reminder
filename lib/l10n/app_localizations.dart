@@ -220,12 +220,6 @@ abstract class AppLocalizations {
   /// **'Конец'**
   String get timeChipEnd;
 
-  /// No description provided for @settingsLabel.
-  ///
-  /// In ru, this message translates to:
-  /// **'НАСТРОЙКИ'**
-  String get settingsLabel;
-
   /// No description provided for @settingWorkDays.
   ///
   /// In ru, this message translates to:
@@ -261,30 +255,6 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Тестовое уведомление отправлено'**
   String get testNotificationSent;
-
-  /// No description provided for @workDaysMonFri.
-  ///
-  /// In ru, this message translates to:
-  /// **'Пн-Пт'**
-  String get workDaysMonFri;
-
-  /// No description provided for @workDaysMonSat.
-  ///
-  /// In ru, this message translates to:
-  /// **'Пн-Сб'**
-  String get workDaysMonSat;
-
-  /// No description provided for @workDaysMonSun.
-  ///
-  /// In ru, this message translates to:
-  /// **'Пн-Вс'**
-  String get workDaysMonSun;
-
-  /// No description provided for @workDaysMonFriSun.
-  ///
-  /// In ru, this message translates to:
-  /// **'Пн-Пт, Вс'**
-  String get workDaysMonFriSun;
 
   /// No description provided for @monday.
   ///

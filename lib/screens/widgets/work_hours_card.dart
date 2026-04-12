@@ -4,6 +4,7 @@ import '../../core/theme/app_typography.dart';
 import '../../models/user_preferences.dart';
 import '../../core/utils/time_utils.dart';
 import '../../l10n/app_localizations.dart';
+import 'settings_card.dart' show pickTime;
 
 class WorkHoursCard extends StatelessWidget {
   const WorkHoursCard({
@@ -16,31 +17,6 @@ class WorkHoursCard extends StatelessWidget {
   final UserPreferences prefs;
   final ValueChanged<double> onStartChanged;
   final ValueChanged<double> onEndChanged;
-
-  Future<void> _pickTime(
-    BuildContext context,
-    int currentHour,
-    int currentMinute,
-    ValueChanged<double> onChanged,
-  ) async {
-    final colors = AppColors.of(context);
-    final picked = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay(hour: currentHour, minute: currentMinute),
-      builder: (ctx, child) => Theme(
-        data: Theme.of(ctx).copyWith(
-          colorScheme: Theme.of(ctx).colorScheme.copyWith(
-                surface: colors.pickerBg,
-                onSurface: colors.pickerText,
-              ),
-        ),
-        child: child!,
-      ),
-    );
-    if (picked != null) {
-      onChanged(picked.hour + picked.minute / 60.0);
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -74,7 +50,7 @@ class WorkHoursCard extends StatelessWidget {
                   dotColor: AppColors.primary,
                   label: l10n.timeChipStart,
                   time: startTime,
-                  onTap: () => _pickTime(
+                  onTap: () => pickTime(
                     context,
                     prefs.startHour,
                     prefs.startMinute,
@@ -95,7 +71,7 @@ class WorkHoursCard extends StatelessWidget {
                   dotColor: AppColors.endColor,
                   label: l10n.timeChipEnd,
                   time: endTime,
-                  onTap: () => _pickTime(
+                  onTap: () => pickTime(
                     context,
                     prefs.endHour,
                     prefs.endMinute,
