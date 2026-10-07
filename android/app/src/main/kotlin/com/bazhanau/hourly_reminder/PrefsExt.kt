@@ -78,12 +78,29 @@ fun SharedPreferences.readWorkHours(): WorkHours {
     )
 }
 
+/**
+ * Schedules an exact alarm, or an inexact one when exact alarm access is
+ * missing (Android 12+ "Alarms & reminders" revoked). Without the fallback
+ * setExactAndAllowWhileIdle throws SecurityException, the receiver crashes
+ * and the reminder chain stops. Access is re-checked on every call, so alarms
+ * become exact again once the user grants it.
+ */
 fun AlarmManager.scheduleExact(type: Int, triggerAtMillis: Long, intent: PendingIntent) {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-        setExactAndAllowWhileIdle(type, triggerAtMillis, intent)
-    } else {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
         setExact(type, triggerAtMillis, intent)
+        return
     }
+    val canExact = Build.VERSION.SDK_INT < Build.VERSION_CODES.S || canScheduleExactAlarms()
+    if (canExact) {
+        try {
+            setExactAndAllowWhileIdle(type, triggerAtMillis, intent)
+            return
+        } catch (e: SecurityException) {
+            // Access revoked between the check and the call: use the fallback.
+        }
+    }
+    // May fire a few minutes late, but keeps the reminder chain alive.
+    setAndAllowWhileIdle(type, triggerAtMillis, intent)
 }
 
 /** Prefix used by Flutter's shared_preferences plugin for StringList values. */
