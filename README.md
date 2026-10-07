@@ -44,8 +44,9 @@ flutter build ios --release    # iOS
 ## Running Tests
 
 ```bash
-flutter test               # All tests (86)
-flutter analyze            # Static analysis
+flutter test                        # All tests (97)
+TZ=Europe/Berlin flutter test       # Same, in a time zone with DST
+flutter analyze                     # Static analysis
 ```
 
 ## Architecture
@@ -99,7 +100,7 @@ android/.../com/bazhanau/hourly_reminder/
 ### Dual notification pipeline
 
 - **Android**: Entirely native Kotlin. Alarms fire BroadcastReceivers that build and show notifications. No FlutterEngine running. Action buttons handled by native receivers.
-- **iOS**: Uses `flutter_local_notifications` from Dart side. iOS runs no app code when a notification fires, so reminders are pre-scheduled as a rolling window of up to 60 one-shot notifications (iOS keeps at most 64). The queue is refilled on app start, on resume and on every notification action. If the app is never opened, the queue runs out (about 1.7 work days at a 15-min interval, about 9 calendar days at 60 min). Actions (`DarwinNotificationCategory`) run in a background Flutter engine.
+- **iOS**: Uses `flutter_local_notifications` from Dart side. iOS runs no app code when a notification fires, so reminders are pre-scheduled as a rolling window of up to 60 one-shot notifications (iOS keeps at most 64). The queue is refilled on app start, on resume and on every notification action. If the app is never opened, the queue runs out (about 1.7 work days at a 15-min interval, about 9 calendar days at 60 min). A "Reminders paused" notification at the next slot then asks the user to open the app. Actions (`DarwinNotificationCategory`) run in a background Flutter engine.
 
 Both read/write SharedPreferences (native key prefix: `flutter.`).
 
