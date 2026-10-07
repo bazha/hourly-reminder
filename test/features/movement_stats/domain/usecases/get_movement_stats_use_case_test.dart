@@ -271,4 +271,59 @@ void main() {
       expect(result.allTimeAverageSedentary, const Duration(minutes: 60));
     });
   });
+
+  // These only fail in a time zone with DST (run with TZ=Europe/Berlin).
+  // EU switches: spring forward 2026-03-29, fall back 2026-10-25.
+  group('DST switch', () {
+    List<MovementEvent> eventsOn(List<DateTime> days) => [
+          for (final d in days)
+            makeEvent(timestamp: d.add(const Duration(hours: 11)))
+        ];
+
+    final fallBackDays = [
+      for (final d in [19, 20, 21, 22, 23, 26, 27, 28]) DateTime(2026, 10, d),
+    ];
+    final springForwardDays = [
+      for (final d in [23, 24, 25, 26, 27, 30, 31]) DateTime(2026, 3, d),
+      DateTime(2026, 4, 1),
+    ];
+
+    test('streak continues across the fall-back switch', () {
+      final result = useCase(
+        events: eventsOn(fallBackDays),
+        now: DateTime(2026, 10, 28, 12),
+        workDays: {1, 2, 3, 4, 5},
+        dailyGoal: 8,
+      );
+
+      expect(result.streak.currentStreak, 8);
+      expect(result.streak.bestStreak, 8);
+    });
+
+    test('streak continues across the spring-forward switch', () {
+      final result = useCase(
+        events: eventsOn(springForwardDays),
+        now: DateTime(2026, 4, 1, 12),
+        workDays: {1, 2, 3, 4, 5},
+        dailyGoal: 8,
+      );
+
+      expect(result.streak.currentStreak, 8);
+      expect(result.streak.bestStreak, 8);
+    });
+
+    test('weekly stats across a switch use midnight dates with counts', () {
+      final result = useCase(
+        events: eventsOn(fallBackDays),
+        now: DateTime(2026, 10, 28, 12),
+        workDays: {1, 2, 3, 4, 5},
+        dailyGoal: 8,
+      );
+
+      expect(result.weeklyStats.map((d) => d.date), [
+        for (final d in [19, 20, 21, 22, 23, 26, 27]) DateTime(2026, 10, d),
+      ]);
+      expect(result.weeklyStats.map((d) => d.movementCount), everyElement(1));
+    });
+  });
 }

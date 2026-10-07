@@ -118,34 +118,26 @@ class AlarmService {
     if (workDays.contains(now.weekday)) {
       if (nowMin < startMin) {
         if (firstMin <= endMin) {
-          return DateTime(now.year, now.month, now.day)
-              .add(Duration(minutes: firstMin));
+          return _atMinute(now, firstMin);
         }
         // Interval exceeds work window - no notification fits today.
       } else if (nowMin < firstMin && firstMin <= endMin) {
-        return DateTime(now.year, now.month, now.day)
-            .add(Duration(minutes: firstMin));
+        return _atMinute(now, firstMin);
       } else if (nowMin <= endMin) {
         final nextMin = nowMin + intervalMinutes;
         if (nextMin <= endMin) {
-          return DateTime(now.year, now.month, now.day)
-              .add(Duration(minutes: nextMin));
+          return _atMinute(now, nextMin);
         }
       }
     }
 
     // Walk forward day by day until we find a valid work day where
     // the first notification fits within the work window.
-    var candidate =
-        DateTime(now.year, now.month, now.day).add(const Duration(days: 1));
-    for (var i = 0; i < 8; i++) {
-      if (workDays.contains(candidate.weekday)) {
-        if (firstMin <= endMin) {
-          return DateTime(candidate.year, candidate.month, candidate.day)
-              .add(Duration(minutes: firstMin));
-        }
+    for (var i = 1; i <= 8; i++) {
+      final candidate = DateTime(now.year, now.month, now.day + i);
+      if (workDays.contains(candidate.weekday) && firstMin <= endMin) {
+        return _atMinute(candidate, firstMin);
       }
-      candidate = candidate.add(const Duration(days: 1));
     }
 
     // No valid notification time found (interval exceeds work window).
@@ -219,6 +211,12 @@ class AlarmService {
     }
     return times;
   }
+
+  /// Wall-clock time [minuteOfDay] minutes after midnight on [day]'s date.
+  /// The DateTime constructor keeps it right on DST switch days, where
+  /// midnight + Duration lands an hour off.
+  static DateTime _atMinute(DateTime day, int minuteOfDay) =>
+      DateTime(day.year, day.month, day.day, 0, minuteOfDay);
 
   static bool _isLaterDay(DateTime a, DateTime b) =>
       DateTime(a.year, a.month, a.day)

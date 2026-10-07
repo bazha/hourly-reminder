@@ -34,8 +34,9 @@ class TimeUtils {
   ) {
     if (next == null) return l10n.remindersDisabled;
 
-    final nowDate = DateTime(now.year, now.month, now.day);
-    final nextDate = DateTime(next.year, next.month, next.day);
+    // UTC dates: local midnights are 23 or 25 hours apart on DST switches.
+    final nowDate = DateTime.utc(now.year, now.month, now.day);
+    final nextDate = DateTime.utc(next.year, next.month, next.day);
     final dayDiff = nextDate.difference(nowDate).inDays;
     final time = formatHourMinute(next.hour, next.minute);
 

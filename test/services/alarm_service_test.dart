@@ -126,6 +126,22 @@ void main() {
     test('returns null when no work days are configured', () {
       expect(nextNotif(now: mon10am, workDays: {}), isNull);
     });
+
+    // These only fail in a time zone with DST (run with TZ=Europe/Berlin).
+    test('keeps wall-clock time on DST switch days', () {
+      const everyDay = {1, 2, 3, 4, 5, 6, 7};
+      for (final day in [DateTime(2026, 3, 29), DateTime(2026, 10, 25)]) {
+        expect(
+          nextNotif(now: day.copyWith(hour: 7), workDays: everyDay),
+          day.copyWith(hour: 10),
+        );
+        expect(
+          nextNotif(
+              now: day.copyWith(hour: 10, minute: 30), workDays: everyDay),
+          day.copyWith(hour: 11, minute: 30),
+        );
+      }
+    });
   });
 
   List<DateTime> upcoming({
@@ -223,6 +239,22 @@ void main() {
           limit: 1,
         ),
         [DateTime(2026, 2, 18, 10, 0)],
+      );
+    });
+
+    test('keeps wall-clock times through a DST switch', () {
+      // Fri 2026-03-27 .. Mon 2026-03-30, spring forward on Sunday.
+      expect(
+        upcoming(
+          now: DateTime(2026, 3, 27, 6),
+          workDays: {1, 2, 3, 4, 5, 6, 7},
+          limit: 36,
+        ),
+        [
+          for (var day = 27; day <= 30; day++)
+            for (var hour = 10; hour <= 18; hour++)
+              DateTime(2026, 3, day, hour),
+        ],
       );
     });
   });

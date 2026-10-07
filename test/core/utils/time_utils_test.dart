@@ -54,6 +54,15 @@ void main() {
       final result = TimeUtils.formatNextReminder(next, now, l10n);
       expect(result, l10n.nextReminderOnDay('Mon', '10:00'));
     });
+
+    // Only fails in a time zone with DST (run with TZ=Europe/Berlin):
+    // Sunday 2026-03-29 has 23 hours, so midnight to midnight is not a day.
+    test('returns tomorrow format across the spring-forward switch', () {
+      final now = DateTime(2026, 3, 29, 20, 0);
+      final next = DateTime(2026, 3, 30, 10, 0);
+      final result = TimeUtils.formatNextReminder(next, now, l10n);
+      expect(result, l10n.nextReminderTomorrow('10:00'));
+    });
   });
 
   group('TimeUtils.formatDuration', () {
