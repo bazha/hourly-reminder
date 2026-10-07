@@ -146,12 +146,16 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           }
           return;
         }
+      }
+
+      // Save first: the iOS scheduler reads is_enabled from storage.
+      await widget.storageService.savePreferences(_prefs);
+
+      if (value) {
         await widget.alarmService.scheduleHourlyAlarm();
       } else {
         await widget.alarmService.cancelAlarm();
       }
-
-      await widget.storageService.savePreferences(_prefs);
     } finally {
       if (mounted) setState(() => _togglingReminders = false);
     }
@@ -164,9 +168,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       _isDayOff = newValue;
     });
     await widget.storageService.setDayOff(newValue ? today : null);
-    if (newValue) {
-      await widget.alarmService.cancelAlarm();
-    } else if (_prefs.isEnabled) {
+    // Reschedule instead of cancel: both pipelines skip the day-off date,
+    // and the reminder chain must survive until tomorrow.
+    if (_prefs.isEnabled) {
       await widget.alarmService.scheduleHourlyAlarm();
     }
   }

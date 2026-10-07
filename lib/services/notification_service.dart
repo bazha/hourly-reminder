@@ -1,5 +1,5 @@
 import 'dart:io' show Platform;
-import 'dart:ui' as ui;
+import 'dart:ui' show DartPluginRegistrant;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -7,8 +7,22 @@ import 'package:timezone/data/latest.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
 import '../features/movement/presentation/movement_action_handler.dart';
 import '../features/movement/data/datasources/movement_local_datasource.dart';
-import '../l10n/app_localizations.dart';
+import 'ios_reminder_scheduler.dart';
+import 'notification_l10n.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+/// Entry point for iOS notification actions. Actions without the foreground
+/// option always run in a separate background engine, where main() and
+/// NotificationService.initialize() never ran.
+@pragma('vm:entry-point')
+Future<void> onBackgroundNotificationResponse(
+    NotificationResponse response) async {
+  DartPluginRegistrant.ensureInitialized();
+  // The background engine may outlive several actions; drop its stale cache.
+  await (await SharedPreferences.getInstance()).reload();
+  await NotificationService.initialize(requestPermissions: false);
+  await NotificationService.handleResponse(response);
+}
 
 class NotificationService {
   static final FlutterLocalNotificationsPlugin _notifications =
@@ -25,21 +39,25 @@ class NotificationService {
   /// Value is the tab index (1 = stats).
   static final ValueNotifier<int> tabNotifier = ValueNotifier(0);
 
-  static Future<void> initialize() async {
+  /// Both the main and the background engine call this, so they register
+  /// identical notification categories. Only the main engine asks for
+  /// permissions.
+  static Future<void> initialize({bool requestPermissions = true}) async {
     tz_data.initializeTimeZones();
 
     const androidSettings =
         AndroidInitializationSettings('@drawable/ic_stat_notification');
 
-    final l10n = await _resolveLocalizations();
+    final prefs = await SharedPreferences.getInstance();
+    final l10n = await resolveNotificationLocalizations(prefs);
 
     final iosSettings = DarwinInitializationSettings(
-      requestAlertPermission: true,
-      requestBadgePermission: true,
-      requestSoundPermission: true,
+      requestAlertPermission: requestPermissions,
+      requestBadgePermission: requestPermissions,
+      requestSoundPermission: requestPermissions,
       notificationCategories: [
         DarwinNotificationCategory(
-          'hourly_reminder_category',
+          IosReminderScheduler.categoryId,
           actions: [
             DarwinNotificationAction.plain(
               _snoozeActionId,
@@ -61,13 +79,15 @@ class NotificationService {
 
     await _notifications.initialize(
       settings: initSettings,
-      onDidReceiveNotificationResponse: _onNotificationResponse,
+      onDidReceiveNotificationResponse: handleResponse,
+      onDidReceiveBackgroundNotificationResponse:
+          onBackgroundNotificationResponse,
     );
   }
 
-  static Future<void> _onNotificationResponse(
-      NotificationResponse response) async {
+  static Future<void> handleResponse(NotificationResponse response) async {
     if (response.actionId == _alreadyMovedActionId) {
+      await _recordScheduledTimeAsSent(response.payload);
       await MovementActionHandler.handle();
     } else if (response.actionId == _snoozeActionId) {
       await _snoozeForIos();
@@ -77,24 +97,30 @@ class NotificationService {
     }
   }
 
-  static Future<void> _snoozeForIos() async {
-    final l10n = await _resolveLocalizations();
+  /// iOS can't record the send time when a scheduled notification fires,
+  /// so the payload carries it. Reaction time is computed from this value.
+  static Future<void> _recordScheduledTimeAsSent(String? payload) async {
+    final sentAt = IosReminderScheduler.parsePayload(payload);
+    if (sentAt == null) return;
+    final prefs = await SharedPreferences.getInstance();
+    await MovementLocalDatasource(prefs).setLastNotificationSentTime(sentAt);
+  }
 
-    const iosDetails = DarwinNotificationDetails(
-      presentAlert: true,
-      presentBadge: true,
-      presentSound: true,
-      categoryIdentifier: 'hourly_reminder_category',
-    );
+  static Future<void> _snoozeForIos() async {
+    final prefs = await SharedPreferences.getInstance();
+    final l10n = await resolveNotificationLocalizations(prefs);
+    final scheduledDate =
+        tz.TZDateTime.now(tz.local).add(const Duration(minutes: 10));
 
     await _notifications.zonedSchedule(
       id: _snoozeNotificationId,
       title: l10n.notificationTitle,
       body: l10n.notificationBody,
-      scheduledDate:
-          tz.TZDateTime.now(tz.local).add(const Duration(minutes: 10)),
-      notificationDetails: const NotificationDetails(iOS: iosDetails),
+      scheduledDate: scheduledDate,
+      notificationDetails:
+          const NotificationDetails(iOS: IosReminderScheduler.darwinDetails),
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      payload: IosReminderScheduler.encodePayload(scheduledDate),
     );
   }
 
@@ -130,23 +156,15 @@ class NotificationService {
     }
 
     // iOS path: use flutter_local_notifications with "I already moved" action
-    final l10n = await _resolveLocalizationsFrom(prefs);
-
-    const iosDetails = DarwinNotificationDetails(
-      presentAlert: true,
-      presentBadge: true,
-      presentSound: true,
-      categoryIdentifier: 'hourly_reminder_category',
-    );
-
-    const notificationDetails = NotificationDetails(iOS: iosDetails);
+    final l10n = await resolveNotificationLocalizations(prefs);
 
     await _notifications.show(
       id: 1,
       title: l10n.notificationTitle,
       body: l10n.notificationBody,
-      notificationDetails: notificationDetails,
-      payload: 'hourly_reminder',
+      notificationDetails:
+          const NotificationDetails(iOS: IosReminderScheduler.darwinDetails),
+      payload: IosReminderScheduler.encodePayload(DateTime.now()),
     );
   }
 
@@ -154,26 +172,5 @@ class NotificationService {
       SharedPreferences prefs) async {
     final datasource = MovementLocalDatasource(prefs);
     await datasource.setLastNotificationSentTime(DateTime.now());
-  }
-
-  static Future<AppLocalizations> _resolveLocalizations() async {
-    final prefs = await SharedPreferences.getInstance();
-    return _resolveLocalizationsFrom(prefs);
-  }
-
-  /// Resolves AppLocalizations using the app_locale preference.
-  /// Falls back to system locale, then to Russian.
-  static Future<AppLocalizations> _resolveLocalizationsFrom(
-      SharedPreferences prefs) async {
-    final appLocale = prefs.getString('app_locale');
-    final locale = appLocale != null
-        ? ui.Locale(appLocale)
-        : ui.PlatformDispatcher.instance.locale;
-    final supported = AppLocalizations.supportedLocales;
-    final match = supported.firstWhere(
-      (l) => l.languageCode == locale.languageCode,
-      orElse: () => const ui.Locale('ru'),
-    );
-    return AppLocalizations.delegate.load(match);
   }
 }

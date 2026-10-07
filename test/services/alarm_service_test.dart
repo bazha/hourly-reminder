@@ -145,4 +145,103 @@ void main() {
       expect(nextNotif(now: mon10am, workDays: {}), isNull);
     });
   });
+
+  List<DateTime> upcoming({
+    required DateTime now,
+    int intervalMinutes = 60,
+    Set<int> workDays = _defaultWorkDays,
+    String? dayOffDate,
+    Duration? firstDelay,
+    DateTime? anchor,
+    int limit = 60,
+  }) =>
+      AlarmService.upcomingNotificationTimes(
+        now: now,
+        startHour: 9,
+        startMinute: 0,
+        endHour: 18,
+        endMinute: 0,
+        workDays: workDays,
+        intervalMinutes: intervalMinutes,
+        dayOffDate: dayOffDate,
+        firstDelay: firstDelay,
+        anchor: anchor,
+        limit: limit,
+      );
+
+  group('upcomingNotificationTimes', () {
+    test('fills the work day from start + interval to end of window', () {
+      expect(upcoming(now: mon06am, limit: 9), [
+        for (var hour = 10; hour <= 18; hour++) DateTime(2026, 2, 16, hour),
+      ]);
+    });
+
+    test('skips non-work days', () {
+      final fri17 = DateTime(2026, 2, 20, 17, 0);
+      expect(upcoming(now: fri17, limit: 2),
+          [DateTime(2026, 2, 20, 18, 0), DateTime(2026, 2, 23, 10, 0)]);
+    });
+
+    test('skips the day-off date', () {
+      expect(upcoming(now: mon06am, dayOffDate: '2026-02-16', limit: 1),
+          [DateTime(2026, 2, 17, 10, 0)]);
+    });
+
+    test('never returns more than limit', () {
+      expect(upcoming(now: mon06am, intervalMinutes: 15), hasLength(60));
+    });
+
+    test('first delay inside work window becomes the first time', () {
+      final now = DateTime(2026, 2, 16, 10, 5);
+      expect(
+        upcoming(now: now, firstDelay: const Duration(minutes: 30), limit: 3),
+        [
+          DateTime(2026, 2, 16, 10, 35),
+          DateTime(2026, 2, 16, 11, 35),
+          DateTime(2026, 2, 16, 12, 35),
+        ],
+      );
+    });
+
+    test('first delay past end of window falls back to regular series', () {
+      final now = DateTime(2026, 2, 16, 17, 50);
+      expect(
+        upcoming(now: now, firstDelay: const Duration(minutes: 30), limit: 1),
+        [DateTime(2026, 2, 17, 10, 0)],
+      );
+    });
+
+    test('anchor keeps the series unchanged on refill', () {
+      final original = upcoming(now: DateTime(2026, 2, 16, 10, 30, 15));
+      final resumedAt = DateTime(2026, 2, 16, 11, 0);
+      expect(upcoming(now: resumedAt, anchor: original.first), original);
+    });
+
+    test('anchor is dropped when an earlier work day becomes available', () {
+      final fri19 = DateTime(2026, 2, 20, 19, 0);
+      final mondayAnchor = DateTime(2026, 2, 23, 10, 0);
+      expect(
+        upcoming(
+          now: fri19,
+          workDays: {1, 2, 3, 4, 5, 6},
+          anchor: mondayAnchor,
+          limit: 1,
+        ),
+        [DateTime(2026, 2, 21, 10, 0)],
+      );
+    });
+
+    test('anchor on a day that is no longer a work day is dropped', () {
+      final tuesdayAnchor = DateTime(2026, 2, 17, 10, 0);
+      expect(
+        upcoming(
+          now: mon19pm,
+          workDays: {1, 3, 4, 5},
+          anchor: tuesdayAnchor,
+          limit: 1,
+        ),
+        [DateTime(2026, 2, 18, 10, 0)],
+      );
+    });
+  });
 }

@@ -62,9 +62,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
     setState(() => _isDayOff = newValue);
     final today = newValue ? TimeUtils.formatDate(DateTime.now()) : null;
     await widget.storageService.setDayOff(today);
-    if (newValue) {
-      await widget.alarmService.cancelAlarm();
-    } else if (_prefs.isEnabled) {
+    // Reschedule instead of cancel: both pipelines skip the day-off date,
+    // and the reminder chain must survive until tomorrow.
+    if (_prefs.isEnabled) {
       await widget.alarmService.scheduleHourlyAlarm();
     }
   }
@@ -98,6 +98,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
       _ => _prefs,
     };
     await _saveAndReschedule(updated);
+    // iOS: rebuild pre-scheduled reminders for the new day set. No-op on
+    // Android, which reads work days when the alarm fires.
+    await widget.alarmService.refillReminders();
 
     // If today's weekday was toggled on, clear day off since the user
     // explicitly wants to work today, and reschedule the alarm.

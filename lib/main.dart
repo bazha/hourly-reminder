@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'core/theme/app_colors.dart';
@@ -28,6 +29,9 @@ void main() async {
   if (datasource.getSedentaryStartTime() == null) {
     await datasource.setSedentaryStartTime(DateTime.now());
   }
+
+  // iOS: extend the pre-scheduled reminder queue. No-op on Android.
+  unawaited(alarmService.refillReminders());
 
   final movementRepository = MovementRepositoryImpl(datasource);
   final statsRepository = MovementStatsRepositoryImpl(
@@ -93,9 +97,29 @@ class HourlyReminderApp extends StatefulWidget {
   State<HourlyReminderApp> createState() => _HourlyReminderAppState();
 }
 
-class _HourlyReminderAppState extends State<HourlyReminderApp> {
+class _HourlyReminderAppState extends State<HourlyReminderApp>
+    with WidgetsBindingObserver {
   late Locale? _locale = widget.initialLocale;
   late ThemeMode _themeMode = widget.initialThemeMode;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      unawaited(widget.alarmService.refillReminders());
+    }
+  }
 
   Future<void> _setLocale(Locale? locale) async {
     setState(() => _locale = locale);
@@ -108,6 +132,8 @@ class _HourlyReminderAppState extends State<HourlyReminderApp> {
     } catch (e, stack) {
       debugPrint('Failed to persist locale: $e\n$stack');
     }
+    // iOS notification text is fixed at scheduling time.
+    await widget.alarmService.refillReminders();
   }
 
   Future<void> _setThemeMode(ThemeMode mode) async {
