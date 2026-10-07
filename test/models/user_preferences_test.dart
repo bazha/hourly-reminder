@@ -112,6 +112,29 @@ void main() {
       expect(a, isNot(equals(a.copyWith(reminderIntervalMinutes: 30))));
     });
 
+    group('hasReminderWindow', () {
+      test('defaults fit reminders', () {
+        expect(UserPreferences().hasReminderWindow, isTrue);
+      });
+
+      test('end before start fits no reminder', () {
+        final prefs = UserPreferences(startHour: 18, endHour: 9);
+        expect(prefs.hasReminderWindow, isFalse);
+      });
+
+      test('interval longer than the window fits no reminder', () {
+        final prefs = UserPreferences(
+            startHour: 9, endHour: 10, reminderIntervalMinutes: 120);
+        expect(prefs.hasReminderWindow, isFalse);
+      });
+
+      test('interval equal to the window fits one reminder', () {
+        final prefs = UserPreferences(
+            startHour: 9, endHour: 10, reminderIntervalMinutes: 60);
+        expect(prefs.hasReminderWindow, isTrue);
+      });
+    });
+
     group('formatWorkDays', () {
       const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 

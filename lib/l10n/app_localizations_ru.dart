@@ -33,6 +33,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get remindersDisabled => 'Напоминания выключены';
 
   @override
+  String get noReminderFits => 'Напоминания не помещаются в рабочие часы';
+
+  @override
   String nextReminderToday(String time) {
     return 'Следующее в $time';
   }

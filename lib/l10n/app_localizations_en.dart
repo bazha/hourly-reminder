@@ -33,6 +33,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get remindersDisabled => 'Reminders disabled';
 
   @override
+  String get noReminderFits => 'No reminder fits into your work hours';
+
+  @override
   String nextReminderToday(String time) {
     return 'Next at $time';
   }

@@ -84,6 +84,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ? _prefs.copyWith(startHour: hour, startMinute: minute)
         : _prefs.copyWith(endHour: hour, endMinute: minute);
     await _saveAndReschedule(updated, reschedule: true);
+    if (!updated.hasReminderWindow && mounted) {
+      showNoReminderFitsWarning(context);
+    }
   }
 
   Future<void> _toggleWorkDay(int weekday, bool value) async {
@@ -116,6 +119,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> _updateInterval(int minutes) async {
     final updated = _prefs.copyWith(reminderIntervalMinutes: minutes);
     await _saveAndReschedule(updated, reschedule: true);
+    if (!updated.hasReminderWindow && mounted) {
+      showNoReminderFitsWarning(context);
+    }
   }
 
   Future<void> _updateGoal(int goal) async {

@@ -30,6 +30,15 @@ Future<void> pickTime(
   }
 }
 
+/// Warns after saving work hours or an interval that fit no reminder.
+/// The change is kept: start and end are edited one at a time, so a
+/// temporary invalid pair (e.g. moving 9-18 to 20-23) must be allowed.
+void showNoReminderFitsWarning(BuildContext context) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(content: Text(AppLocalizations.of(context)!.noReminderFits)),
+  );
+}
+
 void showSheet(BuildContext context, WidgetBuilder builder) {
   final colors = AppColors.of(context);
   showModalBottomSheet(

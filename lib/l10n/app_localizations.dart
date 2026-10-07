@@ -148,6 +148,12 @@ abstract class AppLocalizations {
   /// **'Напоминания выключены'**
   String get remindersDisabled;
 
+  /// No description provided for @noReminderFits.
+  ///
+  /// In ru, this message translates to:
+  /// **'Напоминания не помещаются в рабочие часы'**
+  String get noReminderFits;
+
   /// No description provided for @nextReminderToday.
   ///
   /// In ru, this message translates to:

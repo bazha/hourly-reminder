@@ -11,6 +11,7 @@
   "toggleSemanticsLabel": "Нагадванні",
 
   "remindersDisabled": "Нагадванні выключаны",
+  "noReminderFits": "Нагадванні не змяшчаюцца ў працоўныя гадзіны",
   "nextReminderToday": "Наступнае ў {time}",
   "nextReminderTomorrow": "Наступнае заўтра ў {time}",
   "nextReminderOnDay": "Наступнае ў {dayName} ў {time}",

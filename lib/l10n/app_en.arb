@@ -11,6 +11,7 @@
   "toggleSemanticsLabel": "Reminders",
 
   "remindersDisabled": "Reminders disabled",
+  "noReminderFits": "No reminder fits into your work hours",
   "nextReminderToday": "Next at {time}",
   "nextReminderTomorrow": "Next tomorrow at {time}",
   "nextReminderOnDay": "Next on {dayName} at {time}",

@@ -86,6 +86,12 @@ class UserPreferences {
     };
   }
 
+  /// Whether at least one reminder fits into the work hours. The first one
+  /// fires at start + interval (same rule as AlarmService and Kotlin).
+  bool get hasReminderWindow =>
+      startHour * 60 + startMinute + reminderIntervalMinutes <=
+      endHour * 60 + endMinute;
+
   Set<int> get workDaySet => {
         for (int d = 1; d <= 7; d++)
           if (isWorkDay(d)) d,

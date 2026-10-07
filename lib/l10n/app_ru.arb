@@ -11,6 +11,7 @@
   "toggleSemanticsLabel": "Напоминания",
 
   "remindersDisabled": "Напоминания выключены",
+  "noReminderFits": "Напоминания не помещаются в рабочие часы",
   "nextReminderToday": "Следующее в {time}",
   "@nextReminderToday": { "placeholders": { "time": { "type": "String" } } },
   "nextReminderTomorrow": "Следующее завтра в {time}",
