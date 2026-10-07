@@ -1,5 +1,6 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:hourly_reminder/l10n/app_localizations_ru.dart';
 import 'package:hourly_reminder/services/ios_reminder_scheduler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/timezone.dart' as tz;
@@ -119,6 +120,76 @@ void main() {
       await scheduler.cancel();
 
       expect(plugin.pending.keys, [2]);
+    });
+  });
+
+  group('reminders paused notification', () {
+    late _FakeNotificationsPlugin plugin;
+    late IosReminderScheduler scheduler;
+    final l10n = AppLocalizationsRu();
+    final times = [
+      for (var i = 0; i < IosReminderScheduler.maxReminders + 1; i++)
+        DateTime(2026, 2, 16, 10).add(Duration(hours: i)),
+    ];
+
+    setUp(() {
+      SharedPreferences.setMockInitialValues({'app_locale': 'ru'});
+      plugin = _FakeNotificationsPlugin();
+      scheduler = IosReminderScheduler(plugin: plugin);
+    });
+
+    test('is scheduled at the time after the last reminder', () async {
+      await scheduler.schedule(times);
+
+      final paused = plugin.pending[IosReminderScheduler.pausedId]!;
+      expect(paused.payload, IosReminderScheduler.encodePayload(times.last));
+      expect(paused.title, l10n.notificationPausedTitle);
+      expect(paused.body, l10n.notificationPausedBody);
+      expect(
+        plugin.pending.keys.where((id) => id >= 100),
+        hasLength(IosReminderScheduler.maxReminders),
+      );
+    });
+
+    test('is cancelled when the series fits the queue', () async {
+      await scheduler.schedule(times);
+
+      await scheduler.schedule(times.take(30).toList());
+
+      expect(
+          plugin.pending.containsKey(IosReminderScheduler.pausedId), isFalse);
+    });
+
+    test('a delivered notice is removed when the queue is refilled', () async {
+      await scheduler.schedule(times);
+      // The notice fired: it is no longer pending, it sits delivered.
+      plugin.pending.remove(IosReminderScheduler.pausedId);
+      plugin.cancelledIds.clear();
+
+      await scheduler.schedule(times);
+
+      // The plugin's cancel also removes the delivered notification.
+      expect(plugin.cancelledIds, [IosReminderScheduler.pausedId]);
+      expect(plugin.pending.containsKey(IosReminderScheduler.pausedId), isTrue);
+    });
+
+    test('rescheduling the same series is a no-op', () async {
+      await scheduler.schedule(times);
+      plugin.scheduledIds.clear();
+
+      await scheduler.schedule(times);
+
+      expect(plugin.scheduledIds, isEmpty);
+    });
+
+    test('cancel removes it and keeps a pending snooze', () async {
+      plugin.pending[IosReminderScheduler.snoozeId] =
+          const PendingNotificationRequest(2, 't', 'b', null);
+      await scheduler.schedule(times);
+
+      await scheduler.cancel();
+
+      expect(plugin.pending.keys, [IosReminderScheduler.snoozeId]);
     });
   });
 }

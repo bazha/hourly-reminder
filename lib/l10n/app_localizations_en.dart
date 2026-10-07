@@ -259,6 +259,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notificationBody => 'Stretch and walk around 🚶';
 
   @override
+  String get notificationPausedTitle => 'Reminders paused';
+
+  @override
+  String get notificationPausedBody => 'Open the app to keep getting reminders';
+
+  @override
   String get notificationSnooze => 'In 10 minutes';
 
   @override

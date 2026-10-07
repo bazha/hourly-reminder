@@ -261,6 +261,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String get notificationBody => 'Пора размяться и походить 🚶';
 
   @override
+  String get notificationPausedTitle => 'Напоминания на паузе';
+
+  @override
+  String get notificationPausedBody =>
+      'Откройте приложение, чтобы напоминания продолжились';
+
+  @override
   String get notificationSnooze => 'Через 10 минут';
 
   @override

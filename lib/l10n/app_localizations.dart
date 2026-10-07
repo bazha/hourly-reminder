@@ -544,6 +544,18 @@ abstract class AppLocalizations {
   /// **'Пора размяться и походить 🚶'**
   String get notificationBody;
 
+  /// No description provided for @notificationPausedTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Напоминания на паузе'**
+  String get notificationPausedTitle;
+
+  /// No description provided for @notificationPausedBody.
+  ///
+  /// In ru, this message translates to:
+  /// **'Откройте приложение, чтобы напоминания продолжились'**
+  String get notificationPausedBody;
+
   /// No description provided for @notificationSnooze.
   ///
   /// In ru, this message translates to:

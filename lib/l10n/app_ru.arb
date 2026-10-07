@@ -102,6 +102,8 @@
 
   "notificationTitle": "Время встать! ⏰",
   "notificationBody": "Пора размяться и походить 🚶",
+  "notificationPausedTitle": "Напоминания на паузе",
+  "notificationPausedBody": "Откройте приложение, чтобы напоминания продолжились",
   "notificationSnooze": "Через 10 минут",
   "notificationAlreadyMoved": "Я уже двигался",
 

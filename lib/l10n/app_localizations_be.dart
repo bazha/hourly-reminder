@@ -261,6 +261,13 @@ class AppLocalizationsBe extends AppLocalizations {
   String get notificationBody => 'Пара размяцца і пахадзiць 🚶';
 
   @override
+  String get notificationPausedTitle => 'Нагадванні на паўзе';
+
+  @override
+  String get notificationPausedBody =>
+      'Адкрыйце праграму, каб нагадванні працягваліся';
+
+  @override
   String get notificationSnooze => 'Праз 10 хвілін';
 
   @override

@@ -97,6 +97,8 @@ class AlarmService {
       dayOffDate: storage.dayOffDate,
       firstDelay: firstDelay,
       anchor: anchor,
+      // One past the queue: its time is used for the "paused" notice.
+      limit: IosReminderScheduler.maxReminders + 1,
     ));
   }
 

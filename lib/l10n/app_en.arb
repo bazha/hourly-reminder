@@ -91,6 +91,8 @@
 
   "notificationTitle": "Time to stand up! ⏰",
   "notificationBody": "Stretch and walk around 🚶",
+  "notificationPausedTitle": "Reminders paused",
+  "notificationPausedBody": "Open the app to keep getting reminders",
   "notificationSnooze": "In 10 minutes",
   "notificationAlreadyMoved": "Already moved",
 

@@ -91,6 +91,8 @@
 
   "notificationTitle": "Час устаць! ⏰",
   "notificationBody": "Пара размяцца і пахадзiць 🚶",
+  "notificationPausedTitle": "Нагадванні на паўзе",
+  "notificationPausedBody": "Адкрыйце праграму, каб нагадванні працягваліся",
   "notificationSnooze": "Праз 10 хвілін",
   "notificationAlreadyMoved": "Ужо рухаўся",
 
