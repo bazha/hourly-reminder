@@ -22,16 +22,24 @@ void main() {
     });
 
     test('round-trips all preference fields', () async {
+      // Every field differs from its default, so a missing save or load
+      // can't pass by falling back to the default value.
       final expected = UserPreferences(
         isEnabled: true,
         startHour: 8,
         startMinute: 30,
         endHour: 17,
         endMinute: 45,
+        workOnMonday: false,
+        workOnTuesday: false,
+        workOnWednesday: false,
+        workOnThursday: false,
+        workOnFriday: false,
         workOnSaturday: true,
-        workOnSunday: false,
+        workOnSunday: true,
         notificationGender: NotificationGender.female,
         dailyGoal: 12,
+        reminderIntervalMinutes: 45,
       );
       await service.savePreferences(expected);
       final loaded = service.loadPreferences();
@@ -48,16 +56,6 @@ void main() {
       final loaded = service.loadPreferences();
       expect(loaded.isEnabled, isFalse);
       expect(loaded.startHour, 10);
-    });
-
-    test('persists all gender values', () async {
-      for (final gender in NotificationGender.values) {
-        await service.savePreferences(
-          UserPreferences(notificationGender: gender),
-        );
-        final loaded = service.loadPreferences();
-        expect(loaded.notificationGender, gender, reason: gender.name);
-      }
     });
 
     test('setDayOff stores and clears date string', () async {

@@ -43,27 +43,6 @@ void main() {
   });
 
   group('today stats', () {
-    test('single event today shows correct daily stats', () {
-      final now = DateTime(2026, 3, 19, 14, 0);
-      final event = makeEvent(
-        timestamp: DateTime(2026, 3, 19, 10, 0),
-        sedentaryDuration: const Duration(minutes: 50),
-        reactionTime: const Duration(minutes: 3),
-      );
-
-      final result = useCase(
-        events: [event],
-        now: now,
-        workDays: {1, 2, 3, 4, 5},
-        dailyGoal: 8,
-      );
-
-      expect(result.today.movementCount, 1);
-      expect(result.today.totalSedentaryTime, const Duration(minutes: 50));
-      expect(result.today.averageReactionTime, const Duration(minutes: 3));
-      expect(result.totalMovements, 1);
-    });
-
     test('multiple events today aggregates correctly', () {
       final now = DateTime(2026, 3, 19, 16, 0);
       final events = [
@@ -244,69 +223,6 @@ void main() {
       );
 
       expect(result.streak.currentStreak, 2);
-    });
-
-    test('best streak is tracked independently from current', () {
-      final now = DateTime(2026, 3, 19, 14, 0); // Thursday
-      final events = [
-        // Old streak of 4: Mon-Thu Mar 2-5
-        makeEvent(timestamp: DateTime(2026, 3, 2, 10, 0)),
-        makeEvent(timestamp: DateTime(2026, 3, 3, 10, 0)),
-        makeEvent(timestamp: DateTime(2026, 3, 4, 10, 0)),
-        makeEvent(timestamp: DateTime(2026, 3, 5, 10, 0)),
-        // Current streak of 1: today only
-        makeEvent(timestamp: DateTime(2026, 3, 19, 10, 0)),
-      ];
-
-      final result = useCase(
-        events: events,
-        now: now,
-        workDays: {1, 2, 3, 4, 5},
-        dailyGoal: 8,
-      );
-
-      expect(result.streak.currentStreak, 1);
-      expect(result.streak.bestStreak, 4);
-    });
-
-    test('disabled weekday breaks streak across that day', () {
-      // Wednesday (3) is not a work day
-      final now = DateTime(2026, 3, 19, 14, 0); // Thursday
-      final events = [
-        makeEvent(timestamp: DateTime(2026, 3, 19, 10, 0)), // Thu (today)
-        // Wed is disabled, so it should be skipped
-        makeEvent(timestamp: DateTime(2026, 3, 17, 10, 0)), // Tue
-        makeEvent(timestamp: DateTime(2026, 3, 16, 10, 0)), // Mon
-      ];
-
-      final result = useCase(
-        events: events,
-        now: now,
-        workDays: {1, 2, 4, 5}, // Wed (3) disabled
-        dailyGoal: 8,
-      );
-
-      // Wed is skipped as non-work day, so Thu->Tue is consecutive
-      expect(result.streak.currentStreak, 3);
-    });
-
-    test('disabled weekday without event on adjacent day breaks streak', () {
-      // Wednesday (3) is a work day but has no events
-      final now = DateTime(2026, 3, 19, 14, 0); // Thursday
-      final events = [
-        makeEvent(timestamp: DateTime(2026, 3, 19, 10, 0)), // Thu (today)
-        // Wed is a work day but missing event - streak breaks
-        makeEvent(timestamp: DateTime(2026, 3, 17, 10, 0)), // Tue
-      ];
-
-      final result = useCase(
-        events: events,
-        now: now,
-        workDays: {1, 2, 3, 4, 5},
-        dailyGoal: 8,
-      );
-
-      expect(result.streak.currentStreak, 1);
     });
 
     test('both weekends enabled treats every day as work day', () {

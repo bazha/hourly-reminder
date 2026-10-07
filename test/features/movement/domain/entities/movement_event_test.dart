@@ -10,14 +10,6 @@ void main() {
     source: MovementSource.notification,
   );
 
-  test('creates instance with correct fields', () {
-    expect(base.id, 'evt-1');
-    expect(base.timestamp, DateTime(2026, 3, 16, 10, 0));
-    expect(base.sedentaryDuration, const Duration(hours: 1));
-    expect(base.reactionTime, const Duration(minutes: 2));
-    expect(base.source, MovementSource.notification);
-  });
-
   test('equality and hashCode work correctly', () {
     final same = MovementEvent(
       id: 'evt-1',

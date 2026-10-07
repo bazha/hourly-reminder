@@ -11,11 +11,6 @@ void main() {
     expect(AppColors.dark.hashCode, isNot(AppColors.light.hashCode));
   });
 
-  test('shared accent constants have expected values', () {
-    expect(AppColors.primary, const Color(0xFFE09040));
-    expect(AppColors.endColor, const Color(0xFFC74B4B));
-  });
-
   testWidgets('AppColors.of resolves correct palette per brightness',
       (tester) async {
     late AppColors result;

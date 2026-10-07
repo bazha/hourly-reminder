@@ -114,20 +114,6 @@ class UserPreferences {
     }).join(', ');
   }
 
-  double get startTime => startHour + (startMinute / 60.0);
-  double get endTime => endHour + (endMinute / 60.0);
-
-  int get startTotalMinutes => startHour * 60 + startMinute;
-  int get endTotalMinutes => endHour * 60 + endMinute;
-
-  /// Number of notifications that fire in one work day based on the interval.
-  int get dailyNotificationCount {
-    if (endTotalMinutes < startTotalMinutes) return 0;
-    return ((endTotalMinutes - startTotalMinutes) / reminderIntervalMinutes)
-            .floor() +
-        1;
-  }
-
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||

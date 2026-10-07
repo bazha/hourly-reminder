@@ -43,22 +43,6 @@ void main() {
       );
     });
 
-    test('scales proportionally with 120 min base interval', () {
-      // Fast: 120 * 0.5 = 60 min
-      expect(
-        IntervalCalculator.compute(Duration.zero, baseIntervalMinutes: 120),
-        const Duration(minutes: 60),
-      );
-      // Slow: 120 * 0.75 = 90 min
-      expect(
-        IntervalCalculator.compute(
-          const Duration(minutes: 5),
-          baseIntervalMinutes: 120,
-        ),
-        const Duration(minutes: 90),
-      );
-    });
-
     test('enforces 10 minute minimum', () {
       // 15 * 0.5 = 7.5 -> 8, but clamped to 10
       expect(

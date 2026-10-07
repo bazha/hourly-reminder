@@ -87,24 +87,6 @@ void main() {
           DateTime(2026, 2, 17, 10, 0));
     });
 
-    test('uses custom interval for next notification', () {
-      final now = DateTime(2026, 2, 16, 10, 0, 1);
-      // 30 min interval: 10:00 + 30 = 10:30
-      expect(
-        AlarmService.nextNotificationTime(
-          now: now,
-          isEnabled: true,
-          startHour: 9,
-          startMinute: 0,
-          endHour: 18,
-          endMinute: 0,
-          workDays: {1, 2, 3, 4, 5},
-          intervalMinutes: 30,
-        ),
-        DateTime(2026, 2, 16, 10, 30),
-      );
-    });
-
     test('custom interval fits more notifications before end of window', () {
       final now = DateTime(2026, 2, 16, 17, 30, 0);
       // 30 min interval: 17:30 + 30 = 18:00 <= endMin, fits

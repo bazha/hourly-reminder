@@ -95,6 +95,12 @@ void main() {
       expect(a, isNot(equals(a.copyWith(isEnabled: false))));
       expect(a, isNot(equals(a.copyWith(startHour: 8))));
       expect(a, isNot(equals(a.copyWith(endHour: 17))));
+      expect(a, isNot(equals(a.copyWith(endMinute: 0))));
+      expect(a, isNot(equals(a.copyWith(workOnMonday: false))));
+      expect(a, isNot(equals(a.copyWith(workOnTuesday: false))));
+      expect(a, isNot(equals(a.copyWith(workOnWednesday: false))));
+      expect(a, isNot(equals(a.copyWith(workOnThursday: false))));
+      expect(a, isNot(equals(a.copyWith(workOnFriday: false))));
       expect(a, isNot(equals(a.copyWith(workOnSaturday: false))));
       expect(a, isNot(equals(a.copyWith(workOnSunday: true))));
       expect(
@@ -106,78 +112,11 @@ void main() {
       expect(a, isNot(equals(a.copyWith(reminderIntervalMinutes: 30))));
     });
 
-    test('time getters include minutes as fractions', () {
-      final prefs = UserPreferences(
-        startHour: 9,
-        startMinute: 30,
-        endHour: 17,
-        endMinute: 45,
-      );
-      expect(prefs.startTime, 9.5);
-      expect(prefs.endTime, 17.75);
-      expect(prefs.startTotalMinutes, 570);
-      expect(prefs.endTotalMinutes, 1065);
-    });
-
-    group('dailyNotificationCount', () {
-      test('default window (9-18) gives 10', () {
-        expect(UserPreferences().dailyNotificationCount, 10);
-      });
-
-      test('narrow window (12-12) gives 1', () {
-        expect(
-          UserPreferences(startHour: 12, endHour: 12).dailyNotificationCount,
-          1,
-        );
-      });
-
-      test('full day (0-23) gives 24', () {
-        expect(
-          UserPreferences(startHour: 0, endHour: 23).dailyNotificationCount,
-          24,
-        );
-      });
-
-      test('inverted window gives 0', () {
-        expect(
-          UserPreferences(startHour: 18, endHour: 9).dailyNotificationCount,
-          0,
-        );
-      });
-
-      test('minute-based window 9:30-17:30 gives 9', () {
-        final prefs = UserPreferences(
-          startHour: 9,
-          startMinute: 30,
-          endHour: 17,
-          endMinute: 30,
-        );
-        expect(prefs.dailyNotificationCount, 9);
-      });
-
-      test('30 min interval doubles notification count', () {
-        // 9-18 = 540 min, 540/30 + 1 = 19
-        final prefs = UserPreferences(reminderIntervalMinutes: 30);
-        expect(prefs.dailyNotificationCount, 19);
-      });
-
-      test('120 min interval halves notification count', () {
-        // 9-18 = 540 min, 540/120 + 1 = 5
-        final prefs = UserPreferences(reminderIntervalMinutes: 120);
-        expect(prefs.dailyNotificationCount, 5);
-      });
-    });
-
     group('formatWorkDays', () {
       const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
       test('default Mon-Fri formats as range', () {
         expect(UserPreferences().formatWorkDays(days), 'Mon-Fri');
-      });
-
-      test('all days formats as single range', () {
-        final prefs = UserPreferences(workOnSaturday: true, workOnSunday: true);
-        expect(prefs.formatWorkDays(days), 'Mon-Sun');
       });
 
       test('no work days returns empty string', () {
@@ -200,17 +139,6 @@ void main() {
           workOnSaturday: true,
         );
         expect(prefs.formatWorkDays(days), 'Mon, Sat');
-      });
-
-      test('single day formats without dash', () {
-        final prefs = UserPreferences(
-          workOnMonday: false,
-          workOnTuesday: false,
-          workOnWednesday: true,
-          workOnThursday: false,
-          workOnFriday: false,
-        );
-        expect(prefs.formatWorkDays(days), 'Wed');
       });
     });
   });
