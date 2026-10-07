@@ -41,8 +41,4 @@ void main() {
     );
     expect(base, isNot(equals(diffSource)));
   });
-
-  test('toString includes id', () {
-    expect(base.toString(), contains('evt-1'));
-  });
 }

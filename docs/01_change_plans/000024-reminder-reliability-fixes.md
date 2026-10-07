@@ -170,7 +170,7 @@ Suggestion, needs your approval: add `TZ=Europe/Berlin flutter test` to the buil
 `test/services/alarm_service_test.dart`:
 - [x] `nextNotificationTime` at 07:00 on 2026-03-29 and 2026-10-25 (Sunday as a work day, hours 9-18) returns 10:00
 - [x] `upcomingNotificationTimes` over a week that contains a switch: every time is inside 10:00-18:00 local, no 11:00-19:00 drift
-- [x] `upcomingNotificationTimes` with `limit: 61` returns 61 times (Batch 4 relies on it)
+- [x] `upcomingNotificationTimes` with `limit: 61` returns 61 times (Batch 4 relies on it). Removed later as redundant, see the report
 
 `test/core/utils/time_utils_test.dart`:
 - [x] `formatNextReminder` with now = 2026-03-29 20:00 and next = 2026-03-30 10:00 returns the "tomorrow" text

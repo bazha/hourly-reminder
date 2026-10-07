@@ -113,14 +113,6 @@ void main() {
 
       expect(plugin.pending.keys, unorderedEquals([100, 101, 102]));
     });
-    test('cancel keeps a pending snooze', () async {
-      plugin.pending[2] = const PendingNotificationRequest(2, 't', 'b', null);
-      await scheduler.schedule(times);
-
-      await scheduler.cancel();
-
-      expect(plugin.pending.keys, [2]);
-    });
   });
 
   group('reminders paused notification', () {
@@ -182,7 +174,7 @@ void main() {
       expect(plugin.scheduledIds, isEmpty);
     });
 
-    test('cancel removes it and keeps a pending snooze', () async {
+    test('cancel removes reminders and the notice, keeps a snooze', () async {
       plugin.pending[IosReminderScheduler.snoozeId] =
           const PendingNotificationRequest(2, 't', 'b', null);
       await scheduler.schedule(times);

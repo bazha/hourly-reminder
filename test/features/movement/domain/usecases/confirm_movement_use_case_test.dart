@@ -41,19 +41,6 @@ void main() {
       expect(scheduledInterval, const Duration(minutes: 30));
     });
 
-    test('returns 45 min interval for slow reaction (>3 min)', () async {
-      final notifTime = DateTime(2026, 3, 16, 10, 0);
-      final now = DateTime(2026, 3, 16, 10, 5); // 5 min later
-      repository.lastNotificationSentTime = notifTime;
-      repository.sedentaryStartTime = DateTime(2026, 3, 16, 9, 0);
-
-      final useCase = createUseCase(now: now);
-      final result = await useCase.execute();
-
-      expect(result, const Duration(minutes: 45));
-      expect(scheduledInterval, const Duration(minutes: 45));
-    });
-
     test('persists correct MovementEvent', () async {
       final notifTime = DateTime(2026, 3, 16, 10, 0);
       final sedentaryStart = DateTime(2026, 3, 16, 9, 0);

@@ -3,14 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:hourly_reminder/core/theme/app_colors.dart';
 
 void main() {
-  test('dark and light palettes are distinct', () {
-    expect(AppColors.dark.bg, isNot(equals(AppColors.light.bg)));
-    expect(AppColors.dark.isDark, isTrue);
-    expect(AppColors.light.isDark, isFalse);
-    expect(AppColors.dark == AppColors.light, isFalse);
-    expect(AppColors.dark.hashCode, isNot(AppColors.light.hashCode));
-  });
-
   testWidgets('AppColors.of resolves correct palette per brightness',
       (tester) async {
     late AppColors result;

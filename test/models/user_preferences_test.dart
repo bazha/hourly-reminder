@@ -113,10 +113,6 @@ void main() {
     });
 
     group('hasReminderWindow', () {
-      test('defaults fit reminders', () {
-        expect(UserPreferences().hasReminderWindow, isTrue);
-      });
-
       test('end before start fits no reminder', () {
         final prefs = UserPreferences(startHour: 18, endHour: 9);
         expect(prefs.hasReminderWindow, isFalse);

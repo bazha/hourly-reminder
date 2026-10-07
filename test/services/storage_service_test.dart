@@ -46,18 +46,6 @@ void main() {
       expect(loaded, equals(expected));
     });
 
-    test('overwrites previously saved preferences', () async {
-      await service.savePreferences(
-        UserPreferences(isEnabled: true, startHour: 8),
-      );
-      await service.savePreferences(
-        UserPreferences(isEnabled: false, startHour: 10),
-      );
-      final loaded = service.loadPreferences();
-      expect(loaded.isEnabled, isFalse);
-      expect(loaded.startHour, 10);
-    });
-
     test('setDayOff stores and clears date string', () async {
       expect(service.dayOffDate, isNull);
       expect(service.isDayOff, isFalse);

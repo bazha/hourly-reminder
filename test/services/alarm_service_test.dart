@@ -189,11 +189,6 @@ void main() {
       expect(upcoming(now: mon06am, intervalMinutes: 15), hasLength(60));
     });
 
-    test('returns one time past the iOS queue for the paused notice', () {
-      expect(upcoming(now: mon06am, intervalMinutes: 15, limit: 61),
-          hasLength(61));
-    });
-
     test('first delay inside work window becomes the first time', () {
       final now = DateTime(2026, 2, 16, 10, 5);
       expect(

@@ -59,3 +59,24 @@ New tests: 22 (86 → 108).
 - A manual movement right after "Уже размялся" from a heads-up notification (app in the foreground) is saved, but its sedentary duration counts from the old start time. `ConfirmMovementUseCase` reads the start before `saveEvent` reloads.
 - The iOS wiring in `AlarmService` (behind `Platform.isIOS`) and the SnackBar on the Settings screen have no automated tests. The manual checklists cover them.
 - Android still wakes up for silent alarms on the day off (`nextValidAlarmTime` doesn't skip it). This is out of scope in the plan.
+
+## Test cleanup after the plan (2026-10-07)
+
+On request, 11 redundant tests were removed: 108 → 97. Each one is fully covered by a test that stays. Three of the coverage claims were checked with temporary mutations in `Europe/Minsk`: the kept test failed every time, then the code was restored byte for byte.
+
+| Removed test | Covered by |
+|---|---|
+| `app_colors_test`: dark and light palettes are distinct | `AppColors.of resolves correct palette` (same `isDark` checks). `==`/`hashCode` are not overridden, so those checks were identity |
+| `movement_event_test`: toString includes id | Nothing depends on `toString` (debug output) |
+| `confirm_movement_use_case_test`: 45 min for slow reaction | `IntervalCalculator` tests own the threshold. The use case wiring is covered by the fast-reaction test and `persists correct MovementEvent` |
+| `storage_service_test`: overwrites previously saved preferences | It tested SharedPreferences setters. The round-trip test covers every field |
+| `user_preferences_test`: defaults fit reminders (from 000024) | The boundary test (9-10 at 60 min) is stricter |
+| `alarm_service_test`: one time past the iOS queue (from 000024) | It passed before any code change. `limit` is exercised by `fills the work day` (9) and `skips non-work days` (2) |
+| `ios_reminder_scheduler_test`: cancel keeps a pending snooze | `cancel removes reminders and the notice, keeps a snooze` (same checks with 61 times). Mutation-checked |
+| `get_movement_stats_use_case_test`: shows last 7 work days excluding today | DST weekly test (exact list of 7 dates). Mutation-checked |
+| `get_movement_stats_use_case_test`: consecutive work days streak | DST streak tests (streak includes today) |
+| `get_movement_stats_use_case_test`: weekends are skipped | DST streak tests (streak crosses a weekend). Mutation-checked |
+| `widget_test.dart`: app smoke test (file deleted) | `test/screens/home_screen_test.dart` pumps the same full app |
+
+`flutter analyze` is clean, and the 97 tests pass under `Europe/Berlin`, `America/New_York` and `Europe/Minsk`.
+
