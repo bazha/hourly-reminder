@@ -3,6 +3,10 @@ import '../core/utils/time_utils.dart';
 import '../models/user_preferences.dart';
 
 class StorageService {
+  /// Keys read directly from SharedPreferences outside this class.
+  static const appLocaleKey = 'app_locale';
+  static const appThemeModeKey = 'app_theme_mode';
+
   final SharedPreferences _prefs;
 
   StorageService(this._prefs);

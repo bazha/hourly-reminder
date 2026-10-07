@@ -48,9 +48,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get todayLabel => 'TODAY';
-
-  @override
   String get goalZeroMotivation => 'Great time to start!';
 
   @override

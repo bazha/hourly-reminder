@@ -15,7 +15,6 @@
   "nextReminderTomorrow": "Наступнае заўтра ў {time}",
   "nextReminderOnDay": "Наступнае ў {dayName} ў {time}",
 
-  "todayLabel": "СЁННЯ",
   "goalZeroMotivation": "Самы час пачаць!",
   "goalProgressText": "з {goal} размiнак",
   "recordMovement": "Запiсаць размiнку",

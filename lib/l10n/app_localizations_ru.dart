@@ -48,9 +48,6 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get todayLabel => 'СЕГОДНЯ';
-
-  @override
   String get goalZeroMotivation => 'Самое время начать!';
 
   @override

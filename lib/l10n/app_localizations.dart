@@ -166,12 +166,6 @@ abstract class AppLocalizations {
   /// **'Следующее в {dayName} в {time}'**
   String nextReminderOnDay(String dayName, String time);
 
-  /// No description provided for @todayLabel.
-  ///
-  /// In ru, this message translates to:
-  /// **'СЕГОДНЯ'**
-  String get todayLabel;
-
   /// No description provided for @goalZeroMotivation.
   ///
   /// In ru, this message translates to:

@@ -23,22 +23,8 @@ class AppColors extends ThemeExtension<AppColors> {
   final Color sliderThumb;
   final Color divider;
 
-  // --- Clock face ---
-  final Color clockFaceInner;
-  final Color clockFaceOuter;
-  final Color clockRing;
-  final Color clockBorder;
-  final Color clockTickKey;
-  final Color clockTickHalf;
-  final Color clockTickMinor;
-  final Color clockLabelColor;
-  final Color clockCenterDot;
-  final Color clockCenterGlow;
-  final Color clockHandleRing;
-
   // --- Time picker dialog ---
   final Color pickerBg;
-  final Color pickerInputBg;
   final Color pickerText;
 
   // --- Navigation bar ---
@@ -69,19 +55,7 @@ class AppColors extends ThemeExtension<AppColors> {
     required this.sliderInactiveTrack,
     required this.sliderThumb,
     required this.divider,
-    required this.clockFaceInner,
-    required this.clockFaceOuter,
-    required this.clockRing,
-    required this.clockBorder,
-    required this.clockTickKey,
-    required this.clockTickHalf,
-    required this.clockTickMinor,
-    required this.clockLabelColor,
-    required this.clockCenterDot,
-    required this.clockCenterGlow,
-    required this.clockHandleRing,
     required this.pickerBg,
-    required this.pickerInputBg,
     required this.pickerText,
     required this.navBarBg,
     required this.navBarSelected,
@@ -106,19 +80,7 @@ class AppColors extends ThemeExtension<AppColors> {
     sliderInactiveTrack: Color(0xFF3D3936),
     sliderThumb: Color(0xFFE09040),
     divider: Color(0xFF3D3936),
-    clockFaceInner: Color(0xFF2C2825),
-    clockFaceOuter: Color(0xFF221F1C),
-    clockRing: Color(0xFF3D3936),
-    clockBorder: Color(0xFF3D3936),
-    clockTickKey: Color(0xA6EBEAE8),
-    clockTickHalf: Color(0x4DEBEAE8),
-    clockTickMinor: Color(0x1FEBEAE8),
-    clockLabelColor: Color(0x66EBEAE8),
-    clockCenterDot: Color(0xFFEBEAE8),
-    clockCenterGlow: Color(0x33EBEAE8),
-    clockHandleRing: Color(0x2EFFFFFF),
     pickerBg: Color(0xFF2C2825),
-    pickerInputBg: Color(0x26E09040),
     pickerText: Color(0xFFEBEAE8),
     navBarBg: Color(0xFF1B1714),
     navBarSelected: Color(0xFFE09040),
@@ -143,19 +105,7 @@ class AppColors extends ThemeExtension<AppColors> {
     sliderInactiveTrack: Color(0xFFE8E0D4),
     sliderThumb: Color(0xFFCC7A2E),
     divider: Color(0xFFE8E0D4),
-    clockFaceInner: Color(0xFFF0EBE3),
-    clockFaceOuter: Color(0xFFE8E0D4),
-    clockRing: Color(0xFFE8E0D4),
-    clockBorder: Color(0xFFE8E0D4),
-    clockTickKey: Color(0xA62C2620),
-    clockTickHalf: Color(0x4D2C2620),
-    clockTickMinor: Color(0x1F2C2620),
-    clockLabelColor: Color(0x662C2620),
-    clockCenterDot: Color(0xFF2C2620),
-    clockCenterGlow: Color(0x332C2620),
-    clockHandleRing: Color(0x2E000000),
     pickerBg: Color(0xFFF5F0E8),
-    pickerInputBg: Color(0x1ACC7A2E),
     pickerText: Color(0xFF2C2620),
     navBarBg: Color(0xFFFFFFFF),
     navBarSelected: Color(0xFFCC7A2E),
@@ -193,19 +143,7 @@ class AppColors extends ThemeExtension<AppColors> {
     Color? sliderInactiveTrack,
     Color? sliderThumb,
     Color? divider,
-    Color? clockFaceInner,
-    Color? clockFaceOuter,
-    Color? clockRing,
-    Color? clockBorder,
-    Color? clockTickKey,
-    Color? clockTickHalf,
-    Color? clockTickMinor,
-    Color? clockLabelColor,
-    Color? clockCenterDot,
-    Color? clockCenterGlow,
-    Color? clockHandleRing,
     Color? pickerBg,
-    Color? pickerInputBg,
     Color? pickerText,
     Color? navBarBg,
     Color? navBarSelected,
@@ -228,19 +166,7 @@ class AppColors extends ThemeExtension<AppColors> {
       sliderInactiveTrack: sliderInactiveTrack ?? this.sliderInactiveTrack,
       sliderThumb: sliderThumb ?? this.sliderThumb,
       divider: divider ?? this.divider,
-      clockFaceInner: clockFaceInner ?? this.clockFaceInner,
-      clockFaceOuter: clockFaceOuter ?? this.clockFaceOuter,
-      clockRing: clockRing ?? this.clockRing,
-      clockBorder: clockBorder ?? this.clockBorder,
-      clockTickKey: clockTickKey ?? this.clockTickKey,
-      clockTickHalf: clockTickHalf ?? this.clockTickHalf,
-      clockTickMinor: clockTickMinor ?? this.clockTickMinor,
-      clockLabelColor: clockLabelColor ?? this.clockLabelColor,
-      clockCenterDot: clockCenterDot ?? this.clockCenterDot,
-      clockCenterGlow: clockCenterGlow ?? this.clockCenterGlow,
-      clockHandleRing: clockHandleRing ?? this.clockHandleRing,
       pickerBg: pickerBg ?? this.pickerBg,
-      pickerInputBg: pickerInputBg ?? this.pickerInputBg,
       pickerText: pickerText ?? this.pickerText,
       navBarBg: navBarBg ?? this.navBarBg,
       navBarSelected: navBarSelected ?? this.navBarSelected,
@@ -271,19 +197,7 @@ class AppColors extends ThemeExtension<AppColors> {
           Color.lerp(sliderInactiveTrack, other.sliderInactiveTrack, t)!,
       sliderThumb: Color.lerp(sliderThumb, other.sliderThumb, t)!,
       divider: Color.lerp(divider, other.divider, t)!,
-      clockFaceInner: Color.lerp(clockFaceInner, other.clockFaceInner, t)!,
-      clockFaceOuter: Color.lerp(clockFaceOuter, other.clockFaceOuter, t)!,
-      clockRing: Color.lerp(clockRing, other.clockRing, t)!,
-      clockBorder: Color.lerp(clockBorder, other.clockBorder, t)!,
-      clockTickKey: Color.lerp(clockTickKey, other.clockTickKey, t)!,
-      clockTickHalf: Color.lerp(clockTickHalf, other.clockTickHalf, t)!,
-      clockTickMinor: Color.lerp(clockTickMinor, other.clockTickMinor, t)!,
-      clockLabelColor: Color.lerp(clockLabelColor, other.clockLabelColor, t)!,
-      clockCenterDot: Color.lerp(clockCenterDot, other.clockCenterDot, t)!,
-      clockCenterGlow: Color.lerp(clockCenterGlow, other.clockCenterGlow, t)!,
-      clockHandleRing: Color.lerp(clockHandleRing, other.clockHandleRing, t)!,
       pickerBg: Color.lerp(pickerBg, other.pickerBg, t)!,
-      pickerInputBg: Color.lerp(pickerInputBg, other.pickerInputBg, t)!,
       pickerText: Color.lerp(pickerText, other.pickerText, t)!,
       navBarBg: Color.lerp(navBarBg, other.navBarBg, t)!,
       navBarSelected: Color.lerp(navBarSelected, other.navBarSelected, t)!,

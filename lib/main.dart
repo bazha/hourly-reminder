@@ -40,8 +40,8 @@ void main() async {
   );
 
   // Read locale/theme before runApp to avoid a first-frame flash.
-  final savedLocaleCode = prefs.getString('app_locale');
-  final savedTheme = prefs.getString('app_theme_mode');
+  final savedLocaleCode = prefs.getString(StorageService.appLocaleKey);
+  final savedTheme = prefs.getString(StorageService.appThemeModeKey);
 
   runApp(HourlyReminderApp(
     prefs: prefs,
@@ -125,9 +125,10 @@ class _HourlyReminderAppState extends State<HourlyReminderApp>
     setState(() => _locale = locale);
     try {
       if (locale == null) {
-        await widget.prefs.remove('app_locale');
+        await widget.prefs.remove(StorageService.appLocaleKey);
       } else {
-        await widget.prefs.setString('app_locale', locale.languageCode);
+        await widget.prefs
+            .setString(StorageService.appLocaleKey, locale.languageCode);
       }
     } catch (e, stack) {
       debugPrint('Failed to persist locale: $e\n$stack');
@@ -140,9 +141,9 @@ class _HourlyReminderAppState extends State<HourlyReminderApp>
     setState(() => _themeMode = mode);
     try {
       if (mode == ThemeMode.system) {
-        await widget.prefs.remove('app_theme_mode');
+        await widget.prefs.remove(StorageService.appThemeModeKey);
       } else {
-        await widget.prefs.setString('app_theme_mode', mode.name);
+        await widget.prefs.setString(StorageService.appThemeModeKey, mode.name);
       }
     } catch (e, stack) {
       debugPrint('Failed to persist theme mode: $e\n$stack');
