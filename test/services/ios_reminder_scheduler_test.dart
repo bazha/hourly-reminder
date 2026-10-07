@@ -103,6 +103,15 @@ void main() {
           IosReminderScheduler.encodePayload(newTimes.first));
     });
 
+    test('cancelSnooze removes the snooze and keeps reminders', () async {
+      plugin.pending[IosReminderScheduler.snoozeId] =
+          const PendingNotificationRequest(2, 't', 'b', null);
+      await scheduler.schedule(times);
+
+      await scheduler.cancelSnooze();
+
+      expect(plugin.pending.keys, unorderedEquals([100, 101, 102]));
+    });
     test('cancel keeps a pending snooze', () async {
       plugin.pending[2] = const PendingNotificationRequest(2, 't', 'b', null);
       await scheduler.schedule(times);

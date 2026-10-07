@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.os.Build
 import org.json.JSONArray
+import java.time.LocalDate
 import java.util.Calendar
 
 const val DEFAULT_INTERVAL_MINUTES = 60
@@ -151,6 +152,13 @@ fun Calendar.isSameDay(other: Calendar): Boolean =
     get(Calendar.YEAR) == other.get(Calendar.YEAR) &&
     get(Calendar.MONTH) == other.get(Calendar.MONTH) &&
     get(Calendar.DAY_OF_MONTH) == other.get(Calendar.DAY_OF_MONTH)
+
+/**
+ * True when today is the day off set in the app. Dart stores it as
+ * `yyyy-MM-dd`; LocalDate.toString() gives the same ASCII format in any locale.
+ */
+fun SharedPreferences.isDayOffToday(): Boolean =
+    getString(PrefsKeys.DAY_OFF_DATE, null) == LocalDate.now().toString()
 
 /**
  * Checks whether the given calendar day is an enabled work day.

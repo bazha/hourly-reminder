@@ -75,4 +75,7 @@ class StorageService {
     if (saved == null) return false;
     return saved == TimeUtils.formatDate(DateTime.now());
   }
+
+  /// Whether a reminder may be shown today: reminders on and no day off.
+  bool get remindersActiveToday => loadPreferences().isEnabled && !isDayOff;
 }

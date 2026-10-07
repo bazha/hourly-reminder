@@ -9,6 +9,7 @@ import '../features/movement/presentation/movement_action_handler.dart';
 import '../features/movement/data/datasources/movement_local_datasource.dart';
 import 'ios_reminder_scheduler.dart';
 import 'notification_l10n.dart';
+import 'storage_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Entry point for iOS notification actions. Actions without the foreground
@@ -33,7 +34,6 @@ class NotificationService {
 
   static const _alreadyMovedActionId = 'already_moved';
   static const _snoozeActionId = 'snooze';
-  static const _snoozeNotificationId = 2;
 
   /// Notifies listeners when a notification tap requests a specific tab.
   /// Value is the tab index (1 = stats).
@@ -108,12 +108,17 @@ class NotificationService {
 
   static Future<void> _snoozeForIos() async {
     final prefs = await SharedPreferences.getInstance();
+    await prefs.reload();
+    // iOS runs no code when the snooze fires, so check now. Covers a snooze
+    // tapped on an old notification after reminders were turned off or the
+    // day off was turned on.
+    if (!StorageService(prefs).remindersActiveToday) return;
     final l10n = await resolveNotificationLocalizations(prefs);
     final scheduledDate =
         tz.TZDateTime.now(tz.local).add(const Duration(minutes: 10));
 
     await _notifications.zonedSchedule(
-      id: _snoozeNotificationId,
+      id: IosReminderScheduler.snoozeId,
       title: l10n.notificationTitle,
       body: l10n.notificationBody,
       scheduledDate: scheduledDate,

@@ -14,6 +14,9 @@ class IosReminderScheduler {
   static const maxReminders = 60;
   static const _firstId = 100;
 
+  /// Snooze notification, scheduled by NotificationService.
+  static const snoozeId = 2;
+
   static const categoryId = 'hourly_reminder_category';
   static const darwinDetails = DarwinNotificationDetails(
     presentAlert: true,
@@ -87,6 +90,10 @@ class IosReminderScheduler {
       await _plugin.cancel(id: request.id);
     }
   }
+
+  /// Cancels a pending snooze. iOS runs no code when it fires, so turning
+  /// reminders off or taking a day off must remove it up front.
+  Future<void> cancelSnooze() => _plugin.cancel(id: snoozeId);
 
   Future<List<DateTime>> pendingTimes() async {
     final pending = await _pendingReminders();

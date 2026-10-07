@@ -80,6 +80,17 @@ void main() {
       expect(service.isDayOff, isFalse);
     });
 
+    test('remindersActiveToday needs reminders on and no day off today',
+        () async {
+      expect(service.remindersActiveToday, isFalse);
+
+      await service.savePreferences(UserPreferences(isEnabled: true));
+      expect(service.remindersActiveToday, isTrue);
+
+      await service.setDayOff(TimeUtils.formatDate(DateTime.now()));
+      expect(service.remindersActiveToday, isFalse);
+    });
+
     test('unknown gender string falls back to neutral', () async {
       SharedPreferences.setMockInitialValues({
         'notification_gender': 'unknown_value',

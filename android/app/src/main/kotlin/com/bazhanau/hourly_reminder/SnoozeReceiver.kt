@@ -12,6 +12,19 @@ class SnoozeReceiver : BroadcastReceiver() {
         const val ACTION_SNOOZE = "com.bazhanau.hourly_reminder.ACTION_SNOOZE"
         const val ACTION_SHOW_SNOOZED = "com.bazhanau.hourly_reminder.ACTION_SHOW_SNOOZED"
         private const val SNOOZE_DELAY_MS = 10 * 60 * 1000L // 10 minutes
+
+        /** Shared with ReminderScheduler.cancel(), which must match it exactly. */
+        fun snoozePendingIntent(context: Context): PendingIntent {
+            val intent = Intent(context, SnoozeReceiver::class.java).apply {
+                action = ACTION_SHOW_SNOOZED
+            }
+            return PendingIntent.getBroadcast(
+                context,
+                RequestCodes.SNOOZE_ALARM,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+        }
     }
 
     override fun onReceive(context: Context, intent: Intent) {
@@ -23,6 +36,12 @@ class SnoozeReceiver : BroadcastReceiver() {
                 scheduleSnoozeAlarm(context)
             }
             ACTION_SHOW_SNOOZED -> {
+                // Reminders may have been turned off, or the day off taken,
+                // during the snooze. Work hours are not checked: the user
+                // asked for this reminder explicitly.
+                val prefs = context.flutterPrefs
+                if (!prefs.getBoolean(PrefsKeys.IS_ENABLED, false)) return
+                if (prefs.isDayOffToday()) return
                 // Show the notification again (snooze alarm fired)
                 NotificationHelper.showReminder(context)
             }
@@ -31,22 +50,13 @@ class SnoozeReceiver : BroadcastReceiver() {
 
     private fun scheduleSnoozeAlarm(context: Context) {
         val alarmManager = context.alarmManager
-        val intent = Intent(context, SnoozeReceiver::class.java).apply {
-            action = ACTION_SHOW_SNOOZED
-        }
-        val pendingIntent = PendingIntent.getBroadcast(
-            context,
-            RequestCodes.SNOOZE_ALARM,
-            intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
 
         // Uses ELAPSED_REALTIME_WAKEUP (not RTC_WAKEUP) because snooze is a short
         // relative delay. Elapsed time is immune to wall-clock changes.
         alarmManager.scheduleExact(
             AlarmManager.ELAPSED_REALTIME_WAKEUP,
             SystemClock.elapsedRealtime() + SNOOZE_DELAY_MS,
-            pendingIntent
+            snoozePendingIntent(context)
         )
     }
 }

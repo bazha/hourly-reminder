@@ -34,7 +34,10 @@ class AlarmService {
     if (Platform.isAndroid) {
       await _channel.invokeMethod('cancelAlarm');
     } else if (Platform.isIOS) {
-      await _serializeIos(_iosScheduler.cancel);
+      await _serializeIos(() async {
+        await _iosScheduler.cancel();
+        await _iosScheduler.cancelSnooze();
+      });
     }
   }
 
@@ -77,8 +80,11 @@ class AlarmService {
     final userPrefs = storage.loadPreferences();
     if (!userPrefs.isEnabled) {
       await _iosScheduler.cancel();
+      await _iosScheduler.cancelSnooze();
       return;
     }
+    // A snooze has no check when it fires on iOS, so drop it on a day off.
+    if (storage.isDayOff) await _iosScheduler.cancelSnooze();
 
     await _iosScheduler.schedule(upcomingNotificationTimes(
       now: now,
