@@ -44,7 +44,7 @@ flutter build ios --release    # iOS
 ## Running Tests
 
 ```bash
-flutter test               # All tests (81)
+flutter test               # All tests (86)
 flutter analyze            # Static analysis
 ```
 
@@ -58,8 +58,10 @@ lib/
 ├── models/
 │   └── user_preferences.dart     # Immutable settings model
 ├── services/
-│   ├── alarm_service.dart         # Alarm scheduling + next notification time
-│   ├── notification_service.dart  # flutter_local_notifications wrapper
+│   ├── alarm_service.dart         # Alarm scheduling + next notification times
+│   ├── ios_reminder_scheduler.dart # iOS rolling window of pre-scheduled reminders
+│   ├── notification_l10n.dart     # Localized notification text
+│   ├── notification_service.dart  # flutter_local_notifications wrapper + action handling
 │   └── storage_service.dart       # SharedPreferences wrapper
 ├── screens/
 │   ├── main_shell.dart            # Bottom nav (Home, Stats, Settings)
@@ -97,7 +99,7 @@ android/.../com/bazhanau/hourly_reminder/
 ### Dual notification pipeline
 
 - **Android**: Entirely native Kotlin. Alarms fire BroadcastReceivers that build and show notifications. No FlutterEngine running. Action buttons handled by native receivers.
-- **iOS**: Uses `flutter_local_notifications` from Dart side. Actions via `DarwinNotificationCategory`.
+- **iOS**: Uses `flutter_local_notifications` from Dart side. iOS runs no app code when a notification fires, so reminders are pre-scheduled as a rolling window of up to 60 one-shot notifications (iOS keeps at most 64). The queue is refilled on app start, on resume and on every notification action. If the app is never opened, the queue runs out (about 1.7 work days at a 15-min interval, about 9 calendar days at 60 min). Actions (`DarwinNotificationCategory`) run in a background Flutter engine.
 
 Both read/write SharedPreferences (native key prefix: `flutter.`).
 
@@ -105,10 +107,8 @@ Both read/write SharedPreferences (native key prefix: `flutter.`).
 
 | Package | Version | Purpose |
 |---|---|---|
-| `flutter_local_notifications` | 21.0 | Notifications (iOS) |
-| `android_alarm_manager_plus` | 4.0 | Background alarms |
+| `flutter_local_notifications` | 21.0 | Notifications (iOS), notification permission requests |
 | `shared_preferences` | 2.3 | Persistent storage |
-| `permission_handler` | 12.0 | Runtime permissions |
 | `timezone` | 0.11 | Timezone utilities |
 | `fl_chart` | 1.2 | Weekly stats chart |
 | `url_launcher` | 6.3 | External links |

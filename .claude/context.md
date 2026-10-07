@@ -70,6 +70,24 @@ Key categories:
 
 Reminder interval is user-configurable (15-120 min, default 60). Stored in `flutter.reminder_interval_minutes`. Reminders are **not clock-aligned** - they fire at `now + interval`. Adaptive intervals after "I already moved" scale proportionally: fast reaction = base * 0.5, slow = base * 0.75, minimum 10 min.
 
+### iOS reminder scheduling (plan 000022, 2026-10-06)
+
+iOS runs no app code when a notification fires. Reminders are pre-scheduled by `IosReminderScheduler` as up to 60 one-shot `zonedSchedule` notifications (ids 100-159, payload = scheduled time in millis). iOS keeps only the 64 most recent, so never exceed 60.
+
+- `AlarmService.scheduleHourlyAlarm({firstDelay})` = reset from now (hours/interval change, toggle on, manual move, "already moved" with adaptive `firstDelay`, day off).
+- `AlarmService.refillReminders()` = extend from the earliest pending reminder (`anchor`) without shifting (app start, resume, locale change, work day toggled). The anchor is dropped if an earlier day became available. No-op on Android.
+- Both read prefs from storage (after `reload()`), so save prefs **before** calling them.
+- `IosReminderScheduler.schedule()` overwrites ids in place and cancels only leftovers (never leaves the queue empty), and skips the rebuild when pending ids, times, title and body already match.
+- Times come from pure `AlarmService.upcomingNotificationTimes()`, which loops over `nextNotificationTime()` and skips `day_off_date`.
+- `tz.local` is never set (UTC). Times are converted with `tz.TZDateTime.from(dt, tz.UTC)`; the plugin keeps the instant.
+- Action buttons are `.plain`, so the plugin always runs them in a background engine via top-level `onBackgroundNotificationResponse` (needs `setPluginRegistrantCallback` in `AppDelegate`). Reaction time comes from the payload.
+- Turning on a day off reschedules instead of cancelling, on both platforms.
+- Manual iOS device testing for 000022 was still pending at the time of writing.
+
+### Android exact alarms (plan 000023)
+
+All native alarms go through `AlarmManager.scheduleExact()` in `PrefsExt.kt`. It checks `canScheduleExactAlarms()` (Android 12+) and catches `SecurityException`, falling back to `setAndAllowWhileIdle()`. Use this helper for any new alarm, never call `setExact*` directly.
+
 ### First notification delay
 
 The first notification of the day fires at `workStart + interval` (not immediately). For the default 60-min interval, that means 10:00 if work starts at 9:00. Implemented in both:
@@ -81,19 +99,17 @@ The first notification of the day fires at `workStart + interval` (not immediate
 
 ```
 flutter_local_notifications: ^21.0.0
-android_alarm_manager_plus: ^4.0.8
 shared_preferences: ^2.3.4
-permission_handler: ^12.0.1
 timezone: ^0.11.0
 fl_chart: ^1.2.0
 url_launcher: ^6.3.2
 ```
 
-All direct dependencies at latest compatible versions as of 2026-03-24.
+All direct dependencies at latest compatible versions as of 2026-03-24. `cupertino_icons` and `permission_handler` removed as unused (plan 000021, 2026-10-06). Android alarms are native `AlarmManager` (no alarm plugin).
 
 ## Tests
 
-12 test files, 81 tests. Coverage is good across services, domain logic, utilities, and models. Widget/integration coverage is minimal (smoke test only).
+14 test files, 86 tests (as of 2026-10-06, after removing 24 redundant and dead-code tests). Coverage is good across services, domain logic, utilities, and models. Widget/integration coverage is minimal (smoke test only).
 
 Test files map to:
 - `test/services/` - alarm and storage services
@@ -115,6 +131,9 @@ Completed plans in `docs/01_change_plans/`:
 - 000010: Movement statistics screen
 - 000011: Next reminder, manual movement, daily goal
 - 000015: Home screen redesign (PR #26)
+- 000021: Dead AppColors fields, unused deps, locale/theme key constants, unused l10n key
+- 000022: iOS recurring reminders (rolling window, background actions, day-off fix)
+- 000023: Android exact alarm fallback (`scheduleExact` uses an inexact alarm when exact access is missing)
 
 Partial: 000002 (refactoring opportunities), 000003 (test refactoring)
 
@@ -122,7 +141,7 @@ Partial: 000002 (refactoring opportunities), 000003 (test refactoring)
 
 - `StorageService` and `AlarmService` use constructor injection. `NotificationService` remains static (platform-bridging glue code). Full migration deemed not worth it.
 - No Riverpod/Bloc - StatefulWidget + SharedPreferences for all state. Fine for current app size.
-- iOS support exists but is less tested than Android. Exercise notifications are Android-only.
+- iOS support exists but is less tested than Android. Exercise notifications and swipe-dismiss sedentary reset are Android-only. iOS reminder queue runs out if the app is never opened (no Background App Refresh).
 - Movement events stored as JSON StringList in SharedPreferences. Fine for current scale (~2,500 events/year). Consider SQLite if data grows.
 
 ## MethodChannels
