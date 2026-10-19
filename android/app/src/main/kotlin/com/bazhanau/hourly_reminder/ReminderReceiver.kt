@@ -1,7 +1,6 @@
 package com.bazhanau.hourly_reminder
 
 import android.app.AlarmManager
-import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -15,27 +14,18 @@ class ReminderReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action != ACTION_HOURLY_REMINDER) return
 
-        // Schedule the NEXT hourly alarm (we use one-shot for exactness)
-        ReminderScheduler.scheduleNextHourlyAlarm(context)
-
-        // Check conditions from SharedPreferences
         val prefs = context.flutterPrefs
 
+        // Reminders off: return before rescheduling, so the chain ends here
+        // even if a stray alarm survived the cancel.
         val isEnabled = prefs.getBoolean(PrefsKeys.IS_ENABLED, false)
         if (!isEnabled) return
 
+        // Schedule the NEXT hourly alarm (we use one-shot for exactness)
+        ReminderScheduler.scheduleNextHourlyAlarm(context)
+
         // Day-off check: skip if today matches the stored day-off date.
-        val dayOffDate = prefs.getString(PrefsKeys.DAY_OFF_DATE, null)
-        if (dayOffDate != null) {
-            val now = Calendar.getInstance()
-            val today = String.format(
-                "%04d-%02d-%02d",
-                now.get(Calendar.YEAR),
-                now.get(Calendar.MONTH) + 1,
-                now.get(Calendar.DAY_OF_MONTH)
-            )
-            if (dayOffDate == today) return
-        }
+        if (prefs.isDayOffToday()) return
 
         val now = Calendar.getInstance()
         if (!isDayEnabled(prefs, now)) return
@@ -90,20 +80,10 @@ class ReminderReceiver : BroadcastReceiver() {
             setTimeFromMinutes(targetMin)
         }
 
-        val intent = Intent(context, ReminderReceiver::class.java).apply {
-            action = ACTION_HOURLY_REMINDER
-        }
-        val pendingIntent = PendingIntent.getBroadcast(
-            context,
-            RequestCodes.SETTLING_ALARM,
-            intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-
         alarmManager.scheduleExact(
             AlarmManager.RTC_WAKEUP,
             triggerAt.timeInMillis,
-            pendingIntent
+            ReminderScheduler.settlingPendingIntent(context)
         )
     }
 }

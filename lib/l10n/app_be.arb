@@ -11,11 +11,11 @@
   "toggleSemanticsLabel": "Нагадванні",
 
   "remindersDisabled": "Нагадванні выключаны",
+  "noReminderFits": "Нагадванні не змяшчаюцца ў працоўныя гадзіны",
   "nextReminderToday": "Наступнае ў {time}",
   "nextReminderTomorrow": "Наступнае заўтра ў {time}",
   "nextReminderOnDay": "Наступнае ў {dayName} ў {time}",
 
-  "todayLabel": "СЁННЯ",
   "goalZeroMotivation": "Самы час пачаць!",
   "goalProgressText": "з {goal} размiнак",
   "recordMovement": "Запiсаць размiнку",
@@ -91,6 +91,8 @@
 
   "notificationTitle": "Час устаць! ⏰",
   "notificationBody": "Пара размяцца і пахадзiць 🚶",
+  "notificationPausedTitle": "Нагадванні на паўзе",
+  "notificationPausedBody": "Адкрыйце праграму, каб нагадванні працягваліся",
   "notificationSnooze": "Праз 10 хвілін",
   "notificationAlreadyMoved": "Ужо рухаўся",
 

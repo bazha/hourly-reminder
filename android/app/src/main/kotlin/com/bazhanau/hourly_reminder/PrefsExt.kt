@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.os.Build
 import org.json.JSONArray
+import java.time.LocalDate
 import java.util.Calendar
 
 const val DEFAULT_INTERVAL_MINUTES = 60
@@ -78,12 +79,29 @@ fun SharedPreferences.readWorkHours(): WorkHours {
     )
 }
 
+/**
+ * Schedules an exact alarm, or an inexact one when exact alarm access is
+ * missing (Android 12+ "Alarms & reminders" revoked). Without the fallback
+ * setExactAndAllowWhileIdle throws SecurityException, the receiver crashes
+ * and the reminder chain stops. Access is re-checked on every call, so alarms
+ * become exact again once the user grants it.
+ */
 fun AlarmManager.scheduleExact(type: Int, triggerAtMillis: Long, intent: PendingIntent) {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-        setExactAndAllowWhileIdle(type, triggerAtMillis, intent)
-    } else {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
         setExact(type, triggerAtMillis, intent)
+        return
     }
+    val canExact = Build.VERSION.SDK_INT < Build.VERSION_CODES.S || canScheduleExactAlarms()
+    if (canExact) {
+        try {
+            setExactAndAllowWhileIdle(type, triggerAtMillis, intent)
+            return
+        } catch (e: SecurityException) {
+            // Access revoked between the check and the call: use the fallback.
+        }
+    }
+    // May fire a few minutes late, but keeps the reminder chain alive.
+    setAndAllowWhileIdle(type, triggerAtMillis, intent)
 }
 
 /** Prefix used by Flutter's shared_preferences plugin for StringList values. */
@@ -134,6 +152,13 @@ fun Calendar.isSameDay(other: Calendar): Boolean =
     get(Calendar.YEAR) == other.get(Calendar.YEAR) &&
     get(Calendar.MONTH) == other.get(Calendar.MONTH) &&
     get(Calendar.DAY_OF_MONTH) == other.get(Calendar.DAY_OF_MONTH)
+
+/**
+ * True when today is the day off set in the app. Dart stores it as
+ * `yyyy-MM-dd`; LocalDate.toString() gives the same ASCII format in any locale.
+ */
+fun SharedPreferences.isDayOffToday(): Boolean =
+    getString(PrefsKeys.DAY_OFF_DATE, null) == LocalDate.now().toString()
 
 /**
  * Checks whether the given calendar day is an enabled work day.

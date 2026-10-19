@@ -23,7 +23,7 @@ object ReminderScheduler {
         alarmManager.scheduleExact(
             AlarmManager.RTC_WAKEUP,
             next.timeInMillis,
-            buildHourlyPendingIntent(context)
+            hourlyPendingIntent(context)
         )
     }
 
@@ -68,18 +68,31 @@ object ReminderScheduler {
         return null
     }
 
+    /**
+     * Cancels every pending alarm: the hourly chain, the settling alarm and
+     * a snooze. Uses the same builders as scheduling, otherwise
+     * AlarmManager.cancel() does not match the PendingIntent.
+     */
     fun cancel(context: Context) {
         val alarmManager = context.alarmManager
-        alarmManager.cancel(buildHourlyPendingIntent(context))
+        alarmManager.cancel(hourlyPendingIntent(context))
+        alarmManager.cancel(settlingPendingIntent(context))
+        alarmManager.cancel(SnoozeReceiver.snoozePendingIntent(context))
     }
 
-    private fun buildHourlyPendingIntent(context: Context): PendingIntent {
+    fun hourlyPendingIntent(context: Context): PendingIntent =
+        reminderPendingIntent(context, RequestCodes.HOURLY_ALARM)
+
+    fun settlingPendingIntent(context: Context): PendingIntent =
+        reminderPendingIntent(context, RequestCodes.SETTLING_ALARM)
+
+    private fun reminderPendingIntent(context: Context, requestCode: Int): PendingIntent {
         val intent = Intent(context, ReminderReceiver::class.java).apply {
             action = ReminderReceiver.ACTION_HOURLY_REMINDER
         }
         return PendingIntent.getBroadcast(
             context,
-            RequestCodes.HOURLY_ALARM,
+            requestCode,
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )

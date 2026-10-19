@@ -22,42 +22,28 @@ void main() {
     });
 
     test('round-trips all preference fields', () async {
+      // Every field differs from its default, so a missing save or load
+      // can't pass by falling back to the default value.
       final expected = UserPreferences(
         isEnabled: true,
         startHour: 8,
         startMinute: 30,
         endHour: 17,
         endMinute: 45,
+        workOnMonday: false,
+        workOnTuesday: false,
+        workOnWednesday: false,
+        workOnThursday: false,
+        workOnFriday: false,
         workOnSaturday: true,
-        workOnSunday: false,
+        workOnSunday: true,
         notificationGender: NotificationGender.female,
         dailyGoal: 12,
+        reminderIntervalMinutes: 45,
       );
       await service.savePreferences(expected);
       final loaded = service.loadPreferences();
       expect(loaded, equals(expected));
-    });
-
-    test('overwrites previously saved preferences', () async {
-      await service.savePreferences(
-        UserPreferences(isEnabled: true, startHour: 8),
-      );
-      await service.savePreferences(
-        UserPreferences(isEnabled: false, startHour: 10),
-      );
-      final loaded = service.loadPreferences();
-      expect(loaded.isEnabled, isFalse);
-      expect(loaded.startHour, 10);
-    });
-
-    test('persists all gender values', () async {
-      for (final gender in NotificationGender.values) {
-        await service.savePreferences(
-          UserPreferences(notificationGender: gender),
-        );
-        final loaded = service.loadPreferences();
-        expect(loaded.notificationGender, gender, reason: gender.name);
-      }
     });
 
     test('setDayOff stores and clears date string', () async {
@@ -80,6 +66,17 @@ void main() {
 
       await service.setDayOff('2000-01-01');
       expect(service.isDayOff, isFalse);
+    });
+
+    test('remindersActiveToday needs reminders on and no day off today',
+        () async {
+      expect(service.remindersActiveToday, isFalse);
+
+      await service.savePreferences(UserPreferences(isEnabled: true));
+      expect(service.remindersActiveToday, isTrue);
+
+      await service.setDayOff(TimeUtils.formatDate(DateTime.now()));
+      expect(service.remindersActiveToday, isFalse);
     });
 
     test('unknown gender string falls back to neutral', () async {

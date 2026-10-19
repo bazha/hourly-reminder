@@ -33,6 +33,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get remindersDisabled => 'Напоминания выключены';
 
   @override
+  String get noReminderFits => 'Напоминания не помещаются в рабочие часы';
+
+  @override
   String nextReminderToday(String time) {
     return 'Следующее в $time';
   }
@@ -46,9 +49,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String nextReminderOnDay(String dayName, String time) {
     return 'Следующее в $dayName в $time';
   }
-
-  @override
-  String get todayLabel => 'СЕГОДНЯ';
 
   @override
   String get goalZeroMotivation => 'Самое время начать!';
@@ -259,6 +259,13 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get notificationBody => 'Пора размяться и походить 🚶';
+
+  @override
+  String get notificationPausedTitle => 'Напоминания на паузе';
+
+  @override
+  String get notificationPausedBody =>
+      'Откройте приложение, чтобы напоминания продолжились';
 
   @override
   String get notificationSnooze => 'Через 10 минут';

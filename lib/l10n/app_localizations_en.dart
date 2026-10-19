@@ -33,6 +33,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get remindersDisabled => 'Reminders disabled';
 
   @override
+  String get noReminderFits => 'No reminder fits into your work hours';
+
+  @override
   String nextReminderToday(String time) {
     return 'Next at $time';
   }
@@ -46,9 +49,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String nextReminderOnDay(String dayName, String time) {
     return 'Next on $dayName at $time';
   }
-
-  @override
-  String get todayLabel => 'TODAY';
 
   @override
   String get goalZeroMotivation => 'Great time to start!';
@@ -257,6 +257,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notificationBody => 'Stretch and walk around 🚶';
+
+  @override
+  String get notificationPausedTitle => 'Reminders paused';
+
+  @override
+  String get notificationPausedBody => 'Open the app to keep getting reminders';
 
   @override
   String get notificationSnooze => 'In 10 minutes';

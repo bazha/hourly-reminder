@@ -32,16 +32,18 @@ class MovementLocalDatasource {
     return DateTime.fromMillisecondsSinceEpoch(raw.toInt());
   }
 
+  // Both methods reload() first: the Android native pipeline
+  // (AlreadyMovedReceiver) and the iOS background action engine write events
+  // directly to storage, so this isolate's in-memory cache can be stale.
+  // Saving from a stale cache would overwrite their events.
   Future<void> saveEvent(MovementEventModel model) async {
+    await _prefs.reload();
     final existing = _prefs.getStringList(_eventsKey) ?? [];
     existing.add(jsonEncode(model.toJson()));
     await _prefs.setStringList(_eventsKey, existing);
   }
 
   Future<List<MovementEventModel>> getEvents() async {
-    // reload() is required: the Android native pipeline (AlreadyMovedReceiver)
-    // writes events directly to SharedPreferences while the Flutter engine may
-    // not be running, so the in-memory cache can be stale.
     await _prefs.reload();
     final raw = _prefs.getStringList(_eventsKey) ?? [];
     return raw

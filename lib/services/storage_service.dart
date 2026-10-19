@@ -3,6 +3,10 @@ import '../core/utils/time_utils.dart';
 import '../models/user_preferences.dart';
 
 class StorageService {
+  /// Keys read directly from SharedPreferences outside this class.
+  static const appLocaleKey = 'app_locale';
+  static const appThemeModeKey = 'app_theme_mode';
+
   final SharedPreferences _prefs;
 
   StorageService(this._prefs);
@@ -71,4 +75,7 @@ class StorageService {
     if (saved == null) return false;
     return saved == TimeUtils.formatDate(DateTime.now());
   }
+
+  /// Whether a reminder may be shown today: reminders on and no day off.
+  bool get remindersActiveToday => loadPreferences().isEnabled && !isDayOff;
 }

@@ -11,11 +11,11 @@
   "toggleSemanticsLabel": "Reminders",
 
   "remindersDisabled": "Reminders disabled",
+  "noReminderFits": "No reminder fits into your work hours",
   "nextReminderToday": "Next at {time}",
   "nextReminderTomorrow": "Next tomorrow at {time}",
   "nextReminderOnDay": "Next on {dayName} at {time}",
 
-  "todayLabel": "TODAY",
   "goalZeroMotivation": "Great time to start!",
   "goalProgressText": "of {goal} movements",
   "recordMovement": "Record movement",
@@ -91,6 +91,8 @@
 
   "notificationTitle": "Time to stand up! ⏰",
   "notificationBody": "Stretch and walk around 🚶",
+  "notificationPausedTitle": "Reminders paused",
+  "notificationPausedBody": "Open the app to keep getting reminders",
   "notificationSnooze": "In 10 minutes",
   "notificationAlreadyMoved": "Already moved",
 

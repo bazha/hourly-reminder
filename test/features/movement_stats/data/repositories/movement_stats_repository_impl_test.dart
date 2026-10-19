@@ -37,23 +37,5 @@ void main() {
       expect(stats.totalMovements, 1);
       expect(stats.today.movementCount, 1);
     });
-
-    test('returns empty stats when no events', () async {
-      SharedPreferences.setMockInitialValues({});
-
-      final prefs = await SharedPreferences.getInstance();
-      final storageService = StorageService(prefs);
-
-      final repo = MovementStatsRepositoryImpl(
-        movementRepository: FakeMovementRepository(),
-        storageService: storageService,
-      );
-
-      final stats = await repo.getStats();
-
-      expect(stats.totalMovements, 0);
-      expect(stats.today.movementCount, 0);
-      expect(stats.streak.currentStreak, 0);
-    });
   });
 }

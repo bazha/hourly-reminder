@@ -33,6 +33,9 @@ class AppLocalizationsBe extends AppLocalizations {
   String get remindersDisabled => 'Нагадванні выключаны';
 
   @override
+  String get noReminderFits => 'Нагадванні не змяшчаюцца ў працоўныя гадзіны';
+
+  @override
   String nextReminderToday(String time) {
     return 'Наступнае ў $time';
   }
@@ -46,9 +49,6 @@ class AppLocalizationsBe extends AppLocalizations {
   String nextReminderOnDay(String dayName, String time) {
     return 'Наступнае ў $dayName ў $time';
   }
-
-  @override
-  String get todayLabel => 'СЁННЯ';
 
   @override
   String get goalZeroMotivation => 'Самы час пачаць!';
@@ -259,6 +259,13 @@ class AppLocalizationsBe extends AppLocalizations {
 
   @override
   String get notificationBody => 'Пара размяцца і пахадзiць 🚶';
+
+  @override
+  String get notificationPausedTitle => 'Нагадванні на паўзе';
+
+  @override
+  String get notificationPausedBody =>
+      'Адкрыйце праграму, каб нагадванні працягваліся';
 
   @override
   String get notificationSnooze => 'Праз 10 хвілін';

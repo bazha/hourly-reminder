@@ -148,6 +148,12 @@ abstract class AppLocalizations {
   /// **'Напоминания выключены'**
   String get remindersDisabled;
 
+  /// No description provided for @noReminderFits.
+  ///
+  /// In ru, this message translates to:
+  /// **'Напоминания не помещаются в рабочие часы'**
+  String get noReminderFits;
+
   /// No description provided for @nextReminderToday.
   ///
   /// In ru, this message translates to:
@@ -165,12 +171,6 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Следующее в {dayName} в {time}'**
   String nextReminderOnDay(String dayName, String time);
-
-  /// No description provided for @todayLabel.
-  ///
-  /// In ru, this message translates to:
-  /// **'СЕГОДНЯ'**
-  String get todayLabel;
 
   /// No description provided for @goalZeroMotivation.
   ///
@@ -543,6 +543,18 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Пора размяться и походить 🚶'**
   String get notificationBody;
+
+  /// No description provided for @notificationPausedTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Напоминания на паузе'**
+  String get notificationPausedTitle;
+
+  /// No description provided for @notificationPausedBody.
+  ///
+  /// In ru, this message translates to:
+  /// **'Откройте приложение, чтобы напоминания продолжились'**
+  String get notificationPausedBody;
 
   /// No description provided for @notificationSnooze.
   ///

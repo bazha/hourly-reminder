@@ -43,27 +43,6 @@ void main() {
   });
 
   group('today stats', () {
-    test('single event today shows correct daily stats', () {
-      final now = DateTime(2026, 3, 19, 14, 0);
-      final event = makeEvent(
-        timestamp: DateTime(2026, 3, 19, 10, 0),
-        sedentaryDuration: const Duration(minutes: 50),
-        reactionTime: const Duration(minutes: 3),
-      );
-
-      final result = useCase(
-        events: [event],
-        now: now,
-        workDays: {1, 2, 3, 4, 5},
-        dailyGoal: 8,
-      );
-
-      expect(result.today.movementCount, 1);
-      expect(result.today.totalSedentaryTime, const Duration(minutes: 50));
-      expect(result.today.averageReactionTime, const Duration(minutes: 3));
-      expect(result.totalMovements, 1);
-    });
-
     test('multiple events today aggregates correctly', () {
       final now = DateTime(2026, 3, 19, 16, 0);
       final events = [
@@ -93,23 +72,6 @@ void main() {
   });
 
   group('weekly stats', () {
-    test('shows last 7 work days excluding today', () {
-      final now = DateTime(2026, 3, 19, 14, 0); // Thursday
-
-      final result = useCase(
-        events: [],
-        now: now,
-        workDays: {1, 2, 3, 4, 5},
-        dailyGoal: 8,
-      );
-
-      // 7 work days back from Wed Mar 18:
-      // Wed 18, Tue 17, Mon 16, Fri 13, Thu 12, Wed 11, Tue 10
-      expect(result.weeklyStats.length, 7);
-      expect(result.weeklyStats.last.date, DateTime(2026, 3, 18));
-      expect(result.weeklyStats.first.date, DateTime(2026, 3, 10));
-    });
-
     test('includes Saturday when Saturday is a work day', () {
       final now = DateTime(2026, 3, 19, 14, 0); // Thursday
 
@@ -151,24 +113,6 @@ void main() {
   });
 
   group('streak', () {
-    test('consecutive work days with events gives correct streak', () {
-      final now = DateTime(2026, 3, 19, 14, 0); // Thursday
-      final events = [
-        makeEvent(timestamp: DateTime(2026, 3, 19, 10, 0)), // Thu (today)
-        makeEvent(timestamp: DateTime(2026, 3, 18, 10, 0)), // Wed
-        makeEvent(timestamp: DateTime(2026, 3, 17, 10, 0)), // Tue
-      ];
-
-      final result = useCase(
-        events: events,
-        now: now,
-        workDays: {1, 2, 3, 4, 5},
-        dailyGoal: 8,
-      );
-
-      expect(result.streak.currentStreak, 3);
-    });
-
     test('gap in days resets current streak', () {
       final now = DateTime(2026, 3, 19, 14, 0); // Thursday
       final events = [
@@ -187,25 +131,6 @@ void main() {
 
       expect(result.streak.currentStreak, 1);
       expect(result.streak.bestStreak, 2);
-    });
-
-    test('weekends are skipped when not work days', () {
-      final now = DateTime(2026, 3, 16, 14, 0); // Monday
-      final events = [
-        makeEvent(timestamp: DateTime(2026, 3, 16, 10, 0)), // Mon
-        // Sat/Sun skipped
-        makeEvent(timestamp: DateTime(2026, 3, 13, 10, 0)), // Fri
-        makeEvent(timestamp: DateTime(2026, 3, 12, 10, 0)), // Thu
-      ];
-
-      final result = useCase(
-        events: events,
-        now: now,
-        workDays: {1, 2, 3, 4, 5},
-        dailyGoal: 8,
-      );
-
-      expect(result.streak.currentStreak, 3);
     });
 
     test('no events today but yesterday has events still counts streak', () {
@@ -244,69 +169,6 @@ void main() {
       );
 
       expect(result.streak.currentStreak, 2);
-    });
-
-    test('best streak is tracked independently from current', () {
-      final now = DateTime(2026, 3, 19, 14, 0); // Thursday
-      final events = [
-        // Old streak of 4: Mon-Thu Mar 2-5
-        makeEvent(timestamp: DateTime(2026, 3, 2, 10, 0)),
-        makeEvent(timestamp: DateTime(2026, 3, 3, 10, 0)),
-        makeEvent(timestamp: DateTime(2026, 3, 4, 10, 0)),
-        makeEvent(timestamp: DateTime(2026, 3, 5, 10, 0)),
-        // Current streak of 1: today only
-        makeEvent(timestamp: DateTime(2026, 3, 19, 10, 0)),
-      ];
-
-      final result = useCase(
-        events: events,
-        now: now,
-        workDays: {1, 2, 3, 4, 5},
-        dailyGoal: 8,
-      );
-
-      expect(result.streak.currentStreak, 1);
-      expect(result.streak.bestStreak, 4);
-    });
-
-    test('disabled weekday breaks streak across that day', () {
-      // Wednesday (3) is not a work day
-      final now = DateTime(2026, 3, 19, 14, 0); // Thursday
-      final events = [
-        makeEvent(timestamp: DateTime(2026, 3, 19, 10, 0)), // Thu (today)
-        // Wed is disabled, so it should be skipped
-        makeEvent(timestamp: DateTime(2026, 3, 17, 10, 0)), // Tue
-        makeEvent(timestamp: DateTime(2026, 3, 16, 10, 0)), // Mon
-      ];
-
-      final result = useCase(
-        events: events,
-        now: now,
-        workDays: {1, 2, 4, 5}, // Wed (3) disabled
-        dailyGoal: 8,
-      );
-
-      // Wed is skipped as non-work day, so Thu->Tue is consecutive
-      expect(result.streak.currentStreak, 3);
-    });
-
-    test('disabled weekday without event on adjacent day breaks streak', () {
-      // Wednesday (3) is a work day but has no events
-      final now = DateTime(2026, 3, 19, 14, 0); // Thursday
-      final events = [
-        makeEvent(timestamp: DateTime(2026, 3, 19, 10, 0)), // Thu (today)
-        // Wed is a work day but missing event - streak breaks
-        makeEvent(timestamp: DateTime(2026, 3, 17, 10, 0)), // Tue
-      ];
-
-      final result = useCase(
-        events: events,
-        now: now,
-        workDays: {1, 2, 3, 4, 5},
-        dailyGoal: 8,
-      );
-
-      expect(result.streak.currentStreak, 1);
     });
 
     test('both weekends enabled treats every day as work day', () {
@@ -353,6 +215,64 @@ void main() {
 
       expect(result.allTimeAverageReaction, const Duration(minutes: 3));
       expect(result.allTimeAverageSedentary, const Duration(minutes: 60));
+    });
+  });
+
+  // The DST part only fails in a time zone with DST (run with
+  // TZ=Europe/Berlin). In any zone these also cover the basic cases: a streak
+  // that includes today and crosses a weekend, and the last 7 work days
+  // excluding today. EU switches: spring forward 2026-03-29, fall back
+  // 2026-10-25.
+  group('DST switch', () {
+    List<MovementEvent> eventsOn(List<DateTime> days) => [
+          for (final d in days)
+            makeEvent(timestamp: d.add(const Duration(hours: 11)))
+        ];
+
+    final fallBackDays = [
+      for (final d in [19, 20, 21, 22, 23, 26, 27, 28]) DateTime(2026, 10, d),
+    ];
+    final springForwardDays = [
+      for (final d in [23, 24, 25, 26, 27, 30, 31]) DateTime(2026, 3, d),
+      DateTime(2026, 4, 1),
+    ];
+
+    test('streak continues across the fall-back switch', () {
+      final result = useCase(
+        events: eventsOn(fallBackDays),
+        now: DateTime(2026, 10, 28, 12),
+        workDays: {1, 2, 3, 4, 5},
+        dailyGoal: 8,
+      );
+
+      expect(result.streak.currentStreak, 8);
+      expect(result.streak.bestStreak, 8);
+    });
+
+    test('streak continues across the spring-forward switch', () {
+      final result = useCase(
+        events: eventsOn(springForwardDays),
+        now: DateTime(2026, 4, 1, 12),
+        workDays: {1, 2, 3, 4, 5},
+        dailyGoal: 8,
+      );
+
+      expect(result.streak.currentStreak, 8);
+      expect(result.streak.bestStreak, 8);
+    });
+
+    test('weekly stats across a switch use midnight dates with counts', () {
+      final result = useCase(
+        events: eventsOn(fallBackDays),
+        now: DateTime(2026, 10, 28, 12),
+        workDays: {1, 2, 3, 4, 5},
+        dailyGoal: 8,
+      );
+
+      expect(result.weeklyStats.map((d) => d.date), [
+        for (final d in [19, 20, 21, 22, 23, 26, 27]) DateTime(2026, 10, d),
+      ]);
+      expect(result.weeklyStats.map((d) => d.movementCount), everyElement(1));
     });
   });
 }

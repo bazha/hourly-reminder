@@ -98,13 +98,13 @@ class GetMovementStatsUseCase {
     // Guard: without this, the loop below spins forever.
     if (workDays.isEmpty) return [];
     final result = <DateTime>[];
-    var date = today.subtract(const Duration(days: 1));
+    var date = _previousDay(today);
     final maxIterations = count * 7; // at worst one work day per week
     for (var i = 0; i < maxIterations && result.length < count; i++) {
       if (workDays.contains(date.weekday)) {
         result.add(date);
       }
-      date = date.subtract(const Duration(days: 1));
+      date = _previousDay(date);
     }
     return result.reversed.toList();
   }
@@ -130,14 +130,14 @@ class GetMovementStatsUseCase {
     } else {
       // Today doesn't count yet, but don't break streak if today is a work day
       // that hasn't ended. Start checking from yesterday.
-      date = today.subtract(const Duration(days: 1));
+      date = _previousDay(today);
       // Skip non-work days (at most 7 to cycle a full week).
       for (var skip = 0; skip < 7 && !workDays.contains(date.weekday); skip++) {
-        date = date.subtract(const Duration(days: 1));
+        date = _previousDay(date);
       }
       if (byDate.containsKey(date) && (byDate[date]?.isNotEmpty ?? false)) {
         current = 1;
-        date = date.subtract(const Duration(days: 1));
+        date = _previousDay(date);
       } else {
         return StreakInfo(currentStreak: 0, bestStreak: best);
       }
@@ -147,16 +147,16 @@ class GetMovementStatsUseCase {
     // `today` here, so step back one day. When yesterday counted (else
     // branch), date was already advanced past today.
     if (date == today) {
-      date = today.subtract(const Duration(days: 1));
+      date = _previousDay(today);
     }
     for (var safety = 0; safety < 365; safety++) {
       // Skip non-work days (at most 7 to cycle a full week).
       for (var skip = 0; skip < 7 && !workDays.contains(date.weekday); skip++) {
-        date = date.subtract(const Duration(days: 1));
+        date = _previousDay(date);
       }
       if (byDate.containsKey(date) && (byDate[date]?.isNotEmpty ?? false)) {
         current++;
-        date = date.subtract(const Duration(days: 1));
+        date = _previousDay(date);
       } else {
         break;
       }
@@ -187,11 +187,11 @@ class GetMovementStatsUseCase {
         current = 1;
       } else {
         // Check if this date is the next work day after prevWorkDay
-        var expected = prevWorkDay.add(const Duration(days: 1));
+        var expected = _nextDay(prevWorkDay);
         for (var skip = 0;
             skip < 7 && !workDays.contains(expected.weekday);
             skip++) {
-          expected = expected.add(const Duration(days: 1));
+          expected = _nextDay(expected);
         }
         if (date == expected) {
           current++;
@@ -205,4 +205,11 @@ class GetMovementStatsUseCase {
 
     return best;
   }
+
+  // Calendar arithmetic, not Duration: on a DST switch day midnight +/- 24h
+  // lands on 23:00 or 01:00 and misses the midnight keys in byDate.
+  static DateTime _previousDay(DateTime d) =>
+      DateTime(d.year, d.month, d.day - 1);
+
+  static DateTime _nextDay(DateTime d) => DateTime(d.year, d.month, d.day + 1);
 }

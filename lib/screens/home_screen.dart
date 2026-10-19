@@ -12,6 +12,7 @@ import '../services/storage_service.dart';
 import '../services/notification_service.dart';
 import '../models/user_preferences.dart';
 import 'widgets/goal_ring_painter.dart';
+import 'widgets/settings_card.dart' show showNoReminderFitsWarning;
 import 'widgets/work_hours_card.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -146,12 +147,16 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           }
           return;
         }
+      }
+
+      // Save first: the iOS scheduler reads is_enabled from storage.
+      await widget.storageService.savePreferences(_prefs);
+
+      if (value) {
         await widget.alarmService.scheduleHourlyAlarm();
       } else {
         await widget.alarmService.cancelAlarm();
       }
-
-      await widget.storageService.savePreferences(_prefs);
     } finally {
       if (mounted) setState(() => _togglingReminders = false);
     }
@@ -164,9 +169,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       _isDayOff = newValue;
     });
     await widget.storageService.setDayOff(newValue ? today : null);
-    if (newValue) {
-      await widget.alarmService.cancelAlarm();
-    } else if (_prefs.isEnabled) {
+    // Reschedule instead of cancel: both pipelines skip the day-off date,
+    // and the reminder chain must survive until tomorrow.
+    if (_prefs.isEnabled) {
       await widget.alarmService.scheduleHourlyAlarm();
     }
   }
@@ -178,6 +183,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         ? _prefs.copyWith(startHour: hour, startMinute: minute)
         : _prefs.copyWith(endHour: hour, endMinute: minute);
     await _saveAndReschedule(updated);
+    if (!updated.hasReminderWindow && mounted) {
+      showNoReminderFitsWarning(context);
+    }
   }
 
   Future<void> _saveAndReschedule(UserPreferences updated) async {
@@ -442,6 +450,23 @@ class _NextReminderBanner extends StatelessWidget {
           Text(
             l10n.dayOffBanner,
             style: AppTypography.label.copyWith(color: colors.textSecondary),
+          ),
+        ],
+      );
+    }
+
+    // On, but silent: say why instead of "reminders disabled".
+    if (prefs.isEnabled && !prefs.hasReminderWindow) {
+      return Row(
+        children: [
+          const Icon(Icons.warning_amber_rounded,
+              size: 16, color: AppColors.endColor),
+          const SizedBox(width: 8),
+          Flexible(
+            child: Text(
+              l10n.noReminderFits,
+              style: AppTypography.label.copyWith(color: colors.textSecondary),
+            ),
           ),
         ],
       );
