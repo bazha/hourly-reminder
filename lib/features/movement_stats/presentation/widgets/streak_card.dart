@@ -30,34 +30,41 @@ class StreakCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildStreakRow(colors, l10n),
+            _StreakRow(streak: streak),
             const SizedBox(height: 16),
             Divider(height: 1, color: colors.divider),
             const SizedBox(height: 16),
-            _buildStatRow(l10n.totalMovements, '$totalMovements', colors),
+            _StatRow(label: l10n.totalMovements, value: '$totalMovements'),
             const SizedBox(height: 12),
             Divider(height: 1, color: colors.divider),
             const SizedBox(height: 12),
-            _buildStatRow(
-              l10n.avgReaction,
-              TimeUtils.formatDuration(allTimeAverageReaction, l10n),
-              colors,
+            _StatRow(
+              label: l10n.avgReaction,
+              value: TimeUtils.formatDuration(allTimeAverageReaction, l10n),
             ),
             const SizedBox(height: 12),
             Divider(height: 1, color: colors.divider),
             const SizedBox(height: 12),
-            _buildStatRow(
-              l10n.avgSedentary,
-              TimeUtils.formatDuration(allTimeAverageSedentary, l10n),
-              colors,
+            _StatRow(
+              label: l10n.avgSedentary,
+              value: TimeUtils.formatDuration(allTimeAverageSedentary, l10n),
             ),
           ],
         ),
       ),
     );
   }
+}
 
-  Widget _buildStreakRow(AppColors colors, AppLocalizations l10n) {
+class _StreakRow extends StatelessWidget {
+  final StreakInfo streak;
+
+  const _StreakRow({required this.streak});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
+    final l10n = AppLocalizations.of(context)!;
     return Row(
       children: [
         Expanded(
@@ -124,8 +131,17 @@ class StreakCard extends StatelessWidget {
       ],
     );
   }
+}
 
-  Widget _buildStatRow(String label, String value, AppColors colors) {
+class _StatRow extends StatelessWidget {
+  final String label;
+  final String value;
+
+  const _StatRow({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [

@@ -32,18 +32,16 @@ class AlarmService {
     final startMin = startHour * 60 + startMinute;
     final endMin = endHour * 60 + endMinute;
 
-    bool isDayValid(int weekday) => workDays.contains(weekday);
-
     // First notification of the day fires at workStart + interval.
     final firstMin = startMin + intervalMinutes;
 
-    if (isDayValid(now.weekday)) {
+    if (workDays.contains(now.weekday)) {
       if (nowMin < startMin) {
         if (firstMin <= endMin) {
           return DateTime(now.year, now.month, now.day)
               .add(Duration(minutes: firstMin));
         }
-        return DateTime(now.year, now.month, now.day, startHour, startMinute);
+        // Interval exceeds work window - no notification fits today.
       } else if (nowMin < firstMin && firstMin <= endMin) {
         return DateTime(now.year, now.month, now.day)
             .add(Duration(minutes: firstMin));
@@ -56,20 +54,21 @@ class AlarmService {
       }
     }
 
-    // Walk forward day by day until we find a valid work day.
+    // Walk forward day by day until we find a valid work day where
+    // the first notification fits within the work window.
     var candidate =
         DateTime(now.year, now.month, now.day).add(const Duration(days: 1));
-    while (true) {
-      if (isDayValid(candidate.weekday)) {
-        final candidateFirstMin = startMin + intervalMinutes;
-        if (candidateFirstMin <= endMin) {
+    for (var i = 0; i < 8; i++) {
+      if (workDays.contains(candidate.weekday)) {
+        if (firstMin <= endMin) {
           return DateTime(candidate.year, candidate.month, candidate.day)
-              .add(Duration(minutes: candidateFirstMin));
+              .add(Duration(minutes: firstMin));
         }
-        return DateTime(candidate.year, candidate.month, candidate.day,
-            startHour, startMinute);
       }
       candidate = candidate.add(const Duration(days: 1));
     }
+
+    // No valid notification time found (interval exceeds work window).
+    return null;
   }
 }

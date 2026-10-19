@@ -57,12 +57,6 @@ class AppTypography {
     height: 1.1,
   );
 
-  static const statNumber = TextStyle(
-    fontSize: 28,
-    fontWeight: FontWeight.w800,
-    height: 1.1,
-  );
-
   static const statSmall = TextStyle(
     fontSize: 36,
     fontWeight: FontWeight.w700,
@@ -73,11 +67,5 @@ class AppTypography {
     fontSize: 16,
     fontWeight: FontWeight.w600,
     height: 1.0,
-  );
-
-  static const clockLabel = TextStyle(
-    fontSize: 10,
-    fontWeight: FontWeight.w700,
-    letterSpacing: 1.0,
   );
 }

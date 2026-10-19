@@ -91,30 +91,36 @@ class NotificationService {
       id: _snoozeNotificationId,
       title: l10n.notificationTitle,
       body: l10n.notificationBody,
-      scheduledDate: tz.TZDateTime.now(tz.local).add(const Duration(minutes: 10)),
+      scheduledDate:
+          tz.TZDateTime.now(tz.local).add(const Duration(minutes: 10)),
       notificationDetails: const NotificationDetails(iOS: iosDetails),
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
     );
   }
 
   static Future<bool> requestPermissions() async {
-    // Request permissions for iOS
+    // iOS: requestPermissions returns whether the user granted access.
     final ios = _notifications.resolvePlatformSpecificImplementation<
         IOSFlutterLocalNotificationsPlugin>();
-    await ios?.requestPermissions(alert: true, badge: true, sound: true);
+    if (ios != null) {
+      final granted =
+          await ios.requestPermissions(alert: true, badge: true, sound: true);
+      return granted ?? true;
+    }
 
-    // Request permissions for Android 13+
+    // Android 13+
     final android = _notifications.resolvePlatformSpecificImplementation<
         AndroidFlutterLocalNotificationsPlugin>();
     final granted = await android?.requestNotificationsPermission();
-
     return granted ?? true;
   }
 
   static Future<void> showHourlyNotification() async {
+    final prefs = await SharedPreferences.getInstance();
+
     // Record when this notification was sent so the movement feature
     // can compute reaction time later.
-    await _recordNotificationSentTime();
+    await _recordNotificationSentTime(prefs);
 
     if (Platform.isAndroid) {
       // On Android, show notification natively (with snooze button handled
@@ -124,7 +130,7 @@ class NotificationService {
     }
 
     // iOS path: use flutter_local_notifications with "I already moved" action
-    final l10n = await _resolveLocalizations();
+    final l10n = await _resolveLocalizationsFrom(prefs);
 
     const iosDetails = DarwinNotificationDetails(
       presentAlert: true,
@@ -144,16 +150,21 @@ class NotificationService {
     );
   }
 
-  static Future<void> _recordNotificationSentTime() async {
-    final prefs = await SharedPreferences.getInstance();
+  static Future<void> _recordNotificationSentTime(
+      SharedPreferences prefs) async {
     final datasource = MovementLocalDatasource(prefs);
     await datasource.setLastNotificationSentTime(DateTime.now());
   }
 
-  /// Resolves AppLocalizations using the app_locale preference.
-  /// Falls back to system locale, then to Russian.
   static Future<AppLocalizations> _resolveLocalizations() async {
     final prefs = await SharedPreferences.getInstance();
+    return _resolveLocalizationsFrom(prefs);
+  }
+
+  /// Resolves AppLocalizations using the app_locale preference.
+  /// Falls back to system locale, then to Russian.
+  static Future<AppLocalizations> _resolveLocalizationsFrom(
+      SharedPreferences prefs) async {
     final appLocale = prefs.getString('app_locale');
     final locale = appLocale != null
         ? ui.Locale(appLocale)

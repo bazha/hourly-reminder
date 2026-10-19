@@ -13,7 +13,8 @@ class GetMovementStatsUseCase {
     // Group events by date
     final byDate = <DateTime, List<MovementEvent>>{};
     for (final e in events) {
-      final date = DateTime(e.timestamp.year, e.timestamp.month, e.timestamp.day);
+      final date =
+          DateTime(e.timestamp.year, e.timestamp.month, e.timestamp.day);
       byDate.putIfAbsent(date, () => []).add(e);
     }
 
@@ -43,16 +44,14 @@ class GetMovementStatsUseCase {
     final totalMovements = events.length;
     final allTimeAverageReaction = totalMovements > 0
         ? Duration(
-            milliseconds: events
-                    .map((e) => e.reactionTime.inMilliseconds)
-                    .reduce((a, b) => a + b) ~/
+            milliseconds: events.fold<int>(
+                    0, (sum, e) => sum + e.reactionTime.inMilliseconds) ~/
                 totalMovements)
         : Duration.zero;
     final allTimeAverageSedentary = totalMovements > 0
         ? Duration(
-            milliseconds: events
-                    .map((e) => e.sedentaryDuration.inMilliseconds)
-                    .reduce((a, b) => a + b) ~/
+            milliseconds: events.fold<int>(
+                    0, (sum, e) => sum + e.sedentaryDuration.inMilliseconds) ~/
                 totalMovements)
         : Duration.zero;
 
@@ -77,13 +76,11 @@ class GetMovementStatsUseCase {
       );
     }
 
-    final totalSedentary = events
-        .map((e) => e.sedentaryDuration.inMilliseconds)
-        .reduce((a, b) => a + b);
-    final avgReaction = events
-            .map((e) => e.reactionTime.inMilliseconds)
-            .reduce((a, b) => a + b) ~/
-        events.length;
+    final totalSedentary = events.fold<int>(
+        0, (sum, e) => sum + e.sedentaryDuration.inMilliseconds);
+    final avgReaction =
+        events.fold<int>(0, (sum, e) => sum + e.reactionTime.inMilliseconds) ~/
+            events.length;
 
     return DailyStats(
       date: date,
@@ -98,9 +95,12 @@ class GetMovementStatsUseCase {
     required int count,
     required Set<int> workDays,
   }) {
+    // Guard: without this, the loop below spins forever.
+    if (workDays.isEmpty) return [];
     final result = <DateTime>[];
     var date = today.subtract(const Duration(days: 1));
-    while (result.length < count) {
+    final maxIterations = count * 7; // at worst one work day per week
+    for (var i = 0; i < maxIterations && result.length < count; i++) {
       if (workDays.contains(date.weekday)) {
         result.add(date);
       }
@@ -114,40 +114,44 @@ class GetMovementStatsUseCase {
     required DateTime today,
     required Set<int> workDays,
   }) {
-    var current = 0;
-    var best = 0;
+    if (workDays.isEmpty) {
+      return StreakInfo(currentStreak: 0, bestStreak: 0);
+    }
 
-    // Check if today counts (has events)
+    final best = _findBestStreak(byDate: byDate, workDays: workDays);
+    var current = 0;
+
+    // Check if today counts (work day with events).
     var date = today;
-    if (byDate.containsKey(date) && (byDate[date]?.isNotEmpty ?? false)) {
+    if (workDays.contains(date.weekday) &&
+        byDate.containsKey(date) &&
+        (byDate[date]?.isNotEmpty ?? false)) {
       current = 1;
     } else {
       // Today doesn't count yet, but don't break streak if today is a work day
       // that hasn't ended. Start checking from yesterday.
       date = today.subtract(const Duration(days: 1));
-      // Skip non-work days
-      while (!workDays.contains(date.weekday)) {
+      // Skip non-work days (at most 7 to cycle a full week).
+      for (var skip = 0; skip < 7 && !workDays.contains(date.weekday); skip++) {
         date = date.subtract(const Duration(days: 1));
       }
       if (byDate.containsKey(date) && (byDate[date]?.isNotEmpty ?? false)) {
         current = 1;
         date = date.subtract(const Duration(days: 1));
       } else {
-        // No streak at all
-        return StreakInfo(currentStreak: 0, bestStreak: _findBestStreak(
-          byDate: byDate,
-          workDays: workDays,
-        ));
+        return StreakInfo(currentStreak: 0, bestStreak: best);
       }
     }
 
-    // Walk backward from the day before `date`
+    // Walk backward. When today counted (first branch above), date is still
+    // `today` here, so step back one day. When yesterday counted (else
+    // branch), date was already advanced past today.
     if (date == today) {
       date = today.subtract(const Duration(days: 1));
     }
-    while (true) {
-      // Skip non-work days
-      while (!workDays.contains(date.weekday)) {
+    for (var safety = 0; safety < 365; safety++) {
+      // Skip non-work days (at most 7 to cycle a full week).
+      for (var skip = 0; skip < 7 && !workDays.contains(date.weekday); skip++) {
         date = date.subtract(const Duration(days: 1));
       }
       if (byDate.containsKey(date) && (byDate[date]?.isNotEmpty ?? false)) {
@@ -158,13 +162,10 @@ class GetMovementStatsUseCase {
       }
     }
 
-    best = _findBestStreak(
-      byDate: byDate,
-      workDays: workDays,
+    return StreakInfo(
+      currentStreak: current,
+      bestStreak: current > best ? current : best,
     );
-    if (current > best) best = current;
-
-    return StreakInfo(currentStreak: current, bestStreak: best);
   }
 
   int _findBestStreak({
@@ -187,7 +188,9 @@ class GetMovementStatsUseCase {
       } else {
         // Check if this date is the next work day after prevWorkDay
         var expected = prevWorkDay.add(const Duration(days: 1));
-        while (!workDays.contains(expected.weekday)) {
+        for (var skip = 0;
+            skip < 7 && !workDays.contains(expected.weekday);
+            skip++) {
           expected = expected.add(const Duration(days: 1));
         }
         if (date == expected) {

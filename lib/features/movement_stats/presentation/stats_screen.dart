@@ -25,7 +25,7 @@ class StatsScreen extends StatefulWidget {
 class _StatsScreenState extends State<StatsScreen> {
   MovementStats? _stats;
   bool _isLoading = true;
-  String? _error;
+  bool _hasError = false;
 
   @override
   void initState() {
@@ -48,62 +48,82 @@ class _StatsScreenState extends State<StatsScreen> {
         setState(() {
           _stats = stats;
           _isLoading = false;
-          _error = null;
+          _hasError = false;
         });
       }
-    } catch (e) {
+    } catch (e, stack) {
+      debugPrint('StatsScreen: failed to load stats: $e\n$stack');
       if (mounted) {
         setState(() {
           _isLoading = false;
-          _error = 'stats_load_error';
+          _hasError = true;
         });
       }
     }
+  }
+
+  void _reload() {
+    setState(() {
+      _isLoading = true;
+      _hasError = false;
+    });
+    _loadStats();
   }
 
   @override
   Widget build(BuildContext context) {
-    final colors = AppColors.of(context);
-
-    return SafeArea(
-      child: _buildBody(colors),
-    );
-  }
-
-  Widget _buildBody(AppColors colors) {
-    final l10n = AppLocalizations.of(context)!;
     if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-    if (_error != null) {
-      return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(l10n.statsLoadError,
-                style: TextStyle(color: colors.textSecondary)),
-            const SizedBox(height: 12),
-            TextButton(
-              onPressed: () {
-                setState(() {
-                  _isLoading = true;
-                  _error = null;
-                });
-                _loadStats();
-              },
-              child: Text(l10n.retry),
-            ),
-          ],
-        ),
+      return const SafeArea(
+        child: Center(child: CircularProgressIndicator()),
       );
     }
-    return _buildContent(colors);
+    if (_hasError) {
+      return SafeArea(child: _StatsErrorView(onRetry: _reload));
+    }
+    return SafeArea(
+      child: _StatsContent(stats: _stats!, onRefresh: _loadStats),
+    );
   }
+}
 
-  Widget _buildContent(AppColors colors) {
-    final stats = _stats!;
+class _StatsErrorView extends StatelessWidget {
+  final VoidCallback onRetry;
+
+  const _StatsErrorView({required this.onRetry});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
+    final l10n = AppLocalizations.of(context)!;
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(l10n.statsLoadError,
+              style: TextStyle(color: colors.textSecondary)),
+          const SizedBox(height: 12),
+          TextButton(
+            onPressed: onRetry,
+            child: Text(l10n.retry),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _StatsContent extends StatelessWidget {
+  final MovementStats stats;
+  final Future<void> Function() onRefresh;
+
+  const _StatsContent({required this.stats, required this.onRefresh});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
+    final l10n = AppLocalizations.of(context)!;
     return RefreshIndicator(
-      onRefresh: _loadStats,
+      onRefresh: onRefresh,
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.all(24),
@@ -111,7 +131,7 @@ class _StatsScreenState extends State<StatsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              AppLocalizations.of(context)!.navStats,
+              l10n.navStats,
               style: AppTypography.heading.copyWith(color: colors.textPrimary),
             ),
             const SizedBox(height: 24),

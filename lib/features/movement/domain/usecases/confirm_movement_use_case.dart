@@ -25,6 +25,7 @@ class ConfirmMovementUseCase {
 
   Future<Duration> execute({
     MovementSource source = MovementSource.notification,
+    int baseIntervalMinutes = 60,
   }) async {
     final now = _now();
 
@@ -52,7 +53,11 @@ class ConfirmMovementUseCase {
 
     await _repository.saveEvent(event);
 
-    final nextInterval = IntervalCalculator.compute(reactionTime);
+    final nextInterval = IntervalCalculator.compute(
+      reactionTime,
+      baseIntervalMinutes: baseIntervalMinutes,
+      source: source,
+    );
 
     await _scheduleNext(nextInterval);
     await _repository.setSedentaryStartTime(now);

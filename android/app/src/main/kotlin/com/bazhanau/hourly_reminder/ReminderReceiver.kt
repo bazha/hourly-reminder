@@ -21,11 +21,11 @@ class ReminderReceiver : BroadcastReceiver() {
         // Check conditions from SharedPreferences
         val prefs = context.flutterPrefs
 
-        val isEnabled = prefs.getBoolean("flutter.is_enabled", false)
+        val isEnabled = prefs.getBoolean(PrefsKeys.IS_ENABLED, false)
         if (!isEnabled) return
 
         // Day-off check: skip if today matches the stored day-off date.
-        val dayOffDate = prefs.getString("flutter.day_off_date", null)
+        val dayOffDate = prefs.getString(PrefsKeys.DAY_OFF_DATE, null)
         if (dayOffDate != null) {
             val now = Calendar.getInstance()
             val today = String.format(
@@ -48,16 +48,14 @@ class ReminderReceiver : BroadcastReceiver() {
         if (nowMin < startMin || nowMin > endMin) return
 
         // First notification delay: skip the first interval of the work day.
-        val intervalMinutes = prefs.getFlutterInt("flutter.reminder_interval_minutes", DEFAULT_INTERVAL_MINUTES)
+        val intervalMinutes = prefs.getFlutterInt(PrefsKeys.REMINDER_INTERVAL, DEFAULT_INTERVAL_MINUTES)
         val firstNotifMin = startMin + intervalMinutes
         if (nowMin < firstNotifMin && firstNotifMin <= endMin) {
             // Only schedule the settling alarm if no notification was sent today yet
-            val lastNotifiedMillis = prefs.getLong("flutter.last_notified_millis", 0L)
+            val lastNotifiedMillis = prefs.getLong(PrefsKeys.LAST_NOTIFIED_MILLIS, 0L)
             val sentToday = if (lastNotifiedMillis > 0) {
                 val lastNotified = Calendar.getInstance().apply { timeInMillis = lastNotifiedMillis }
-                lastNotified.get(Calendar.YEAR) == now.get(Calendar.YEAR) &&
-                    lastNotified.get(Calendar.MONTH) == now.get(Calendar.MONTH) &&
-                    lastNotified.get(Calendar.DAY_OF_MONTH) == now.get(Calendar.DAY_OF_MONTH)
+                lastNotified.isSameDay(now)
             } else false
 
             if (!sentToday) {
@@ -68,7 +66,7 @@ class ReminderReceiver : BroadcastReceiver() {
 
         // Deduplication: suppress if last notification was less than half the interval ago
         val dedupeThresholdMs = intervalMinutes * 60 * 1000L / 2
-        val lastNotifiedMillis = prefs.getLong("flutter.last_notified_millis", 0L)
+        val lastNotifiedMillis = prefs.getLong(PrefsKeys.LAST_NOTIFIED_MILLIS, 0L)
         if (lastNotifiedMillis > 0) {
             val elapsed = now.timeInMillis - lastNotifiedMillis
             if (elapsed < dedupeThresholdMs) {
@@ -77,7 +75,7 @@ class ReminderReceiver : BroadcastReceiver() {
         }
 
         // Record notification sent
-        prefs.edit().putLong("flutter.last_notified_millis", now.timeInMillis).apply()
+        prefs.edit().putLong(PrefsKeys.LAST_NOTIFIED_MILLIS, now.timeInMillis).apply()
 
         // Show notification
         NotificationHelper.showReminder(context)
@@ -89,10 +87,7 @@ class ReminderReceiver : BroadcastReceiver() {
             set(Calendar.YEAR, now.get(Calendar.YEAR))
             set(Calendar.MONTH, now.get(Calendar.MONTH))
             set(Calendar.DAY_OF_MONTH, now.get(Calendar.DAY_OF_MONTH))
-            set(Calendar.HOUR_OF_DAY, targetMin / 60)
-            set(Calendar.MINUTE, targetMin % 60)
-            set(Calendar.SECOND, 0)
-            set(Calendar.MILLISECOND, 0)
+            setTimeFromMinutes(targetMin)
         }
 
         val intent = Intent(context, ReminderReceiver::class.java).apply {

@@ -20,7 +20,7 @@ class MovementStatsRepositoryImpl implements MovementStatsRepository {
   @override
   Future<MovementStats> getStats() async {
     final events = await _movementRepository.getEvents();
-    final prefs = await _storageService.loadPreferences();
+    final prefs = _storageService.loadPreferences();
 
     return _useCase(
       events: events,

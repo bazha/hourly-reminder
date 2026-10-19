@@ -21,11 +21,24 @@ class AlreadyMovedReceiver : BroadcastReceiver() {
 
         val prefs = context.flutterPrefs
 
+        // Day-off check: skip scheduling if today is a day off.
+        val dayOffDate = prefs.getString(PrefsKeys.DAY_OFF_DATE, null)
+        if (dayOffDate != null) {
+            val cal = java.util.Calendar.getInstance()
+            val today = String.format(
+                "%04d-%02d-%02d",
+                cal.get(java.util.Calendar.YEAR),
+                cal.get(java.util.Calendar.MONTH) + 1,
+                cal.get(java.util.Calendar.DAY_OF_MONTH)
+            )
+            if (dayOffDate == today) return
+        }
+
         val now = System.currentTimeMillis()
 
         // Compute reaction time
         val notificationSentMillis = prefs.getLong(
-            "flutter.movement_last_notification_sent_millis", 0L
+            PrefsKeys.LAST_NOTIFICATION_SENT_MILLIS, 0L
         )
         val reactionTimeMs = if (notificationSentMillis > 0) {
             now - notificationSentMillis
@@ -34,8 +47,8 @@ class AlreadyMovedReceiver : BroadcastReceiver() {
         }
 
         // Read base interval from preferences
-        val baseIntervalMinutes = prefs.getLong(
-            "flutter.reminder_interval_minutes", DEFAULT_INTERVAL_MINUTES.toLong()).toInt()
+        val baseIntervalMinutes = prefs.getFlutterInt(
+            PrefsKeys.REMINDER_INTERVAL, DEFAULT_INTERVAL_MINUTES)
 
 
         // Proportional adaptive rule (matches IntervalCalculator in Dart)
@@ -47,7 +60,7 @@ class AlreadyMovedReceiver : BroadcastReceiver() {
 
         // Compute sedentary duration
         val sedentaryStartMillis = prefs.getLong(
-            "flutter.movement_sedentary_start_millis", 0L
+            PrefsKeys.SEDENTARY_START_MILLIS, 0L
         )
         val sedentaryDurationMs = if (sedentaryStartMillis > 0) {
             now - sedentaryStartMillis
@@ -63,11 +76,11 @@ class AlreadyMovedReceiver : BroadcastReceiver() {
             put("reactionTimeMillis", reactionTimeMs)
             put("source", "notification")
         }
-        prefs.appendToFlutterStringList("flutter.movement_events", event.toString())
+        prefs.appendToFlutterStringList(PrefsKeys.MOVEMENT_EVENTS, event.toString())
 
         // Record sedentary start time = now
         prefs.edit()
-            .putLong("flutter.movement_sedentary_start_millis", now)
+            .putLong(PrefsKeys.SEDENTARY_START_MILLIS, now)
             .apply()
 
         // Schedule next reminder after the computed interval,
@@ -79,14 +92,14 @@ class AlreadyMovedReceiver : BroadcastReceiver() {
         cal.timeInMillis = triggerAt
         val triggerMin = cal.get(java.util.Calendar.HOUR_OF_DAY) * 60 + cal.get(java.util.Calendar.MINUTE)
         if (triggerMin in wh.startMin..wh.endMin) {
-            scheduleNextReminder(context, nextIntervalMs)
+            scheduleNextReminder(context, triggerAt)
         } else {
             // Adaptive interval lands outside work hours. Let scheduler find next valid time.
             ReminderScheduler.scheduleNextHourlyAlarm(context)
         }
     }
 
-    private fun scheduleNextReminder(context: Context, delayMs: Long) {
+    private fun scheduleNextReminder(context: Context, triggerAtMillis: Long) {
         val alarmManager = context.alarmManager
         val intent = Intent(context, ReminderReceiver::class.java).apply {
             action = ReminderReceiver.ACTION_HOURLY_REMINDER
@@ -100,7 +113,7 @@ class AlreadyMovedReceiver : BroadcastReceiver() {
 
         alarmManager.scheduleExact(
             AlarmManager.RTC_WAKEUP,
-            System.currentTimeMillis() + delayMs,
+            triggerAtMillis,
             pendingIntent
         )
     }

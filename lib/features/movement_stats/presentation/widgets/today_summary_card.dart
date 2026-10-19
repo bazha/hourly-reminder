@@ -30,7 +30,6 @@ class TodaySummaryCard extends StatelessWidget {
             label: l10n.metricMovements,
             value: '${today.movementCount}/$dailyGoal',
             accentColor: goalMet ? AppColors.primary : colors.accent,
-            colors: colors,
           ),
         ),
         const SizedBox(width: 8),
@@ -40,7 +39,6 @@ class TodaySummaryCard extends StatelessWidget {
             label: l10n.metricSedentary,
             value: TimeUtils.formatDuration(today.totalSedentaryTime, l10n),
             accentColor: AppColors.endColor,
-            colors: colors,
           ),
         ),
         const SizedBox(width: 8),
@@ -50,7 +48,6 @@ class TodaySummaryCard extends StatelessWidget {
             label: l10n.metricReaction,
             value: TimeUtils.formatDuration(today.averageReactionTime, l10n),
             accentColor: colors.accent,
-            colors: colors,
           ),
         ),
       ],
@@ -63,18 +60,17 @@ class _MetricCard extends StatelessWidget {
   final String label;
   final String value;
   final Color accentColor;
-  final AppColors colors;
 
   const _MetricCard({
     required this.icon,
     required this.label,
     required this.value,
     required this.accentColor,
-    required this.colors,
   });
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
     return Semantics(
       label: '$label $value',
       child: Container(

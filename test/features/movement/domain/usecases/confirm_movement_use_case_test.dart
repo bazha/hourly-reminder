@@ -106,5 +106,22 @@ void main() {
 
       expect(repository.savedEvent!.sedentaryDuration, Duration.zero);
     });
+
+    test('manual source sets reactionTime to zero and returns base interval',
+        () async {
+      final now = DateTime(2026, 3, 16, 10, 5);
+      repository.lastNotificationSentTime = DateTime(2026, 3, 16, 10, 0);
+      repository.sedentaryStartTime = DateTime(2026, 3, 16, 9, 0);
+
+      final useCase = createUseCase(now: now);
+      final result = await useCase.execute(
+        source: MovementSource.manual,
+        baseIntervalMinutes: 60,
+      );
+
+      expect(result, const Duration(minutes: 60));
+      expect(repository.savedEvent!.reactionTime, Duration.zero);
+      expect(repository.savedEvent!.source, MovementSource.manual);
+    });
   });
 }

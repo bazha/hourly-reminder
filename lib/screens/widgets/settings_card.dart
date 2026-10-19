@@ -132,7 +132,6 @@ void showWorkDaysSheet(
                 await onWorkDayChanged(weekday, v);
                 if (ctx.mounted) Navigator.pop(ctx);
               },
-              colors: colors,
             ),
         ],
       ),
@@ -158,7 +157,6 @@ void showIntervalSheet(
       minLabel: l10n.intervalSliderMin,
       maxLabel: l10n.intervalSliderMax,
       onChanged: onIntervalChanged,
-      colors: AppColors.of(context),
     ),
   );
 }
@@ -181,7 +179,6 @@ void showGoalSheet(
       minLabel: '1',
       maxLabel: '15',
       onChanged: onGoalChanged,
-      colors: AppColors.of(context),
     ),
   );
 }
@@ -250,7 +247,6 @@ class SettingsRow extends StatelessWidget {
   final IconData icon;
   final String label;
   final String? value;
-  final AppColors colors;
   final VoidCallback? onTap;
   final bool showChevron;
   final IconData? trailingIcon;
@@ -260,7 +256,6 @@ class SettingsRow extends StatelessWidget {
     required this.icon,
     required this.label,
     this.value,
-    required this.colors,
     this.onTap,
     this.showChevron = true,
     this.trailingIcon,
@@ -268,6 +263,7 @@ class SettingsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
     return InkWell(
       onTap: onTap,
       child: SizedBox(
@@ -304,17 +300,16 @@ class _SheetToggleRow extends StatelessWidget {
   final String label;
   final bool value;
   final ValueChanged<bool> onChanged;
-  final AppColors colors;
 
   const _SheetToggleRow({
     required this.label,
     required this.value,
     required this.onChanged,
-    required this.colors,
   });
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -343,7 +338,6 @@ class SliderPicker extends StatefulWidget {
   final String minLabel;
   final String maxLabel;
   final ValueChanged<int> onChanged;
-  final AppColors colors;
 
   const SliderPicker({
     super.key,
@@ -356,7 +350,6 @@ class SliderPicker extends StatefulWidget {
     required this.minLabel,
     required this.maxLabel,
     required this.onChanged,
-    required this.colors,
   });
 
   @override
@@ -374,6 +367,7 @@ class _SliderPickerState extends State<SliderPicker> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
     final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 24, 24, 40),
@@ -384,7 +378,7 @@ class _SliderPickerState extends State<SliderPicker> {
           Text(
             widget.title,
             style: AppTypography.cardTitle.copyWith(
-              color: widget.colors.textPrimary,
+              color: colors.textPrimary,
             ),
           ),
           const SizedBox(height: 8),
@@ -403,17 +397,15 @@ class _SliderPickerState extends State<SliderPicker> {
             label: widget.formatValue(_value.round()),
             onChanged: (v) => setState(() => _value = v),
             activeColor: AppColors.primary,
-            inactiveColor: widget.colors.sliderInactiveTrack,
+            inactiveColor: colors.sliderInactiveTrack,
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(widget.minLabel,
-                  style: AppTypography.label
-                      .copyWith(color: widget.colors.textMuted)),
+                  style: AppTypography.label.copyWith(color: colors.textMuted)),
               Text(widget.maxLabel,
-                  style: AppTypography.label
-                      .copyWith(color: widget.colors.textMuted)),
+                  style: AppTypography.label.copyWith(color: colors.textMuted)),
             ],
           ),
           const SizedBox(height: 16),

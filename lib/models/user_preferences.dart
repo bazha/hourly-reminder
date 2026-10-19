@@ -87,9 +87,9 @@ class UserPreferences {
   }
 
   Set<int> get workDaySet => {
-    for (int d = 1; d <= 7; d++)
-      if (isWorkDay(d)) d,
-  };
+        for (int d = 1; d <= 7; d++)
+          if (isWorkDay(d)) d,
+      };
 
   /// Formats active work days as compact ranges (e.g. "Mon-Fri" or "Mon-Fri, Sun").
   String formatWorkDays(List<String> dayNames) {
@@ -150,8 +150,19 @@ class UserPreferences {
 
   @override
   int get hashCode => Object.hash(
-      isEnabled, startHour, startMinute, endHour, endMinute,
-      workOnMonday, workOnTuesday, workOnWednesday, workOnThursday,
-      workOnFriday, workOnSaturday, workOnSunday,
-      notificationGender, dailyGoal, reminderIntervalMinutes);
+      isEnabled,
+      startHour,
+      startMinute,
+      endHour,
+      endMinute,
+      workOnMonday,
+      workOnTuesday,
+      workOnWednesday,
+      workOnThursday,
+      workOnFriday,
+      workOnSaturday,
+      workOnSunday,
+      notificationGender,
+      dailyGoal,
+      reminderIntervalMinutes);
 }

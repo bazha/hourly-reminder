@@ -19,7 +19,7 @@ object NotificationHelper {
      */
     fun localizedContext(context: Context): Context {
         val prefs = context.flutterPrefs
-        val appLocale = prefs.getString("flutter.app_locale", null) ?: return context
+        val appLocale = prefs.getString(PrefsKeys.APP_LOCALE, null) ?: return context
         val locale = Locale(appLocale)
         val config = android.content.res.Configuration(context.resources.configuration)
         config.setLocale(locale)
@@ -54,11 +54,11 @@ object NotificationHelper {
         // This prevents stale overnight duration from showing.
         if (isFirst) {
             prefs.edit()
-                .putLong("flutter.movement_sedentary_start_millis", System.currentTimeMillis())
+                .putLong(PrefsKeys.SEDENTARY_START_MILLIS, System.currentTimeMillis())
                 .apply()
         }
 
-        val startMillis = prefs.getLong("flutter.movement_sedentary_start_millis", 0L)
+        val startMillis = prefs.getLong(PrefsKeys.SEDENTARY_START_MILLIS, 0L)
         val minutes = if (startMillis > 0L) {
             (System.currentTimeMillis() - startMillis) / 60_000L
         } else 0L
@@ -66,7 +66,7 @@ object NotificationHelper {
         val contentTitle = ExerciseRepository.buildTitle(lc, prefs, minutes)
 
         val snoozePendingIntent = PendingIntent.getBroadcast(
-            context, 0,
+            context, RequestCodes.NOTIF_SNOOZE,
             Intent(context, SnoozeReceiver::class.java).apply {
                 action = SnoozeReceiver.ACTION_SNOOZE
             },
@@ -74,7 +74,7 @@ object NotificationHelper {
         )
 
         val alreadyMovedPendingIntent = PendingIntent.getBroadcast(
-            context, 1,
+            context, RequestCodes.NOTIF_ALREADY_MOVED,
             Intent(context, AlreadyMovedReceiver::class.java).apply {
                 action = AlreadyMovedReceiver.ACTION_ALREADY_MOVED
             },
@@ -82,7 +82,7 @@ object NotificationHelper {
         )
 
         val openAppPendingIntent = PendingIntent.getActivity(
-            context, 2,
+            context, RequestCodes.NOTIF_OPEN_APP,
             Intent(context, MainActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
                 putExtra("open_stats", true)
@@ -91,7 +91,7 @@ object NotificationHelper {
         )
 
         val dismissPendingIntent = PendingIntent.getBroadcast(
-            context, 3,
+            context, RequestCodes.NOTIF_DISMISS,
             Intent(context, NotificationDismissReceiver::class.java).apply {
                 action = NotificationDismissReceiver.ACTION_DISMISS
             },
@@ -126,20 +126,19 @@ object NotificationHelper {
             )
         }
 
-        // Record sent time for reaction time calculation
+        // Record sent time for reaction time calculation in Dart.
+        // NOTE: ReminderReceiver also writes flutter.last_notified_millis for
+        // deduplication. Both keys record notification time but serve different
+        // purposes. Keep them in sync when changing notification timing logic.
         prefs.edit()
             .putLong(
-                "flutter.movement_last_notification_sent_millis",
+                PrefsKeys.LAST_NOTIFICATION_SENT_MILLIS,
                 System.currentTimeMillis()
             )
             .apply()
 
         // Record notification shown AFTER checking isFirst
         ExerciseRepository.recordNotificationShown(prefs)
-
-        // Cancel existing notification so Android treats the new one as fresh
-        // (full sound, vibration, heads-up) instead of silently replacing it.
-        cancel(context)
 
         val nm = context.notificationManager
         nm.notify(NOTIFICATION_ID, builder.build())

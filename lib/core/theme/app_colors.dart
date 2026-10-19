@@ -41,9 +41,6 @@ class AppColors extends ThemeExtension<AppColors> {
   final Color pickerInputBg;
   final Color pickerText;
 
-  // --- Button ---
-  final Color buttonTextColor;
-
   // --- Navigation bar ---
   final Color navBarBg;
   final Color navBarSelected;
@@ -86,7 +83,6 @@ class AppColors extends ThemeExtension<AppColors> {
     required this.pickerBg,
     required this.pickerInputBg,
     required this.pickerText,
-    required this.buttonTextColor,
     required this.navBarBg,
     required this.navBarSelected,
     required this.navBarUnselected,
@@ -124,7 +120,6 @@ class AppColors extends ThemeExtension<AppColors> {
     pickerBg: Color(0xFF2C2825),
     pickerInputBg: Color(0x26E09040),
     pickerText: Color(0xFFEBEAE8),
-    buttonTextColor: Colors.white,
     navBarBg: Color(0xFF1B1714),
     navBarSelected: Color(0xFFE09040),
     navBarUnselected: Color(0x60EBEAE8),
@@ -162,7 +157,6 @@ class AppColors extends ThemeExtension<AppColors> {
     pickerBg: Color(0xFFF5F0E8),
     pickerInputBg: Color(0x1ACC7A2E),
     pickerText: Color(0xFF2C2620),
-    buttonTextColor: Colors.white,
     navBarBg: Color(0xFFFFFFFF),
     navBarSelected: Color(0xFFCC7A2E),
     navBarUnselected: Color(0xFF8A8078),
@@ -181,10 +175,8 @@ class AppColors extends ThemeExtension<AppColors> {
   bool get isDark => identical(this, dark) || bg == dark.bg;
 
   // --- Shared accent colours (same in both themes) ---
-  static const primary = Color(0xFFE09040);   // Warm amber
-  static const startColor = Color(0xFFE09040); // Start time accent
-  static const endColor = Color(0xFFC74B4B);   // Muted red
-  static const nowColor = Color(0xFFF0D9B5);   // Warm cream
+  static const primary = Color(0xFFE09040); // Warm amber
+  static const endColor = Color(0xFFC74B4B); // Muted red
 
   // --- ThemeExtension overrides ---
 
@@ -215,7 +207,6 @@ class AppColors extends ThemeExtension<AppColors> {
     Color? pickerBg,
     Color? pickerInputBg,
     Color? pickerText,
-    Color? buttonTextColor,
     Color? navBarBg,
     Color? navBarSelected,
     Color? navBarUnselected,
@@ -251,7 +242,6 @@ class AppColors extends ThemeExtension<AppColors> {
       pickerBg: pickerBg ?? this.pickerBg,
       pickerInputBg: pickerInputBg ?? this.pickerInputBg,
       pickerText: pickerText ?? this.pickerText,
-      buttonTextColor: buttonTextColor ?? this.buttonTextColor,
       navBarBg: navBarBg ?? this.navBarBg,
       navBarSelected: navBarSelected ?? this.navBarSelected,
       navBarUnselected: navBarUnselected ?? this.navBarUnselected,
@@ -295,7 +285,6 @@ class AppColors extends ThemeExtension<AppColors> {
       pickerBg: Color.lerp(pickerBg, other.pickerBg, t)!,
       pickerInputBg: Color.lerp(pickerInputBg, other.pickerInputBg, t)!,
       pickerText: Color.lerp(pickerText, other.pickerText, t)!,
-      buttonTextColor: Color.lerp(buttonTextColor, other.buttonTextColor, t)!,
       navBarBg: Color.lerp(navBarBg, other.navBarBg, t)!,
       navBarSelected: Color.lerp(navBarSelected, other.navBarSelected, t)!,
       navBarUnselected:
@@ -309,10 +298,12 @@ class AppColors extends ThemeExtension<AppColors> {
     );
   }
 
+  // Coarse equality: only two compile-time constants exist (light / dark).
+  // copyWith is used only for lerp during theme transitions and is never
+  // persisted or compared.
   @override
   bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is AppColors && other.isDark == isDark);
+      identical(this, other) || (other is AppColors && other.isDark == isDark);
 
   @override
   int get hashCode => isDark.hashCode;

@@ -12,9 +12,11 @@ class NotificationDismissReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action != ACTION_DISMISS) return
 
+        // Reset sedentary start on dismiss to avoid stale overnight durations
+        // accumulating. This does NOT record a movement event.
         val prefs = context.flutterPrefs
         prefs.edit()
-            .putLong("flutter.movement_sedentary_start_millis", System.currentTimeMillis())
+            .putLong(PrefsKeys.SEDENTARY_START_MILLIS, System.currentTimeMillis())
             .apply()
     }
 }

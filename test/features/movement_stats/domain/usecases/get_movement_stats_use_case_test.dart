@@ -140,10 +140,10 @@ void main() {
         dailyGoal: 8,
       );
 
-      final wed18 = result.weeklyStats
-          .firstWhere((s) => s.date == DateTime(2026, 3, 18));
-      final tue17 = result.weeklyStats
-          .firstWhere((s) => s.date == DateTime(2026, 3, 17));
+      final wed18 =
+          result.weeklyStats.firstWhere((s) => s.date == DateTime(2026, 3, 18));
+      final tue17 =
+          result.weeklyStats.firstWhere((s) => s.date == DateTime(2026, 3, 17));
 
       expect(wed18.movementCount, 2);
       expect(tue17.movementCount, 1);
@@ -209,7 +209,8 @@ void main() {
     });
 
     test('no events today but yesterday has events still counts streak', () {
-      final now = DateTime(2026, 3, 19, 8, 0); // Thursday morning, no events yet
+      final now =
+          DateTime(2026, 3, 19, 8, 0); // Thursday morning, no events yet
       final events = [
         makeEvent(timestamp: DateTime(2026, 3, 18, 10, 0)), // Wed
         makeEvent(timestamp: DateTime(2026, 3, 17, 10, 0)), // Tue

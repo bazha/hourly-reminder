@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:hourly_reminder/features/movement/domain/entities/movement_event.dart';
 import 'package:hourly_reminder/features/movement/domain/usecases/interval_calculator.dart';
 
 void main() {
@@ -63,6 +64,26 @@ void main() {
       expect(
         IntervalCalculator.compute(Duration.zero, baseIntervalMinutes: 15),
         const Duration(minutes: 10),
+      );
+    });
+
+    test('returns full base interval for manual movement', () {
+      expect(
+        IntervalCalculator.compute(
+          Duration.zero,
+          baseIntervalMinutes: 60,
+          source: MovementSource.manual,
+        ),
+        const Duration(minutes: 60),
+      );
+      // Fast reaction should not compress interval for manual source
+      expect(
+        IntervalCalculator.compute(
+          const Duration(seconds: 30),
+          baseIntervalMinutes: 30,
+          source: MovementSource.manual,
+        ),
+        const Duration(minutes: 30),
       );
     });
   });
